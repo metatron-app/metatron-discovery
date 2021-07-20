@@ -47,7 +47,7 @@
 
     <!-- 차원값 필터 -->
     <div *ngIf="filter.type === 'include'" [ngStyle]="{ 'top' : isShowTitle ? '38px' : '0px' }"
-         class="ddp-ui-widget-contents" >
+         class="ddp-ui-widget-contents">
       <!-- 단일 선택 콤보 박스 -->
       <component-filter-select *ngIf="convertToIncludeFilter(filter).selector === inclusionSelectorType.SINGLE_COMBO
                                             || convertToIncludeFilter(filter).selector === inclusionSelectorType.MULTI_COMBO"
@@ -137,7 +137,7 @@
     <div *ngIf="isTimeFilter" [ngStyle]="{
       'top' : ( isShowTitle ? ( ( isRelativeTypeTimeFilter ) ? '47px' : '39px' ) : '0px' ),
       'padding-top' : ( ( isListTypeTimeFilter || isDiscontinuousFilter ) ? '0px' : '' )
-    }" class="ddp-ui-widget-contents" >
+    }" class="ddp-ui-widget-contents wrap-time-filter" >
 
 <!--
       <div class="ddp-toggle">
@@ -169,6 +169,14 @@
         [mode]="'WIDGET'" [filter]="filter" [dashboard]="widget.dashBoard"
         (changeEvent)="changeFilterEvent($event)">
       </app-time-range-filter>
+      <!-- // Range Time Filter -->
+
+      <!-- Range Time Filter -->
+      <app-time-date-filter
+        *ngIf="isSingleTypeTimeFilter"
+        [mode]="'WIDGET'" [filter]="filter" [dashboard]="widget.dashBoard"
+        (changeEvent)="changeFilterEvent($event)">
+      </app-time-date-filter>
       <!-- // Range Time Filter -->
 
       <!-- List Time Filter -->

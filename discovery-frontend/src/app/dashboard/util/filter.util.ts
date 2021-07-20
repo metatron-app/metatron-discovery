@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+import * as _ from 'lodash';
 import {CommonUtil} from '@common/util/common.util';
 import {
   IntervalFilter,
@@ -46,7 +46,7 @@ import {TimeRelativeFilter, TimeRelativeTense} from '@domain/workbook/configurat
 
 import {TimezoneService} from '../../data-storage/service/timezone.service';
 import {DashboardUtil} from './dashboard.util';
-import * as _ from 'lodash';
+import {TimeDateFilter} from '@domain/workbook/configurations/filter/time-date-filter';
 
 declare let moment;
 
@@ -106,15 +106,25 @@ export class FilterUtil {
         if (intervals && 0 < intervals.length) {
           filter['panelContents'] = intervals.map(item => {
             const arrInterval: any[] = item.split('/');
-
             if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[0] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[0]) {
               arrInterval[0] = FilterUtil.getDateTimeFormat(arrInterval[0], timeRangeFilter.timeUnit, true);
             }
             if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[1] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[1]) {
               arrInterval[1] = FilterUtil.getDateTimeFormat(arrInterval[1], timeRangeFilter.timeUnit, false);
             }
-
             return arrInterval[0] + '/' + arrInterval[1];
+          });
+          filter['panelContents'] = filter['panelContents'].join('<br>');
+        } else {
+          filter['panelContents'] = '(No time filtering)';
+        }
+      } else if (FilterUtil.isTimeSingleFilter(filter)) {
+        const timeRangeFilter: TimeRangeFilter = filter as TimeRangeFilter;
+        const intervals: string[] = timeRangeFilter.intervals;
+        if (intervals && 0 < intervals.length) {
+          filter['panelContents'] = intervals.map(item => {
+            const arrInterval: any[] = item.split('/');
+            return arrInterval[0];
           });
           filter['panelContents'] = filter['panelContents'].join('<br>');
         } else {
@@ -311,7 +321,7 @@ export class FilterUtil {
   public static convertToServerSpec(filter: Filter): Filter {
 
     // Time Range 필터의 타임 형식 설정
-    if (FilterUtil.isTimeRangeFilter(filter)) {
+    if (FilterUtil.isTimeRangeFilter(filter) || FilterUtil.isTimeSingleFilter(filter)) {
       const timeRangeFilter: TimeRangeFilter = filter as TimeRangeFilter;
       if (timeRangeFilter.intervals && 0 < timeRangeFilter.intervals.length) {
         timeRangeFilter.intervals.forEach((item: string, idx: number) => {
@@ -328,6 +338,36 @@ export class FilterUtil {
         });
         // 서버에서 quarter 에 대한 필터링을 제공하지 않기 때문에 강제적으로 Month로 변경함 ( Selection 필터를 위함 )
         (TimeUnit.QUARTER === timeRangeFilter.timeUnit) && (timeRangeFilter.timeUnit = TimeUnit.MONTH);
+
+        if(FilterUtil.isTimeSingleFilter(timeRangeFilter)) {
+          filter.type = 'time_range'; // 차트 정보 조회 시 필터를 range로 변경하기 임시로 타입을 변경함
+          // (filter as TimeRangeFilter).intervals.forEach((item: string, idx: number) => {
+          //   const arrInterval: any[] = item.split('/');
+          //   let arrEndTime;
+          //   switch (timeRangeFilter.timeUnit) {
+          //     case TimeUnit.SECOND:
+          //       break;
+          //     case TimeUnit.MINUTE:
+          //       break;
+          //     case TimeUnit.HOUR:
+          //       break;
+          //     case TimeUnit.DAY:
+          //       break;
+          //     case TimeUnit.WEEK:
+          //       arrEndTime = moment( arrInterval[1], 'gggg-w' ).add( 1, 'w' ).format( 'gggg-w' );
+          //       timeRangeFilter.intervals[idx] = arrInterval[0] + '/' + arrEndTime;
+          //       break;
+          //     case TimeUnit.MONTH:
+          //       arrEndTime = moment( arrInterval[1], 'YYYY-MM' ).add( 1, 'M' ).format( 'YYYY-MM' );
+          //       timeRangeFilter.intervals[idx] = arrInterval[0] + '/' + arrEndTime;
+          //       break;
+          //     case TimeUnit.QUARTER:
+          //       break;
+          //     case TimeUnit.YEAR:
+          //       break;
+          //   }
+          // });
+        }
       }
     } // end if - time_range
     else if (FilterUtil.isTimeRelativeFilter(filter)) {
@@ -362,6 +402,7 @@ export class FilterUtil {
         keyMap = ['relTimeUnit', 'tense', 'value', 'timeUnit', 'byTimeUnit', 'discontinuous', 'timeZone'];
         break;
       case 'time_range' :
+      case 'time_single' :
         keyMap = ['intervals', 'timeUnit', 'byTimeUnit', 'discontinuous'];
         break;
       case 'time_list' :
@@ -401,19 +442,18 @@ export class FilterUtil {
   public static convertToServerSpecForDashboard(filter: Filter): Filter {
 
     // Time Range 필터의 타임 형식 설정
-    if (FilterUtil.isTimeRangeFilter(filter)) {
+    if (FilterUtil.isTimeRangeFilter(filter) || FilterUtil.isTimeSingleFilter(filter)) {
+      // Time Single 필터
       const timeRangeFilter = filter as TimeRangeFilter;
       if (timeRangeFilter.intervals && 0 < timeRangeFilter.intervals.length) {
         timeRangeFilter.intervals.forEach((item: string, idx: number) => {
           const arrInterval: any[] = item.split('/');
-
           if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[0] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[0]) {
             arrInterval[0] = FilterUtil.getDateTimeFormat(arrInterval[0], timeRangeFilter.timeUnit, true);
           }
           if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[1] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[1]) {
             arrInterval[1] = FilterUtil.getDateTimeFormat(arrInterval[1], timeRangeFilter.timeUnit, false);
           }
-
           timeRangeFilter.intervals[idx] = arrInterval[0] + '/' + arrInterval[1];
         });
       }
@@ -451,6 +491,7 @@ export class FilterUtil {
         keyMap = ['relTimeUnit', 'tense', 'value', 'timeUnit', 'byTimeUnit', 'discontinuous', 'timeZone'];
         break;
       case 'time_range' :
+      case 'time_single' :
         keyMap = ['intervals', 'timeUnit', 'byTimeUnit', 'discontinuous'];
         break;
       case 'time_list' :
@@ -492,18 +533,42 @@ export class FilterUtil {
     }
     switch (timeUnit) {
       case TimeUnit.SECOND:
-        return moment(date).format('YYYY-MM-DD HH:mm:ss');
+        if( date.constructor !== String || !/^[0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}-[0-9]{2}-[0-9]{2}$/.test(date) ) {
+          return moment(date).format('YYYY-MM-DD HH:mm:ss');
+        } else {
+          return ( date as string );
+        }
       case TimeUnit.MINUTE:
-        return moment(date).format('YYYY-MM-DD HH:mm');
+        if( date.constructor !== String || !/^[0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}-[0-9]{2}$/.test(date) ) {
+          return moment(date).format('YYYY-MM-DD HH:mm');
+        } else {
+          return ( date as string );
+        }
       case TimeUnit.HOUR:
-        return moment(date).format('YYYY-MM-DD HH');
+        if( date.constructor !== String || !/^[0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}$/.test(date) ) {
+          return moment(date).format('YYYY-MM-DD HH');
+        } else {
+          return ( date as string );
+        }
       case TimeUnit.DAY:
-        return moment(date).format('YYYY-MM-DD');
+        if (date.constructor !== String || !/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(date) ) {
+          return moment(date).format('YYYY-MM-DD');
+        } else {
+          return ( date as string );
+        }
       case TimeUnit.WEEK:
-        // return moment(date).format('YYYY-WW');
-        return (date as string);
+        if (date.constructor !== String || !/^[0-9]{4}-[0-9]{1,2}$/.test(date) ) {
+          return moment(date).format('gggg-W');
+        } else {
+          return ( date as string );
+        }
+        // return (date as string);
       case TimeUnit.MONTH:
-        return moment(date).format('YYYY-MM');
+        if (date.constructor !== String || !/^[0-9]{4}-[0-9]{2}$/.test(date) ) {
+          return moment(date).format('YYYY-MM');
+        } else {
+          return ( date as string );
+        }
       case TimeUnit.QUARTER:
         if (date instanceof Date) {
           return moment(date).format('YYYY-MM');
@@ -521,7 +586,11 @@ export class FilterUtil {
           return strYear + '-' + strQuarter;
         }
       case TimeUnit.YEAR:
-        return moment(date).format('YYYY');
+        if (date.constructor !== String || !/^[0-9]{4}$/.test(date) ) {
+          return moment(date).format('YYYY');
+        } else {
+          return ( date as string );
+        }
       default:
         return moment(date).format('YYYY-MM-DD HH:mm:ss');
     }
@@ -627,7 +696,8 @@ export class FilterUtil {
     return ('time_all' === filter.type
       || 'time_list' === filter.type
       || 'time_range' === filter.type
-      || 'time_relative' === filter.type);
+      || 'time_relative' === filter.type
+      || 'time_single' === filter.type);
   } // function - isTimeFilter
 
   /**
@@ -683,6 +753,15 @@ export class FilterUtil {
   public static isTimeListFilter(filter: Filter): boolean {
     return filter.type === 'time_list';
   } // function - isTimeListFilter
+
+  /**
+   * Date(Single) Time Filter 여부
+   * @param filter
+   * @returns {boolean}
+   */
+  public static isTimeSingleFilter(filter: Filter): boolean{
+    return filter.type === 'time_single';
+  } // function - isTimeDateFilter
 
   /**
    * Relative 로 부터 Interval 정보 얻음 얻는다.
@@ -779,14 +858,34 @@ export class FilterUtil {
       && ds && ds.summary
       && ds.summary.ingestionMinTime && ds.summary.ingestionMaxTime) {
       (timeFilter as TimeRangeFilter).intervals = [
-        FilterUtil.getDateTimeFormat(ds.summary.ingestionMinTime, TimeUnit.SECOND)
+        FilterUtil.getDateTimeFormat(ds.summary.ingestionMinTime, timeUnit)
         + '/'
-        + FilterUtil.getDateTimeFormat(ds.summary.ingestionMaxTime, TimeUnit.SECOND)
+        + FilterUtil.getDateTimeFormat(ds.summary.ingestionMaxTime, timeUnit)
       ];
     }
 
     return timeFilter;
   } // function - getTimeRangeFilter
+
+  /**
+   * TimeDateFilter 설정
+   * @param field
+   * @param timeUnit
+   * @param importanceType
+   */
+  public static getTimeDateFilter(field: Field, timeUnit?: TimeUnit, importanceType?: string): TimeDateFilter {
+    const timeFilter = new TimeDateFilter(field);
+    timeFilter.timeUnit = CommonUtil.isNullOrUndefined(timeUnit) ? TimeUnit.NONE : timeUnit;
+
+    (importanceType) && (timeFilter.ui.importanceType = importanceType);
+
+    // if(!timeFilter.intervals){
+    //   timeFilter.valueDate = this.getDateTimeFormat(moment().toISOString(), timeUnit);
+    //   timeFilter.intervals = [timeFilter.valueDate + '/' + timeFilter.valueDate];
+    // }
+
+    return timeFilter;
+  } // function - getTimeDateFilter
 
   /**
    * TimeRelativeFilter 설정

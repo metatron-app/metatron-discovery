@@ -59,6 +59,7 @@
     <ul class="ddp-list-buttons">
       <li (click)="setTimeListFilter()" [class.ddp-selected]="isListType">All time lists</li>
       <li (click)="setTimeRangeFilter()" [class.ddp-selected]="isRangeType">Specific</li>
+      <li (click)="setTimeDateFilter()" [class.ddp-selected]="isSingleType">Specific one date</li>
     </ul>
   </div>
   <!-- // 탭 영역 -->
@@ -75,6 +76,11 @@
       <app-time-range-filter [filter]="targetFilter" [dashboard]="dashboard" ></app-time-range-filter>
     </div>
     <!-- // 특정 기간 선택 탭 영역 -->
+    <!-- 특정 하루 선택 탭 영역 -->
+    <div *ngIf="isSingleType" class="ddp-ui-toggle-contents">
+      <app-time-date-filter [filter]="targetFilter" [dashboard]="dashboard"></app-time-date-filter>
+    </div>
+    <!-- // 특정 하루 선택 탭 영역 -->
   </div>
   <!-- // 탭별 내용 영역 -->
 </div>

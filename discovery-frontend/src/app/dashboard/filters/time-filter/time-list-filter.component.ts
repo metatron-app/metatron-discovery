@@ -75,6 +75,7 @@ export class TimeListFilterComponent extends AbstractFilterPopupComponent implem
 
   // 초기 입력 정보 정의
   @Input('filter')
+
   public inputFilter: TimeListFilter;     // 입력 필터
 
   @Input('dashboard')

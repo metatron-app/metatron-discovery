@@ -66,6 +66,7 @@ import {TimeFilter} from '@domain/workbook/configurations/filter/time-filter';
 import {IntervalFilter} from '@domain/workbook/configurations/filter/interval-filter';
 import {CustomField} from '@domain/workbook/configurations/field/custom-field';
 import {TimeUnit} from '@domain/workbook/configurations/field/timestamp-field';
+import {TimeRangeFilter} from '@domain/workbook/configurations/filter/time-range-filter';
 import {FilterWidget, FilterWidgetConfiguration} from '@domain/dashboard/widget/filter-widget';
 import {FilterUtil} from '../../util/filter.util';
 import {DashboardUtil} from '../../util/dashboard.util';
@@ -74,7 +75,9 @@ import {DatasourceService} from '../../../datasource/service/datasource.service'
 import {AbstractDashboardComponent} from '../../abstract.dashboard.component';
 import {DashboardWidgetComponent} from './dashboard.widget.component';
 import {DashboardWidgetHeaderComponent} from './dashboard.widget.header.component';
+import {TimeDateFilter} from '@domain/workbook/configurations/filter/time-date-filter';
 
+declare let moment;
 declare let GoldenLayout: any;
 
 export abstract class DashboardLayoutComponent extends AbstractDashboardComponent implements OnInit, OnDestroy {
@@ -109,6 +112,7 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
   public dashboard: Dashboard;
 
   public boardUtil = DashboardUtil;
+  public filterUtil = FilterUtil;
 
   // 대시보드 로딩 표시 여부
   public isShowDashboardLoading: boolean = false;
@@ -673,6 +677,44 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
       }
     }
   } // function - _bootstrapWidgetHeaderComponent
+
+  /**
+   * 날짜 변환
+   * @param filter
+   * @private
+   */
+  private _convertDateTimeFormat(filter: TimeRangeFilter|TimeDateFilter): string[] {
+    return filter.intervals.map(item => {
+      const arrInterval: any[] = item.split('/');
+      const startDate = arrInterval[0].replace('.000Z', '').replace('T', ' ');
+      if (TimeRangeFilter.EARLIEST_DATETIME !== startDate && TimeRangeFilter.LATEST_DATETIME !== startDate) {
+        // if( ( TimeUnit.YEAR === filter.timeUnit && !/^[0-9]{4}$/.test(startDate) )
+        //   || ( TimeUnit.MONTH === filter.timeUnit && !/^[0-9]{4}-[0-9]{2}$/.test(startDate) )
+        //   || ( TimeUnit.WEEK === filter.timeUnit && !/^[0-9]{4}-[0-9]{1,2}$/.test(startDate) )
+        //   || ( TimeUnit.DAY === filter.timeUnit && !/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(startDate) )
+        //   || ( TimeUnit.HOUR === filter.timeUnit && !/^[0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}$/.test(startDate) )
+        //   || ( TimeUnit.MINUTE === filter.timeUnit && !/^[0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}-[0-9]{2}$/.test(startDate) )
+        //   || ( TimeUnit.SECOND === filter.timeUnit && !/^[0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}-[0-9]{2}-[0-9]{2}$/.test(startDate) )) {
+        //   arrInterval[0] = FilterUtil.getDateTimeFormat(startDate, filter.timeUnit, true);
+        // }
+        arrInterval[0] = FilterUtil.getDateTimeFormat(startDate, filter.timeUnit, true);
+      }
+      const endDate = arrInterval[1].replace('.000Z', '').replace('T', ' ');
+      if (TimeRangeFilter.EARLIEST_DATETIME !== endDate && TimeRangeFilter.LATEST_DATETIME !== endDate) {
+        // if( ( TimeUnit.YEAR === filter.timeUnit && !/^[0-9]{4}$/.test(endDate) )
+        //   || ( TimeUnit.MONTH === filter.timeUnit && !/^[0-9]{4}-[0-9]{2}$/.test(endDate) )
+        //   || ( TimeUnit.WEEK === filter.timeUnit && !/^[0-9]{4}-[0-9]{1,2}$/.test(endDate) )
+        //   || ( TimeUnit.DAY === filter.timeUnit && !/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(endDate) )
+        //   || ( TimeUnit.HOUR === filter.timeUnit && !/^[0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}$/.test(endDate) )
+        //   || ( TimeUnit.MINUTE === filter.timeUnit && !/^[0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}-[0-9]{2}$/.test(endDate) )
+        //   || ( TimeUnit.SECOND === filter.timeUnit && !/^[0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}-[0-9]{2}-[0-9]{2}$/.test(endDate) )) {
+        //   arrInterval[1] = FilterUtil.getDateTimeFormat(endDate, filter.timeUnit, true);
+        // }
+        arrInterval[1] = FilterUtil.getDateTimeFormat(endDate, filter.timeUnit, true);
+      }
+      return arrInterval[0] + '/' + arrInterval[1];
+    });
+  } // function - _convertDateTimeFormat
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
@@ -1266,6 +1308,10 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
                 widgetConf.filter[key] = widgetConf[key];
               });
             }
+            if (this.filterUtil.isTimeRangeFilter(widgetConf.filter) || this.filterUtil.isTimeSingleFilter(widgetConf.filter)) {
+              const rangeFilter = widgetConf.filter as TimeRangeFilter;
+              widgetConf.filter['intervals'] = this._convertDateTimeFormat(rangeFilter);
+            }
           }
         });
 
@@ -1279,6 +1325,12 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
             }
             return acc;
           }, []);
+          boardInfo.configuration.filters.forEach(filter => {
+            if (this.filterUtil.isTimeRangeFilter(filter) || this.filterUtil.isTimeSingleFilter(filter)) {
+              const rangeFilter = filter as TimeRangeFilter;
+              filter['intervals'] = this._convertDateTimeFormat(rangeFilter);
+            }
+          });
         }
 
         // Updating information about deleted dataSources

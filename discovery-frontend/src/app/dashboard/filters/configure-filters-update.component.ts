@@ -194,7 +194,6 @@ export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponen
     } else {
       filter = this._timeComp.getData();
     }
-
     // 스코프 설정
     if (this.widget) {
       if (this.targetFilter.ui.widgetId) {
@@ -203,7 +202,6 @@ export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponen
         delete filter.ui.widgetId;
       }
     }
-
     this.done.emit(filter);
   } // function - emitUpdateFilter
 

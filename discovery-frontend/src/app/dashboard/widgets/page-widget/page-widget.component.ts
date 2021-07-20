@@ -1761,6 +1761,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
         FilterUtil.isTimeAllFilter(item) ||
         FilterUtil.isTimeRelativeFilter(item) ||
         FilterUtil.isTimeRangeFilter(item) ||
+        FilterUtil.isTimeSingleFilter(item) ||
         (FilterUtil.isTimeListFilter(item) && item['valueList'] && 0 < item['valueList'].length);
     });
 
