@@ -1,0 +1,40 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div *ngIf="inputFilter" class="ddp-dateinfo-view">
+  <div class="ddp-filter-calen">
+    <div class="ddp-filter-calen-in"
+         [ngStyle]="'WIDGET' == mode ? {'float':'left'} : {}">
+      <component-time-date
+        [mode]="mode"
+        [initial]="targetFilter"
+        (onDateChange)="onDateChange($event)">
+      </component-time-date>
+    </div>
+    <a *ngIf="'WIDGET' == mode" (click)="broadcastChange()"
+       style ="width: 23px;
+    height: 12px;
+    border-radius: 2px;
+    border: solid 1px #4e5368;
+    padding: 8px 10px;
+    margin-left: 10px;
+    position: relative;
+    display: inline-block;"
+       class="ddp-ui-button sys-btn-ok" href="javascript:" [class.sys-btn-large]="isVertical">
+      {{'msg.comm.ui.ok' | translate}}
+    </a>
+  </div>
+</div>
+
+

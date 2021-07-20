@@ -30,9 +30,11 @@ import {
 } from '@angular/core';
 import {CommonUtil} from '@common/util/common.util';
 import {AbstractComponent} from '@common/component/abstract.component';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
 import {PickerSettings} from '@domain/common/datepicker.settings';
 import {TimeUnit} from '@domain/workbook/configurations/field/timestamp-field';
 import {TimeRangeFilter} from '@domain/workbook/configurations/filter/time-range-filter';
+import {FilterUtil} from '../../util/filter.util';
 
 declare let moment: any;
 declare let $: any;
@@ -89,7 +91,8 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnC
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(protected elementRef: ElementRef,
+  constructor(protected broadCaster: EventBroadcaster,
+              protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
     for (let idx = 1; idx <= 52; idx++) {
@@ -167,6 +170,14 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnC
     this.onDateChange.emit(this._getTimeRange(false));
   } // function - onSelectComboItem
 
+  /**
+   * 콤보박스 표시 여부
+   * @param {boolean} isShow
+   */
+  public onToggleSelectOptions(isShow: boolean) {
+    this.broadCaster.broadcast('TIME_DATE_SHOW_SELECT_OPTS', { isShow : isShow });
+  } // func - onToggleSelectOptions
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -189,6 +200,7 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnC
     const minTime: Date = this.compData.minTime;
     const maxTime: Date = this.compData.maxTime;
     const interval: TimeRange = this.compData.interval;
+
 
     // 경계값 설정 여부 확인
     if (interval.startDate === TimeRangeFilter.EARLIEST_DATETIME) {
@@ -407,6 +419,10 @@ export class TimeRange {
 
   public toInterval() {
     return this.startDate + '/' + this.endDate;
+  }
+
+  public toIntervalByTimeUnit(timeUnit: TimeUnit){
+    return FilterUtil.getDateTimeFormat(this.startDate, timeUnit) + '/' + FilterUtil.getDateTimeFormat(this.endDate, timeUnit);
   }
 }
 

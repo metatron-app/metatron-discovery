@@ -33,6 +33,7 @@
             [array]="comboList"
             [defaultIndex]="fromComboIdx"
             [viewKey]="'label'"
+            (beforeShowSelectedList)="onToggleSelectOptions($event)"
             (onSelected)="onSelectComboItem($event, true)">
           </component-select>
         </div>
@@ -61,6 +62,7 @@
             [array]="comboList"
             [defaultIndex]="toComboIdx"
             [viewKey]="'label'"
+            (beforeShowSelectedList)="onToggleSelectOptions($event)"
             (onSelected)="onSelectComboItem($event, false)">
           </component-select>
         </div>

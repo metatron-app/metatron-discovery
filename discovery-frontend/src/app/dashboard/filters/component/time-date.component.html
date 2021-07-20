@@ -1,0 +1,37 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-wrap-dateinfo ddp-filter-dateinfo">
+  <div [ngStyle]="{'width' : isWidgetMode ? '200px' : ''}" class="ddp-ui-dateinfo ddp-from">
+    <div class="ddp-dateinfo-in">
+      <span class="ddp-txt-date sys-range-label">Date</span>
+      <div class="ddp-box-rome">
+        <div class="ddp-box-dateinfo ddp-clear">
+          <div [class.ddp-full]="0 === comboList.length" class="ddp-box-date">
+            <em *ngIf="'PANEL' !== mode" class="ddp-icon-calen"></em>
+            <input type="text" class="ddp-txt-calen" #datePickerInput />
+          </div>
+          <component-select
+            *ngIf="0 < comboList.length"
+            [array]="comboList"
+            [defaultIndex]="dateComboIdx"
+            [viewKey]="'label'"
+            (beforeShowSelectedList)="onToggleSelectOptions($event)"
+            (onSelected)="onSelectComboItem($event)">
+          </component-select>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

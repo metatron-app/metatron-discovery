@@ -67,7 +67,7 @@ public class TimeListFilter extends TimeFilter {
 
   @Override
   public boolean compare(Filter filter) {
-    if (!(filter instanceof TimeRangeFilter)) {
+    if (!(filter instanceof TimeRangeFilter || filter instanceof TimeSingleFilter)) {
       return false;
     }
 

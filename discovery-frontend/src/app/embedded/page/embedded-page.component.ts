@@ -433,6 +433,7 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
         FilterUtil.isTimeAllFilter(item) ||
         FilterUtil.isTimeRelativeFilter(item) ||
         FilterUtil.isTimeRangeFilter(item) ||
+        FilterUtil.isTimeSingleFilter(item) ||
         (FilterUtil.isTimeListFilter(item) && item['valueList'] && 0 < item['valueList'].length);
     });
 
