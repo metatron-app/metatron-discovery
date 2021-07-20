@@ -54,6 +54,7 @@ import app.metatron.discovery.domain.workbook.configurations.BoardConfiguration;
 import app.metatron.discovery.domain.workbook.configurations.Limit;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DataSource;
 import app.metatron.discovery.domain.workbook.configurations.datasource.MultiDataSource;
+import app.metatron.discovery.domain.workbook.configurations.field.UserDefinedField;
 import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
 import app.metatron.discovery.domain.workbook.widget.QWidget;
 import app.metatron.discovery.domain.workbook.widget.Widget;
@@ -62,7 +63,6 @@ import app.metatron.discovery.domain.workbook.widget.WidgetService;
 import app.metatron.discovery.util.AuthUtils;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -323,10 +323,8 @@ public class DashBoardController {
     LOGGER.info("Dashboard({})' before configuration : {}", dashBoard.getId(), dashBoard.getConfiguration());
     boardConfiguration.setDataSource(
         dashBoardService.changeDataSource(fromDataSource, toDataSource, boardDataSource));
-    dashBoard.setConfiguration(GlobalObjectMapper.writeValueAsString(boardConfiguration));
-    LOGGER.info("Dashboard({})' after configuration : {}", dashBoard.getId(), dashBoard.getConfiguration());
 
-    List<Filter> dashboardFilterList = dashBoard.getConfigurationObject().getFilters();
+    List<Filter> dashboardFilterList = boardConfiguration.getFilters();
     if (dashboardFilterList != null) {
       for (Filter filter : dashboardFilterList) {
         if (filter.getDataSource().equals(fromDataSource.getEngineName())) {
@@ -334,7 +332,22 @@ public class DashBoardController {
         }
       }
     }
-    LOGGER.info("Dashboard({})' after filter list : {}", dashBoard.getId(), dashBoard.getConfiguration());
+    boardConfiguration.setFilters(dashboardFilterList);
+
+    List<UserDefinedField> userDefinedFieldList = boardConfiguration.getUserDefinedFields();
+    if (userDefinedFieldList != null) {
+      for(UserDefinedField userDefinedField : userDefinedFieldList) {
+        if (userDefinedField.getDataSource().equals(fromDataSource.getEngineName())) {
+          userDefinedField.setDataSource(toDataSource.getEngineName());
+        }
+      }
+    }
+    boardConfiguration.setUserDefinedFields(userDefinedFieldList);
+
+    String newBoardConfiguration = GlobalObjectMapper.writeValueAsString(boardConfiguration);
+    LOGGER.info("Dashboard({})' after configuration : {}", dashBoard.getId(), newBoardConfiguration);
+    dashBoard.setConfiguration(newBoardConfiguration);
+
 
     List<String> widgetIds =  dashBoard.getWidgets().stream().map(widget -> widget.getId()).collect(Collectors.toList());
     for(String widgetId: widgetIds) {

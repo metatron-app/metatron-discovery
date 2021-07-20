@@ -128,6 +128,8 @@ public class BoardConfiguration implements Serializable {
     this.filters = filters;
   }
 
+  public void setUserDefinedFields(List<UserDefinedField> userDefinedFields) { this.userDefinedFields = userDefinedFields; }
+
   @Override
   public String toString() {
     return "BoardConfiguration{" +
