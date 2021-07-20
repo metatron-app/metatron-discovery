@@ -68,12 +68,16 @@ public class WidgetService {
     HashMap widgetConfiguration = (HashMap) GlobalObjectMapper.readValue(widget.getConfiguration());
     if ("page".equals(widgetConfiguration.get("type"))) {
       if (((PageWidgetConfiguration)widget.convertConfiguration()).getFields() != null) {
+        List fieldList = Lists.newArrayList();
         ((PageWidgetConfiguration)widget.convertConfiguration()).getFields().forEach(userDefinedField -> {
           if (userDefinedField.getDataSource().equals(fromDataSource.getEngineName())) {
             userDefinedField.setDataSource(toDataSource.getEngineName());
           }
+          HashMap field = (HashMap) GlobalObjectMapper.readValue(GlobalObjectMapper.writeValueAsString(userDefinedField));
+          field.put("type", "user_expr");
+          fieldList.add(field);
         });
-        widgetConfiguration.put("fields", ((PageWidgetConfiguration) widget.convertConfiguration()).getFields());
+        widgetConfiguration.put("fields", fieldList);
       }
       DataSource widgetDataSource = ((PageWidgetConfiguration)widget.convertConfiguration()).getDataSource();
       widgetConfiguration.put("dataSource", GlobalObjectMapper.readValue(
