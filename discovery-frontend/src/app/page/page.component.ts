@@ -93,6 +93,9 @@ import {MapPagePivotComponent} from './page-pivot/map/map-page-pivot.component';
 import {UIMapOption} from '@common/component/chart/option/ui-option/map/ui-map-chart';
 import {MapLayerType} from '@common/component/chart/option/define/map/map-common';
 import {debounceTime, map} from 'rxjs/operators';
+import {TimeDateFilter} from '@domain/workbook/configurations/filter/time-date-filter';
+
+declare let async;
 
 const possibleMouseModeObj: any = {
   single: ['bar', 'line', 'grid', 'control', 'scatter', 'heatmap', 'pie', 'wordcloud', 'boxplot', 'combine'],
@@ -3811,126 +3814,148 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       this.chart['setQuery'] = this.query;
     }
 
-    this.datasourceService.searchQuery(cloneQuery, params.disableCache).then(
-      (data) => {
-
-        const resultData = {
-          data: data,
-          config: uiCloneQuery,
-          uiOption: this.uiOption,
-          type: params.type
-        };
-        this.resultData = resultData;
-
-        if (Object.keys(this.uiOption).length === 1) {
-          delete resultData.uiOption;
+    // Time Single Filter LASTEST_DATETIME 변환 처리
+    const procFileDs: ((callback) => void)[] = [];
+    if( cloneQuery.filters ) {
+      for (let idx = 0, nMax = cloneQuery.filters.length; idx < nMax; idx++) {
+        const filter = cloneQuery.filters[idx];
+        if( FilterUtil.isTimeRangeFilter(filter)
+          && TimeDateFilter.LATEST_DATETIME === ( filter as TimeDateFilter ).intervals[0].split( '/' )[0]
+          && TimeDateFilter.LATEST_DATETIME === ( filter as TimeDateFilter ).intervals[0].split( '/' )[1] ) {
+          procFileDs.push((callback) => {
+            this.datasourceService.getCandidateForFilter(filter, this.widget.dashBoard).then((result) => {
+              const maxDateTime = FilterUtil.getDateTimeFormat(result.maxTime, ( filter as TimeDateFilter ).timeUnit );
+              ( cloneQuery.filters[idx] as TimeDateFilter ).intervals = [ maxDateTime + '/' + maxDateTime];
+              callback();
+            }).catch(() => { callback(); });
+          });
         }
+      }
+    }
 
-        this.initGridChart();
+    // 차트 데이터 조회
+    async.waterfall(procFileDs, () => {
+      this.datasourceService.searchQuery(cloneQuery, params.disableCache).then(
+        (data) => {
 
-        // Set Limit Info
-        this.limitInfo = DashboardUtil.getChartLimitInfo(this.widget.id, this.widget.configuration.chart.type, data);
+          const resultData = {
+            data: data,
+            config: uiCloneQuery,
+            uiOption: this.uiOption,
+            type: params.type
+          };
+          this.resultData = resultData;
 
-        // 라인차트이고 고급분석 예측선 사용하는 경우
-        if (this.selectChart === 'line') {
+          if (Object.keys(this.uiOption).length === 1) {
+            delete resultData.uiOption;
+          }
 
-          if (this.isAnalysisPredictionEnabled()) {
-            Promise
-              .resolve()
-              .then(() => {
+          this.initGridChart();
 
-                // discontinuous 타입일때 예측선 비활성화 (isPredictionLineDisabled 가 true가 아니라 false일때가 disabled true인 상태임)
-                this.analysisComponent.synchronize(this.uiOption, {pivot: this.pivot},
-                  {type: params.type, widget: this.widget, lineChart: this.lineChartComponent});
+          // Set Limit Info
+          this.limitInfo = DashboardUtil.getChartLimitInfo(this.widget.id, this.widget.configuration.chart.type, data);
 
-                if (this.analysisComponent.isValid() === false) {
-                  this.lineChartComponent.analysis = null;
-                  this.chart.resultData = resultData;
-                }
+          // 라인차트이고 고급분석 예측선 사용하는 경우
+          if (this.selectChart === 'line') {
 
-                if (this.isAnalysisPredictionEnabled()) {
-                  this.loadingShow();
-                  this.analysisPredictionService
-                    .getAnalysisPredictionLineFromPage(this.widgetConfiguration, this.widget, this.lineChartComponent, resultData)
-                    .catch((err) => {
-                      this.loadingHide();
-                      this.isError = true;
-                      this.commonExceptionHandler(err);
-                    });
-                } else {
-                  this.lineChartComponent.analysis = null;
-                  this.chart.resultData = resultData;
-                }
-              });
-          } else {
-            if (this.analysisComponent.isValid()) {
-              this.analysisComponent.changePredictionLineDisabled();
+            if (this.isAnalysisPredictionEnabled()) {
+              Promise
+                .resolve()
+                .then(() => {
+
+                  // discontinuous 타입일때 예측선 비활성화 (isPredictionLineDisabled 가 true가 아니라 false일때가 disabled true인 상태임)
+                  this.analysisComponent.synchronize(this.uiOption, {pivot: this.pivot},
+                    {type: params.type, widget: this.widget, lineChart: this.lineChartComponent});
+
+                  if (this.analysisComponent.isValid() === false) {
+                    this.lineChartComponent.analysis = null;
+                    this.chart.resultData = resultData;
+                  }
+
+                  if (this.isAnalysisPredictionEnabled()) {
+                    this.loadingShow();
+                    this.analysisPredictionService
+                      .getAnalysisPredictionLineFromPage(this.widgetConfiguration, this.widget, this.lineChartComponent, resultData)
+                      .catch((err) => {
+                        this.loadingHide();
+                        this.isError = true;
+                        this.commonExceptionHandler(err);
+                      });
+                  } else {
+                    this.lineChartComponent.analysis = null;
+                    this.chart.resultData = resultData;
+                  }
+                });
+            } else {
+              if (this.analysisComponent.isValid()) {
+                this.analysisComponent.changePredictionLineDisabled();
+              }
+              this.lineChartComponent.analysis = null;
+              setTimeout(() => {
+                this.chart.resultData = resultData;
+              }, 300);
             }
-            this.lineChartComponent.analysis = null;
+          } else if (this.selectChart === 'map') {
+            const mapUiOption = this.uiOption as UIMapOption;
+            // type 관련 설정 필요 (symbol & cluster) 이는 cluster 타입이 option panel에서 따로 분리된 이유임
+            for (let mapIndex = 0; mapUiOption.layers.length > mapIndex; mapIndex++) {
+              if (mapUiOption.layers[mapIndex].type === MapLayerType.SYMBOL
+                && !_.isUndefined(mapUiOption.layers[mapIndex]['clustering'])
+                && mapUiOption.layers[mapIndex]['clustering']) {
+                mapUiOption.layers[mapIndex].type = MapLayerType.CLUSTER;
+              }
+              // map chart 일 경우 aggregation type 변경시 min/max 재설정 필요
+              if (!_.isUndefined(params) && !_.isUndefined(params.type) && params.type === EventType.AGGREGATION) {
+                mapUiOption.layers[mapIndex]['isColorOptionChanged'] = true;
+              }
+            }
+            setTimeout(() => {
+              this.chart.resultData = resultData;
+            }, 300);
+          } else {
             setTimeout(() => {
               this.chart.resultData = resultData;
             }, 300);
           }
-        } else if (this.selectChart === 'map') {
-          const mapUiOption = this.uiOption as UIMapOption;
-          // type 관련 설정 필요 (symbol & cluster) 이는 cluster 타입이 option panel에서 따로 분리된 이유임
-          for (let mapIndex = 0; mapUiOption.layers.length > mapIndex; mapIndex++) {
-            if (mapUiOption.layers[mapIndex].type === MapLayerType.SYMBOL
-              && !_.isUndefined(mapUiOption.layers[mapIndex]['clustering'])
-              && mapUiOption.layers[mapIndex]['clustering']) {
-              mapUiOption.layers[mapIndex].type = MapLayerType.CLUSTER;
-            }
-            // map chart 일 경우 aggregation type 변경시 min/max 재설정 필요
-            if (!_.isUndefined(params) && !_.isUndefined(params.type) && params.type === EventType.AGGREGATION) {
-              mapUiOption.layers[mapIndex]['isColorOptionChanged'] = true;
-            }
-          }
-          setTimeout(() => {
-            this.chart.resultData = resultData;
-          }, 300);
-        } else {
-          setTimeout(() => {
-            this.chart.resultData = resultData;
-          }, 300);
-        }
 
-        this.loadingHide();
-        if (params.successCallback) {
-          params.successCallback();
+          this.loadingHide();
+          if (params.successCallback) {
+            params.successCallback();
+          }
         }
-      }
-    ).catch((reason) => {
-      let err = {};
-      // only analysis 사용할때 에러 발생시 예외 처리
-      if (!_.isUndefined(this.uiOption['analysis']) && this.uiOption['analysis']['use'] === true) {
-        if (!_.isUndefined(reason) && (!_.isUndefined(reason['message']) || !_.isUndefined(reason['details']))) {
-          err['code'] = reason.code;
-          // 에러 메시지가 형식대로 떨어질 경우
-          const message = reason['message'];
-          const detailMessage = reason['details'];
-          // message 길 경우
-          if (!_.isUndefined(message) && message.length > 30) {
-            err['message'] = 'Spatial Config Error <br/>' + message.substring(0, 30);
-            err['details'] = message + '<br/>' + detailMessage;
+      ).catch((reason) => {
+        let err = {};
+        // only analysis 사용할때 에러 발생시 예외 처리
+        if (!_.isUndefined(this.uiOption['analysis']) && this.uiOption['analysis']['use'] === true) {
+          if (!_.isUndefined(reason) && (!_.isUndefined(reason['message']) || !_.isUndefined(reason['details']))) {
+            err['code'] = reason.code;
+            // 에러 메시지가 형식대로 떨어질 경우
+            const message = reason['message'];
+            const detailMessage = reason['details'];
+            // message 길 경우
+            if (!_.isUndefined(message) && message.length > 30) {
+              err['message'] = 'Spatial Config Error <br/>' + message.substring(0, 30);
+              err['details'] = message + '<br/>' + detailMessage;
+            } else {
+              err['message'] = 'Spatial Config Error';
+              err['details'] = message + '<br/>' + detailMessage;
+            }
           } else {
-            err['message'] = 'Spatial Config Error';
-            err['details'] = message + '<br/>' + detailMessage;
+            err['message'] = 'Spatial Config Error <br/>';
+            err['details'] = reason;
           }
         } else {
-          err['message'] = 'Spatial Config Error <br/>';
-          err['details'] = reason;
+          err = reason;
         }
-      } else {
-        err = reason;
-      }
-      console.error('Search Query Error =>', err);
-      this.isChartShow = false;
-      this.isError = true;
-      this.commonExceptionHandler(err);
+        console.error('Search Query Error =>', err);
+        this.isChartShow = false;
+        this.isError = true;
+        this.commonExceptionHandler(err);
 
-      // 변경사항 반영
-      this.changeDetect.detectChanges();
-      this.loadingHide();
+        // 변경사항 반영
+        this.changeDetect.detectChanges();
+        this.loadingHide();
+      });
     });
   }
 

@@ -18,19 +18,33 @@
          [ngStyle]="'WIDGET' == mode ? {'float':'left'} : {}">
       <component-time-date
         [mode]="mode"
-        [initial]="targetFilter"
+        [initial]="getTimeDateData()"
         (onDateChange)="onDateChange($event)">
       </component-time-date>
+      <div *ngIf="'WIDGET' !== mode" class="ddp-wrap-control">
+        <!-- Latest & Delete control -->
+        <div class="ddp-dateinfo-control" style="float:left;padding-left:0;">
+          <!-- checkbox -->
+          <label class="ddp-label-checkbox">
+            <input (click)="setLatestTime($event)" [checked]="isLatestTime"
+                   type="checkbox" >
+            <i class="ddp-icon-checkbox"></i>
+            <span class="ddp-txt-checkbox">{{'msg.board.filter.ui.latest' | translate}}</span>
+          </label>
+          <!-- //checkbox -->
+        </div>
+        <!-- // Latest & Delete control -->
+      </div>
     </div>
     <a *ngIf="'WIDGET' == mode" (click)="broadcastChange()"
        style ="width: 23px;
-    height: 12px;
-    border-radius: 2px;
-    border: solid 1px #4e5368;
-    padding: 8px 10px;
-    margin-left: 10px;
-    position: relative;
-    display: inline-block;"
+                height: 12px;
+                border-radius: 2px;
+                border: solid 1px #4e5368;
+                padding: 8px 10px;
+                margin-left: 10px;
+                position: relative;
+                display: inline-block;"
        class="ddp-ui-button sys-btn-ok" href="javascript:" [class.sys-btn-large]="isVertical">
       {{'msg.comm.ui.ok' | translate}}
     </a>
