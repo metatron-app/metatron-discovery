@@ -7,12 +7,13 @@ import {isNullOrUndefined} from "util";
 import {OrganizationService} from "../../service/organization.service";
 import {Alert} from "@common/util/alert.util";
 import {Organization} from "@domain/organization/organization";
+import {CreateOrganizationManagementListComponent} from "./create-list/create-organization-management-list.component";
 
 declare let moment: any;
 
 @Component({
   selector: 'app-organization-list',
-  templateUrl: 'organization-management.-list.component.html'
+  templateUrl: 'organization-management-list.component.html'
 })
 export class OrganizationManagementListComponent extends AbstractComponent implements OnInit{
 
@@ -53,7 +54,9 @@ export class OrganizationManagementListComponent extends AbstractComponent imple
   // 정렬
   public selectedContentSort: Order = new Order();
 
-
+  // 조직 생성 팝
+  @ViewChild(CreateOrganizationManagementListComponent)
+  public createOrgPopup: CreateOrganizationManagementListComponent;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -166,6 +169,16 @@ export class OrganizationManagementListComponent extends AbstractComponent imple
     return false;
   }
 
+
+  /**
+   * 그룹 생성 팝업 show
+   */
+  public onClickCreateModal() {
+
+    // 모달 show
+    this.createOrgPopup.init();
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - event
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -243,6 +256,7 @@ export class OrganizationManagementListComponent extends AbstractComponent imple
       this.pageResult = result.page;
 
       this.orgList = result.content;
+      console.log(result);
 
       // 로딩 hide
       this.loadingHide();

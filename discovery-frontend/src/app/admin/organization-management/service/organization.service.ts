@@ -40,4 +40,14 @@ export class OrganizationService extends AbstractService{
     }
     return this.get(url + `&projection=${projection}`);
   }
+
+  public createOrganization(data: any): Promise<any>{
+
+    // URL
+    const url: string = this.API_URL + this.path;
+
+    return this.post(url, data);
+  }
+
+  public
 }

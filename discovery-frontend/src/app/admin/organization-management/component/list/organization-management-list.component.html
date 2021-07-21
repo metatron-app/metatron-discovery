@@ -56,7 +56,7 @@
       <div class="ddp-ui-rightoption">
         <span class="ddp-data-total">{{'msg.log.ui.num.lists' | translate : { value : pageResult.totalElements} }}</span>
         <!--<span class="ddp-data-total">{{'msg.log.ui.num.lists' | translate : { value : groupList.length} }}</span>-->
-        <a href="javascript:" class="ddp-btn-link" ><em class="ddp-icon-link-add"></em>{{'msg.groups.ui.create.grp' | translate}}</a>
+        <a href="javascript:" class="ddp-btn-link" (click)="onClickCreateModal()" ><em class="ddp-icon-link-add"></em>조직 생성</a>
       </div>
       <!-- //right -->
     </div>
@@ -90,7 +90,7 @@
         {{item.name}}
       </td>
       <td>
-        {{item.id}}
+        {{item.code}}
       </td>
       <td>
         {{item.description}}
@@ -119,3 +119,7 @@
   <!-- // Pagination -->
 
 </div>
+
+<!-- 조직 생성 팝업 -->
+<app-create-organization-list (createComplete)="reloadPage()"></app-create-organization-list>
+<!-- // 조직 생성 팝업 -->

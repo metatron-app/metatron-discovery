@@ -5,6 +5,8 @@ export class Organization extends  AbstractHistoryEntity{
   public id: string;
   // organization name
   public name: string;
+  // organization code
+  public code: string;
   // organization description
   public description: string;
   // organization group count
