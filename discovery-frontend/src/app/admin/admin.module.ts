@@ -26,6 +26,10 @@ const adminRoutes: Routes = [
     canActivate: [UserAdminGuard]
   },
   {
+    path: 'organization',
+    loadChildren: 'app/admin/organization-management/organization-management.module#OrganizationManagementModule',
+  },
+  {
     path: 'workspaces',
     loadChildren: 'app/admin/workspace-management/workspace-management.module#WorkspaceManagementModule',
     canActivate: [WorkspaceAdminGuard]
