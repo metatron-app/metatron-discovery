@@ -50,6 +50,8 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
   private _boardComp: DashboardComponent;
 
   private _boardId: string;
+
+  private _preFilters: { [key: string]: string } = {};
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -111,6 +113,13 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
       }else{
         queryParams = result.queryParams;
       }
+
+      // 사전 필터 목록 등록
+      Object.keys(queryParams).forEach(key => {
+        if( 'selectionFilter' !== key && 'autoOn' !== key && 'loginToken' !== key && 'loginType' !== key && 'refreshToken' !== key && 'dashboardId' !== key ) {
+          this._preFilters[key] = queryParams[key];
+        }
+      });
 
       if(!this.isNullOrUndefined(queryParams['selectionFilter'])){
         this.isShowSelectionFilter = (queryParams['selectionFilter'] == 'true');
@@ -204,21 +213,19 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
    * @param dashboard
    */
   private _setParameterFilterValues(dashboard) {
-    this.activatedRoute.queryParams.subscribe(params => {
-      Object.keys(params).forEach(key => {
-        dashboard.configuration.filters.forEach((eachFilter: Filter) => {
-          if (eachFilter.field === key) {
-            FilterUtil.setParameterFilterValue(eachFilter, key, params[key]);
-          }
-        });
-        dashboard.widgets.forEach((widget) => {
-          if (widget.type === 'filter' && widget.name === key) {
-            const widgetConf: FilterWidgetConfiguration = widget.configuration as FilterWidgetConfiguration;
-            FilterUtil.setParameterFilterValue(widgetConf.filter, key, params[key]);
-          }
-        })
+    Object.keys(this._preFilters).forEach(key => {
+      dashboard.configuration.filters.forEach((eachFilter: Filter) => {
+        if (eachFilter.field === key) {
+          FilterUtil.setParameterFilterValue(eachFilter, key, this._preFilters[key]);
+        }
+      });
+      dashboard.widgets.forEach((widget) => {
+        if (widget.type === 'filter' && widget.name === key) {
+          const widgetConf: FilterWidgetConfiguration = widget.configuration as FilterWidgetConfiguration;
+          FilterUtil.setParameterFilterValue(widgetConf.filter, key, this._preFilters[key]);
+        }
       })
-    });
+    })
   }
 
 
