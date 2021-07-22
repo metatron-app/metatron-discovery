@@ -153,7 +153,9 @@ export class TimeDateFilterComponent extends AbstractFilterPopupComponent implem
 
   public getTimeDateData(): TimeDateData {
     if( this.targetFilter ) {
-      return new TimeDateData(this.targetFilter.valueDate, this.dateBoundary.minTime, this.dateBoundary.maxTime);
+      return new TimeDateData(
+        this.targetFilter.valueDate, this.dateBoundary.minTime, this.dateBoundary.maxTime, this.targetFilter.timeUnit
+      );
     }
   } // func - getTimeDateData
 

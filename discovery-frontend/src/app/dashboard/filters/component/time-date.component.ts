@@ -171,49 +171,61 @@ export class TimeDateComponent extends AbstractComponent implements OnInit, OnCh
       } else {
         this.isLatestDateTime = true;
       }
+    } else {
+      this.isLatestDateTime = false;
     }
 
-    let dateMoment;
-    if (valueDate && 'undefined' !== valueDate){
-      dateMoment = (TimeUnit.WEEK === this.compData.timeUnit) ? valueDate :  this.customMoment(valueDate);
-    } else{
-      dateMoment = moment();
-    }
+    this.safelyDetectChanges();
 
-    if (TimeUnit.WEEK === this.compData.timeUnit){
-      this.comboList = _.cloneDeep(this._weekList);
-      let dateWeek;
-      const arrDateInfo = (valueDate as string).split('-');
-      dateMoment = moment(arrDateInfo[0] + '-01-01');
-      dateWeek = Number(arrDateInfo[1]);
-      this.dateComboIdx = this.comboList.findIndex(item => item.value === dateWeek);
-      this.selectedDateComboItem = this.comboList[this.dateComboIdx];
-    } else if (TimeUnit.QUARTER === this.compData.timeUnit){
-      this.comboList = _.cloneDeep(this._quarterList);
-      const dateQuarter: number = dateMoment.quarter();
-      this.dateComboIdx = this.comboList.findIndex(item => item.value === dateQuarter);
-      this.selectedDateComboItem = this.comboList[this.dateComboIdx];
-    }
-    this._date = dateMoment.toDate();
+    if (this.isLatestDateTime) {
+      if(this._datePicker) {
+        this._datePicker.destroy();
+        this._datePicker = undefined;
+      }
+    } else {
+      let dateMoment;
+      if (valueDate && 'undefined' !== valueDate){
+        dateMoment = (TimeUnit.WEEK === this.compData.timeUnit) ? valueDate :  this.customMoment(valueDate);
+      } else{
+        dateMoment = moment();
+      }
 
-    if(this.isNullOrUndefined(this._datePicker)){
-      const datePickerSettings: TimeDatePickerSettings
-        = new TimeDatePickerSettings(
-        'ddp-text-calen',
-        (_date: string, date: Date) => {
-          this._date= date;
-        },
-        ()=>{
-          this.onDateChange.emit(this._getTimeDate());
-        },
-        this.compData.timeUnit
-      );
+      if (TimeUnit.WEEK === this.compData.timeUnit){
+        this.comboList = _.cloneDeep(this._weekList);
+        let dateWeek;
+        const arrDateInfo = (valueDate as string).split('-');
+        dateMoment = moment(arrDateInfo[0] + '-01-01');
+        dateWeek = Number(arrDateInfo[1]);
+        this.dateComboIdx = this.comboList.findIndex(item => item.value === dateWeek);
+        this.selectedDateComboItem = this.comboList[this.dateComboIdx];
+      } else if (TimeUnit.QUARTER === this.compData.timeUnit){
+        this.comboList = _.cloneDeep(this._quarterList);
+        const dateQuarter: number = dateMoment.quarter();
+        this.dateComboIdx = this.comboList.findIndex(item => item.value === dateQuarter);
+        this.selectedDateComboItem = this.comboList[this.dateComboIdx];
+      }
+      this._date = dateMoment.toDate();
 
-      this._datePicker = $(this._datePickerInput.nativeElement).datepicker(datePickerSettings).data('datepicker');
+      if(this.isNullOrUndefined(this._datePicker)){
+        const datePickerSettings: TimeDatePickerSettings
+          = new TimeDatePickerSettings(
+          'ddp-text-calen',
+          (_date: string, date: Date) => {
+            this._date= date;
+          },
+          ()=>{
+            this.onDateChange.emit(this._getTimeDate());
+          },
+          this.compData.timeUnit
+        );
+        this._datePicker = $(this._datePickerInput.nativeElement).datepicker(datePickerSettings).data('datepicker');
+      }
+
       this._datePicker.date = this._date;
       this._datePicker.selectDate(this._date);
     }
-  }
+
+  } // func - _setPicker
 
   /**
    * 값 검증
