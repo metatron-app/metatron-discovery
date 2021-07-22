@@ -13,7 +13,7 @@
  */
 
 import {AbstractComponent} from '@common/component/abstract.component';
-import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit} from '@angular/core';
+import {Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
 import {MetadataService} from '../service/metadata.service';
 import {Metadata} from '@domain/meta-data-management/metadata';
 import {MetadataColumn} from '@domain/meta-data-management/metadata-column';
@@ -93,10 +93,10 @@ export class EmbeddedMetadataDetailComponent extends AbstractComponent implement
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  @HostListener('window:popstate')
-  public onPopstate() {
-    window.history.pushState(null, null, window.location.href);
-  }
+  // @HostListener('window:popstate')
+  // public onPopstate() {
+  //   window.history.pushState(null, null, window.location.href);
+  // }
 
   /**
    * Current field's logical Type label

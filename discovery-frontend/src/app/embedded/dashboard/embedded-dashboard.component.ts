@@ -17,7 +17,6 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
-  HostListener,
   Injector,
   OnDestroy,
   OnInit,
@@ -159,10 +158,10 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
     super.ngOnDestroy();
   }
 
-  @HostListener('window:popstate')
-  public onPopstate() {
-    window.history.pushState(null, null, window.location.href);
-  }
+  // @HostListener('window:popstate')
+  // public onPopstate() {
+  //   window.history.pushState(null, null, window.location.href);
+  // }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
