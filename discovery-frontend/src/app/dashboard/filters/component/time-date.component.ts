@@ -15,6 +15,7 @@ import {TimeUnit} from '@domain/workbook/configurations/field/timestamp-field';
 import {CommonUtil} from '@common/util/common.util';
 import {EventBroadcaster} from '@common/event/event.broadcaster';
 import {PickerSettings} from '@domain/common/datepicker.settings';
+import {TimeDateFilter} from '@domain/workbook/configurations/filter/time-date-filter';
 
 declare let moment: any;
 declare let $: any;
@@ -54,6 +55,8 @@ export class TimeDateComponent extends AbstractComponent implements OnInit, OnCh
   public comboList: ComboItem[] = [];
   public dateComboIdx: number = 0;
   public selectedDateComboItem: ComboItem;
+
+  public isLatestDateTime: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -158,7 +161,18 @@ export class TimeDateComponent extends AbstractComponent implements OnInit, OnCh
       return;
     }
 
-    const valueDate = this.compData.valueDate;
+    const maxTime: Date = this.compData.maxTime;
+    let valueDate = this.compData.valueDate;
+
+    if (valueDate === TimeDateFilter.LATEST_DATETIME) {
+      if( this.isWidgetMode ) {
+        this.isLatestDateTime = false;
+        valueDate = maxTime;
+      } else {
+        this.isLatestDateTime = true;
+      }
+    }
+
     let dateMoment;
     if (valueDate && 'undefined' !== valueDate){
       dateMoment = (TimeUnit.WEEK === this.compData.timeUnit) ? valueDate :  this.customMoment(valueDate);
@@ -227,6 +241,7 @@ export class TimeDateComponent extends AbstractComponent implements OnInit, OnCh
   /**
    * Moment 로 부터 Date 정보를 얻음
    * @param dateMoment
+   * @param range
    * @private
    */
   private _getDateFromMoment(dateMoment: any, range: string): TimeDate{
@@ -247,12 +262,15 @@ export class TimeDate{
 
 export class TimeDateData {
 
+  public minTime: Date;
+  public maxTime: Date;
   public valueDate: Date | string;
   public timeUnit: TimeUnit;
 
-
-  constructor(valueDate: Date | string, timeUnit?: TimeUnit) {
+  constructor(valueDate: Date | string, minTime: Date, maxTime: Date, timeUnit?: TimeUnit) {
     this.valueDate = valueDate;
+    this.minTime = minTime;
+    this.maxTime = maxTime;
     this.timeUnit = (CommonUtil.isNullOrUndefined(timeUnit)) ? TimeUnit.NONE : timeUnit;
   }
 }

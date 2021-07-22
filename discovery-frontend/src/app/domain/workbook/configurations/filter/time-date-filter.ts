@@ -4,6 +4,8 @@ import _ from 'lodash';
 
 export class TimeDateFilter extends TimeFilter {
 
+  public static LATEST_DATETIME: string = 'LATEST_DATETIME';
+
   public valueDate: Date | string;
   public intervals: string[];
 
