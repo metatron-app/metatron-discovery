@@ -100,16 +100,14 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
       const params = result.queryParam;
       let fragment = result.fragment;
       let queryParams = {};
-      if(fragment){
-        if(fragment.includes('?')){
-          // fragment에서 dashboardId 와 queryParams 추출
-          const paramsArr = fragment.slice(fragment.indexOf('?')+1).split('&');
-          paramsArr.forEach(param => {
-            const paramArr = param.split('=');
-            queryParams[paramArr[0]] = paramArr[1];
-          })
-          fragment = fragment.slice(0,fragment.indexOf('?')); // dashboardId
-        }
+      if(fragment && fragment.includes('?')){
+        // fragment에서 dashboardId 와 queryParams 추출
+        const paramsArr = fragment.slice(fragment.indexOf('?')+1).split('&');
+        paramsArr.forEach(param => {
+          const paramArr = param.split('=');
+          queryParams[paramArr[0]] = paramArr[1];
+        });
+        fragment = fragment.slice(0,fragment.indexOf('?')); // dashboardId
       }else{
         queryParams = result.queryParams;
       }
