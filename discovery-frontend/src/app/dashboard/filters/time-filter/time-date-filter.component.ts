@@ -240,6 +240,9 @@ export class TimeDateFilterComponent extends AbstractFilterPopupComponent implem
     } else {
       const arrInterval: any[] = targetFilter.intervals[0].split('/');
       targetFilter.valueDate = arrInterval[0];
+      if( TimeDateFilter.LATEST_DATETIME === targetFilter.valueDate ) {
+        this.isLatestTime = true;
+      }
     }
     return targetFilter;
   }
