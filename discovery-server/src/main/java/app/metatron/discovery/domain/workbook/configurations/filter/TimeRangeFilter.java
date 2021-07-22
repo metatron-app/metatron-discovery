@@ -189,6 +189,8 @@ public class TimeRangeFilter extends TimeFilter {
       DateTime dateTime = DateTime.parse(parts[0], formatter);
       Period periodPlus = Period.parse(parts[1]);
       resultDateTimes = Lists.newArrayList(dateTime, timeUnit.maxDateTime(dateTime.plus(periodPlus)));
+    } else if (parts[0].startsWith(EARLIEST_DATETIME) && parts[1].startsWith(LATEST_DATETIME)) {
+      resultDateTimes = Lists.newArrayList(MIN_DATETIME, MAX_DATETIME);
     } else {
       resultDateTimes = Lists.newArrayList(DateTime.parse(parts[0], formatter), timeUnit.maxDateTime(DateTime.parse(parts[1], formatter)));
     }
