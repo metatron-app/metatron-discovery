@@ -28,6 +28,14 @@
     integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
     crossorigin="anonymous"></script>
   <script type="text/javascript">
+    function iframeOnload(param) {
+      // console.log( '>>>>> onload', param );
+      // alert('>>>>> onload' + param );
+      if( '' !== param.src ) {
+        window.history.back();
+      }
+    }
+
     function getCookie(cookieName){
       let cookieValue=null;
       if(document.cookie){
@@ -84,6 +92,12 @@
       });
 
       $( '#btnLoadDashboard' ).on( 'click', function() {
+        // document.getElementById("iframe1").contentWindow.location.replace(
+        //   baseHref + '/app/v2/embedded/dashboard/' + $wbDashboard1.val()
+        // );
+        // document.getElementById("iframe2").contentWindow.location.replace(
+        //   baseHref + '/app/v2/embedded/dashboard/' + $wbDashboard2.val()
+        // );
         $( '#iframe1' ).attr( 'src', baseHref + '/app/v2/embedded/dashboard/' + $wbDashboard1.val() );
         $( '#iframe2' ).attr( 'src', baseHref + '/app/v2/embedded/dashboard/' + $wbDashboard2.val() );
 
@@ -105,7 +119,7 @@
   <br>
   <label for="wbDashboard2">두번째 대시보드</label>&nbsp;<select id="wbDashboard2"></select>
   <input id="btnLoadDashboard" type="button" value="불러오기">
-  <iframe id="iframe1" style="width: 100%;height: 800px;"></iframe>
-  <iframe id="iframe2" style="width: 100%;height: 800px;"></iframe>
+  <iframe id="iframe1" onload="iframeOnload(this)" style="width: 100%;height: 800px;"></iframe>
+  <iframe id="iframe2" onload="iframeOnload(this)" style="width: 100%;height: 800px;"></iframe>
 </body>
 </html>

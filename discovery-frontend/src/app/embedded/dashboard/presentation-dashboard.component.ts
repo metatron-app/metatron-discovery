@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {PopupService} from '@common/service/popup.service';
 import {EventBroadcaster} from '@common/event/event.broadcaster';
@@ -152,10 +152,10 @@ export class PresentationDashboardComponent extends AbstractPopupComponent imple
     super.ngOnDestroy();
   } // function - ngOnDestroy
 
-  @HostListener('window:popstate')
-  public onPopstate() {
-    window.history.pushState(null, null, window.location.href);
-  }
+  // @HostListener('window:popstate')
+  // public onPopstate() {
+  //   window.history.pushState(null, null, window.location.href);
+  // }
 
   /**
    * 대시보드 이벤트 핸들러
