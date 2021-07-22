@@ -57,6 +57,8 @@ public class OrganizationProjections extends BaseProjections {
 
     String getDescription();
 
+    String getCode();
+
     Integer getUserCount();
 
     Integer getGroupCount();
@@ -80,6 +82,8 @@ public class OrganizationProjections extends BaseProjections {
     String getName();
 
     String getDescription();
+
+    String getCode();
 
     Integer getUserCount();
 
