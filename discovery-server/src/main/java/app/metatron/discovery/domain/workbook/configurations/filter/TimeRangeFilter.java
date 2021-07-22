@@ -175,6 +175,8 @@ public class TimeRangeFilter extends TimeFilter {
       resultDateTimes = Lists.newArrayList(dateTime.minus(periodMinus), timeUnit.maxDateTime(dateTime.plus(periodPlus)));
     } else if (parts.length != 2) {
       throw new DateTimeParseException("Text cannot be parsed to a Interval", text, 0);
+    } else if (parts[0].startsWith(EARLIEST_DATETIME) && parts[1].startsWith(LATEST_DATETIME)) {
+      resultDateTimes = Lists.newArrayList(MIN_DATETIME, MAX_DATETIME);
     } else if (parts[0].startsWith(EARLIEST_DATETIME)) {
       DateTime dateTime = DateTime.parse(parts[1], formatter);
       resultDateTimes = Lists.newArrayList(MIN_DATETIME, timeUnit.maxDateTime(dateTime));
@@ -189,8 +191,6 @@ public class TimeRangeFilter extends TimeFilter {
       DateTime dateTime = DateTime.parse(parts[0], formatter);
       Period periodPlus = Period.parse(parts[1]);
       resultDateTimes = Lists.newArrayList(dateTime, timeUnit.maxDateTime(dateTime.plus(periodPlus)));
-    } else if (parts[0].startsWith(EARLIEST_DATETIME) && parts[1].startsWith(LATEST_DATETIME)) {
-      resultDateTimes = Lists.newArrayList(MIN_DATETIME, MAX_DATETIME);
     } else {
       resultDateTimes = Lists.newArrayList(DateTime.parse(parts[0], formatter), timeUnit.maxDateTime(DateTime.parse(parts[1], formatter)));
     }
