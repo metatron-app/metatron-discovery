@@ -256,7 +256,6 @@ export class OrganizationManagementListComponent extends AbstractComponent imple
       this.pageResult = result.page;
 
       this.orgList = result.content;
-      console.log(result);
 
       // 로딩 hide
       this.loadingHide();

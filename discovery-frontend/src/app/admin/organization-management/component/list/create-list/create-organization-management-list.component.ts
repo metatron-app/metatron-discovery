@@ -92,7 +92,7 @@ export class CreateOrganizationManagementListComponent extends AbstractComponent
 
       this.organizationService.createOrganization(this._getCreateOrgParams()).then(()=>{
         // alert
-        Alert.success('조직 생성 성공');
+        Alert.success(this.translateService.instant('msg.organization.alert.name.create', {value: this.orgName.trim()}));
         // 로딩 hide
         this.loadingHide();
 
@@ -115,30 +115,32 @@ export class CreateOrganizationManagementListComponent extends AbstractComponent
     }
     if (CommonUtil.getByte(this.orgName.trim()) > 150) {
       this.isValidName = false;
-      this.nameValidMsg = this.translateService.instant('msg.groups.alert.name.len');
+      this.nameValidMsg = this.translateService.instant('msg.organization.alert.name.len');
       return;
     }
-    this.isValidName = true;
+    this._checkDuplicatedOrgName(StringUtil.replaceURIEncodingInQueryString(this.orgName.trim()));
   }
 
 
   public codeValidation(): void{
+    if(StringUtil.isEmpty(this.orgCode)){
+      this.isValidCode = false;
+      this.codeValidMsg = this.translateService.instant('msg.organization.alert.code.empty');
+    }
     // 코드 길이 체크
     if (StringUtil.isNotEmpty(this.orgCode) && CommonUtil.getByte(this.orgCode.trim()) > 20) {
       this.isValidDesc = undefined;
-      // ***************
-      this.descValidMsg = '이 부분 20바이트로 alert 수정해야함!!!';
+      this.descValidMsg = this.translateService.instant('msg.organization.alert.code.len');
       return;
     }
-    this.isValidCode = true;
+    this._checkDuplicatedOrgCode(StringUtil.replaceURIEncodingInQueryString(this.orgCode.trim()));
   }
 
   public descValidation(): void{
     // 설명 길이 체크
     if (StringUtil.isNotEmpty(this.orgDesc) && CommonUtil.getByte(this.orgDesc.trim()) > 900) {
       this.isValidDesc = undefined;
-      // ***************
-      this.descValidMsg = '이 부분 900바이트로 alert 수정해야함!!!';
+      this.descValidMsg = this.translateService.instant('msg.organization.alert.desc.len');
       return;
     }
     this.isValidDesc = true;
@@ -158,5 +160,32 @@ export class CreateOrganizationManagementListComponent extends AbstractComponent
     }
 
     return result;
+  }
+
+  /**
+   * 조직 이름 중복 체크
+   * @param orgName
+   * @private
+   */
+  private _checkDuplicatedOrgName(orgName: string): void{
+    this.organizationService.getResultDuplicatedOrgName(orgName).then((result: {duplicated: boolean}) => {
+      // 이름 사용 가능한 여부
+      this.isValidName = !result.duplicated;
+      // 이름이 중복이라면
+      if(result.duplicated){
+        this.nameValidMsg = this.translateService.instant('msg.organization.alert.name.used');
+      }
+    }).catch(error => this.commonExceptionHandler(error));
+  }
+
+  private _checkDuplicatedOrgCode(orgCode: string): void{
+    this.organizationService.getResultDuplicatedOrgCode(orgCode).then((result: {duplicated: boolean}) => {
+      // 코드 사용 가능한 여부
+      this.isValidCode = !result.duplicated;
+      // 코드가 중복이라면
+      if(result.duplicated){
+        this.codeValidMsg = this.translateService.instant('msg.organization.alert.code.used');
+      }
+    }).catch(error => this.commonExceptionHandler(error));
   }
 }

@@ -41,6 +41,10 @@ export class OrganizationService extends AbstractService{
     return this.get(url + `&projection=${projection}`);
   }
 
+  /**
+   * 조직 생성
+   * @param data 조직 데이터
+   */
   public createOrganization(data: any): Promise<any>{
 
     // URL
@@ -49,5 +53,19 @@ export class OrganizationService extends AbstractService{
     return this.post(url, data);
   }
 
-  public
+  /**
+   * 조직 이름 중복 체크
+   * @param orgName
+   */
+  public getResultDuplicatedOrgName(orgName: string): Promise<any>{
+    return this.post(this.API_URL + this.path + `/name/${orgName}/duplicated`, null);
+  }
+
+  /**
+   * 조직 코드 중복 체크
+   * @param orgCode
+   */
+  public getResultDuplicatedOrgCode(orgCode: string): Promise<any>{
+    return this.post(this.API_URL + this.path + `/code/${orgCode}/duplicated`, null);
+  }
 }

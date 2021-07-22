@@ -3347,6 +3347,16 @@
   "msg.groups.alert.name.create": "Group '{{value}}' created",
   "msg.groups.alert.grp.update.success": "Group modified",
 
+  "msg.organization.alert.name.create": "Organization '{{value}}' created",
+  "msg.organization.alert.name.len": "Name can be up to 150 characters in English",
+  "msg.organization.alert.name.used": "This name is already in use",
+  "msg.organization.alert.code.len": "Code can be up to 20 characters in English",
+  "msg.organization.alert.code.used": "This code is already in use",
+  "msg.organization.alert.desc.len" : "Description can be up to 900 characters in English",
+  "msg.organization.alert.name.empty" : "Name is required",
+  "msg.organization.alert.code.empty" : "Code is required",
+  "msg.organization.alert.code.blank" : "Code cannot contain spaces",
+
   "msg.permission.th.users" : "Users",
   "msg.permission.btn.email.users" : "Email to all users",
   "msg.permission.th.members" : "Members",
