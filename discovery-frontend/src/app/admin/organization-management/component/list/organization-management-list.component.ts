@@ -8,6 +8,8 @@ import {OrganizationService} from "../../service/organization.service";
 import {Alert} from "@common/util/alert.util";
 import {Organization} from "@domain/organization/organization";
 import {CreateOrganizationManagementListComponent} from "./create-list/create-organization-management-list.component";
+import {Modal} from "@common/domain/modal";
+import {ConfirmModalComponent} from "@common/component/modal/confirm/confirm.component";
 
 declare let moment: any;
 
@@ -21,9 +23,9 @@ export class OrganizationManagementListComponent extends AbstractComponent imple
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 삭제확인 팝업
-  // @ViewChild(ConfirmModalComponent)
-  // private deleteConfirmPopup: ConfirmModalComponent;
+  // 공통 팝업 모달
+  @ViewChild(ConfirmModalComponent)
+  private _confirmModalComponent: ConfirmModalComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -179,6 +181,21 @@ export class OrganizationManagementListComponent extends AbstractComponent imple
     this.createOrgPopup.init();
   }
 
+  public onOpenDeleteOrganization(orgCode: string): void{
+    //event stop
+    event.stopPropagation();
+
+    const modal = new Modal();
+    modal.data = 'DELETE';
+    modal.name = this.translateService.instant('msg.organization.ui.delete.title');
+    modal.description = this.translateService.instant('msg.organization.ui.delete.description');
+    modal.btnName = this.translateService.instant('msg.organization.ui.delete.btn');
+
+    // 삭제할 조직 코드 저장
+    modal['orgCode'] = orgCode;
+    // 팝업 창 오픈
+    this._confirmModalComponent.init(modal);
+  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - event
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -206,6 +223,13 @@ export class OrganizationManagementListComponent extends AbstractComponent imple
     }
   } // function - changePag
 
+  /**
+   * 모달 확인
+   * @param modal
+   */
+  public confirmEvent(modal): void{
+    modal.data === 'DELETE' ? this._deleteOrganization(modal.orgCode) : null; // 여기 null 부분에 나중에 업데이트 추가
+  }
 
 
 
@@ -224,6 +248,27 @@ export class OrganizationManagementListComponent extends AbstractComponent imple
     this.pageResult.size = 20;
     // search text
     this.searchKeyword = '';
+  }
+
+  private _deleteOrganization(orgCode: string): void{
+
+    // 로딩 show
+    this.loadingShow();
+    this.organizationService.deleteOrganization(orgCode).then(() => {
+      Alert.success(this.translateService.instant('msg.organization.alert.delete'));
+
+      if(this.page.page > 0 && this.orgList.length === 1){
+        this.page.page -= 1;
+      }
+
+      // 페이지 새로고침
+      this.reloadPage(false);
+    }).catch((error) => {
+      // alert
+      Alert.error(error);
+      // 로딩 hide
+      this.loadingHide();
+    });
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

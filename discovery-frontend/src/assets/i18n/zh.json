@@ -2497,6 +2497,10 @@
   "msg.organization.alert.name.empty" : "Name is required",
   "msg.organization.alert.code.empty" : "Code is required",
   "msg.organization.alert.code.blank" : "Code cannot contain spaces",
+  "msg.organization.ui.delete.title" : "Are you sure you want to delete?",
+  "msg.organization.ui.delete.description" : "Organization members are dismembered and cannot be restored",
+  "msg.organization.ui.delete.btn": "Delete organization",
+  "msg.organization.alert.delete" : "Organization deleted",
 
   "msg.permission.th.name": "名字",
   "msg.permission.th.description": "说明",

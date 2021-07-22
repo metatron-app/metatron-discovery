@@ -68,4 +68,12 @@ export class OrganizationService extends AbstractService{
   public getResultDuplicatedOrgCode(orgCode: string): Promise<any>{
     return this.post(this.API_URL + this.path + `/code/${orgCode}/duplicated`, null);
   }
+
+  /**
+   * 조직 삭제
+   * @param orgCode
+   */
+  public deleteOrganization(orgCode: string): Promise<void> {
+    return this.delete(this.API_URL + this.path + `/${orgCode}`);
+  }
 }

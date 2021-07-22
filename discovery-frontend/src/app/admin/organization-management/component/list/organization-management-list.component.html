@@ -105,7 +105,8 @@
         {{item.createdTime | mdate:'YYYY-MM-DD HH:mm'}}
       </td>
       <td>
-        <a href="javascript:" class="ddp-link-delete" *ngIf="!isDefaultOrganization(item)">
+        <a href="javascript:" class="ddp-link-delete" *ngIf="!isDefaultOrganization(item)"
+           (click)="onOpenDeleteOrganization(item.code)">
           <em class="ddp-icon-delete"></em>
           {{'msg.spaces.spaces.ui.delete' | translate}}
         </a>
@@ -120,6 +121,9 @@
 
 </div>
 
+<!-- 공통 모달 -->
+<app-confirm-modal (confirm)="confirmEvent($event)"></app-confirm-modal>
+<!-- // 공통 모달 -->
 <!-- 조직 생성 팝업 -->
 <app-create-organization-list (createComplete)="reloadPage()"></app-create-organization-list>
 <!-- // 조직 생성 팝업 -->
