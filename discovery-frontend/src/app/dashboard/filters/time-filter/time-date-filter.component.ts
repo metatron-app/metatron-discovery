@@ -98,8 +98,6 @@ export class TimeDateFilterComponent extends AbstractFilterPopupComponent implem
   public ngAfterViewInit() {
     super.ngAfterViewInit();
     this.setData(this.inputFilter);
-    setTimeout(() => {
-    }, 150 );
     this.subscriptions.push(
       this.broadCaster.on<any>('RESIZE_WIDGET').subscribe(() => {
         if ('WIDGET' === this.mode) {

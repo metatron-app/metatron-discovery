@@ -16,6 +16,7 @@ import {CommonUtil} from '@common/util/common.util';
 import {EventBroadcaster} from '@common/event/event.broadcaster';
 import {PickerSettings} from '@domain/common/datepicker.settings';
 import {TimeDateFilter} from '@domain/workbook/configurations/filter/time-date-filter';
+import {FilterUtil} from '../../util/filter.util';
 
 declare let moment: any;
 declare let $: any;
@@ -167,7 +168,7 @@ export class TimeDateComponent extends AbstractComponent implements OnInit, OnCh
     if (valueDate === TimeDateFilter.LATEST_DATETIME) {
       if( this.isWidgetMode ) {
         this.isLatestDateTime = false;
-        valueDate = maxTime;
+        valueDate = FilterUtil.getDateTimeFormat(maxTime, this.compData.timeUnit);
       } else {
         this.isLatestDateTime = true;
       }
