@@ -26,7 +26,9 @@ public class BulkLoadSpecBuilder extends AbstractSpecBuilder {
 
   String basePath;
 
-  boolean temporary;
+  boolean temporary = false;
+
+  boolean overwrite = true;
 
   List<String> paths;
 
@@ -69,6 +71,11 @@ public class BulkLoadSpecBuilder extends AbstractSpecBuilder {
     return this;
   }
 
+  public BulkLoadSpecBuilder overwrite(boolean overwrite) {
+    this.overwrite = overwrite;
+    return this;
+  }
+
   public BulkLoadSpec build() {
     BulkLoadSpec spec = new BulkLoadSpec();
     spec.setSchema(dataSchema);
@@ -77,6 +84,7 @@ public class BulkLoadSpecBuilder extends AbstractSpecBuilder {
     spec.setTuningConfig(tuningConfig);
     spec.setProperties(properties);
     spec.setTemporary(temporary);
+    spec.setOverwrite(overwrite);
 
     return spec;
   }

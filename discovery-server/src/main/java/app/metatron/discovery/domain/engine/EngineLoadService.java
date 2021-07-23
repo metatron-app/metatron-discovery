@@ -267,6 +267,7 @@ public class EngineLoadService {
         .tuningConfig(info.getTuningOptions())
         .properties(properties)
         .temporary(false)
+        .overwrite(false)
         .build();
 
     String specStr = GlobalObjectMapper.writeValueAsString(spec);
