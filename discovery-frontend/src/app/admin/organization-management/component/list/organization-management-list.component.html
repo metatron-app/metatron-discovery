@@ -85,7 +85,7 @@
     </tr>
     </thead>
     <tbody>
-    <tr *ngFor="let item of orgList;">
+    <tr *ngFor="let item of orgList;" (click)="showDetailOrganization(item)">
       <td>
         {{item.name}}
       </td>

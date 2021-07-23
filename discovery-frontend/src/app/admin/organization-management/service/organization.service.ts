@@ -42,6 +42,52 @@ export class OrganizationService extends AbstractService{
   }
 
   /**
+   * 조직 상세정보 조회
+   * @param orgCode
+   * @param projection
+   */
+  public getOrganizationDetail(orgCode: string, projection: string = 'forDetailView'): Promise<any> {
+    // URL
+    const url: string = this.API_URL + this.path + `/${orgCode}`;
+    return this.get(url + `?projection=${projection}`);
+  }
+
+  /**
+   * 조직 내 멤버 조회
+   * @param orgCode
+   * @param pageParam
+   * @param type
+   */
+  public getOrganizationUsers(orgCode: string, pageParam: {size: number, page: number}): Promise<any>{
+
+    // URL
+    let url: string = this.API_URL + this.path + '/' + orgCode + `/members?&type=USER`;
+
+    if(pageParam){
+      url +=  '&' + CommonUtil.objectToUrlString(pageParam);
+    }
+
+    return this.get(url);
+  }
+
+  /**
+   * 조직 내 그룹 조회
+   * @param orgCode
+   * @param pageParam
+   * @param type
+   */
+  public getOrganizationGroups(orgCode: string, pageParam: {size:number, page:number}, type: string = 'GROUP'): Promise<any>{
+    // URL
+    let url: string = this.API_URL + this.path + '/' + orgCode + `/members?type=${type}`;
+
+    if(pageParam){
+      url +=  '&' + CommonUtil.objectToUrlString(pageParam);
+    }
+
+    return this.get(url);
+  }
+
+  /**
    * 조직 생성
    * @param data 조직 데이터
    */

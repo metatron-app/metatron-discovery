@@ -232,6 +232,12 @@ export class OrganizationManagementListComponent extends AbstractComponent imple
   }
 
 
+  public showDetailOrganization(organization: Organization){
+    // 기존에 저장된 route 삭제
+    this.cookieService.delete('PREV_ROUTER_URL');
+    this.router.navigate(['/admin/organization/list', organization.code], {queryParams: this._searchParams});
+
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method
@@ -301,6 +307,8 @@ export class OrganizationManagementListComponent extends AbstractComponent imple
       this.pageResult = result.page;
 
       this.orgList = result.content;
+      console.log('organization List');
+      console.log(result.content);
 
       // 로딩 hide
       this.loadingHide();

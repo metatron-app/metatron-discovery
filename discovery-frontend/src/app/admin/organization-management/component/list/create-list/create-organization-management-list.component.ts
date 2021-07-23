@@ -72,18 +72,6 @@ export class CreateOrganizationManagementListComponent extends AbstractComponent
    * done
    */
   public createDone(): void {
-    // // 로딩 show
-    // this.loadingShow();
-    //
-    // this.organizationService.createOrganization(this._getCreateOrgParams()).then(()=>{
-    //   // alert
-    //   Alert.success('조직 생성 성공');
-    //   // 로딩 hide
-    //   this.loadingHide();
-    //
-    //   this.isShowPopup = false;
-    //   this.createComplete.emit();
-    // }).catch(error => this.commonExceptionHandler(error));
 
     if(this.isValidName && this.isValidCode &&
       (StringUtil.isEmpty(this.orgDesc) ? true : this.isValidDesc)){
@@ -148,7 +136,7 @@ export class CreateOrganizationManagementListComponent extends AbstractComponent
 
   private _getCreateOrgParams(): object {
     const result = {
-      code: this.orgName.trim()
+      code: this.orgCode.trim()
     };
     // 이름이 있는 경우
     if(StringUtil.isNotEmpty(this.orgName)){
