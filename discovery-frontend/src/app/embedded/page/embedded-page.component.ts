@@ -45,9 +45,6 @@ import {CommonUtil} from '@common/util/common.util';
 import {MapChartComponent} from '@common/component/chart/type/map-chart/map-chart.component';
 import {CustomField} from '@domain/workbook/configurations/field/custom-field';
 import {BoardConfiguration} from '@domain/dashboard/dashboard';
-import {TimeDateFilter} from '@domain/workbook/configurations/filter/time-date-filter';
-
-declare let async;
 
 @Component({
   selector: 'app-embedded-page',
@@ -358,63 +355,42 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
 
     this.loadingShow();
 
-    // Time Single Filter LASTEST_DATETIME 변환 처리
-    const procFileDs: ((callback) => void)[] = [];
-    if( cloneQuery.filters ) {
-      for (let idx = 0, nMax = cloneQuery.filters.length; idx < nMax; idx++) {
-        const filter = cloneQuery.filters[idx];
-        if( FilterUtil.isTimeRangeFilter(filter)
-          && TimeDateFilter.LATEST_DATETIME === ( filter as TimeDateFilter ).intervals[0].split( '/' )[0]
-          && TimeDateFilter.LATEST_DATETIME === ( filter as TimeDateFilter ).intervals[0].split( '/' )[1] ) {
-          procFileDs.push((callback) => {
-            this.datasourceService.getCandidateForFilter(filter, this.widget.dashBoard).then((result) => {
-              const maxDateTime = FilterUtil.getDateTimeFormat(result.maxTime, ( filter as TimeDateFilter ).timeUnit );
-              ( cloneQuery.filters[idx] as TimeDateFilter ).intervals = [ maxDateTime + '/' + maxDateTime];
-              callback();
-            }).catch(() => { callback(); });
-          });
+    this.datasourceService.searchQuery(cloneQuery, this.widget.dashBoard).then((data) => {
+
+      this.resultData = {
+        data,
+        config: query,
+        uiOption: this.uiOption,
+        params: {
+          widgetId: this.widget.id,
+          externalFilters: false
         }
+      };
+
+      const optionKeys = Object.keys(this.uiOption);
+      if (optionKeys && optionKeys.length === 1) {
+        delete this.resultData.uiOption;
       }
-    }
 
-    async.waterfall(procFileDs, () => {
-      this.datasourceService.searchQuery(cloneQuery).then((data) => {
-
-        this.resultData = {
-          data,
-          config: query,
-          uiOption: this.uiOption,
-          params: {
-            widgetId: this.widget.id,
-            externalFilters: false
-          }
-        };
-
-        const optionKeys = Object.keys(this.uiOption);
-        if (optionKeys && optionKeys.length === 1) {
-          delete this.resultData.uiOption;
+      setTimeout(() => {
+        // line차트이면서 columns 데이터가 있는경우
+        if (this.chartType === 'line' && this.resultData.data.columns && this.resultData.data.columns.length > 0) {
+          // 고급분석 예측선 API 호출
+          this.getAnalysis();
+        } else {
+          this.chart.resultData = this.resultData;
         }
+      }, 1000);
 
-        setTimeout(() => {
-          // line차트이면서 columns 데이터가 있는경우
-          if (this.chartType === 'line' && this.resultData.data.columns && this.resultData.data.columns.length > 0) {
-            // 고급분석 예측선 API 호출
-            this.getAnalysis();
-          } else {
-            this.chart.resultData = this.resultData;
-          }
-        }, 1000);
+      this.loadingHide();
 
-        this.loadingHide();
+      // 변경 적용
+      this.safelyDetectChanges();
 
-        // 변경 적용
-        this.safelyDetectChanges();
-
-      }).catch((error) => {
-        console.error(error);
-        this.showError();
-        this.loadingHide();
-      });
+    }).catch((error) => {
+      console.error(error);
+      this.showError();
+      this.loadingHide();
     });
 
   } // function - _search

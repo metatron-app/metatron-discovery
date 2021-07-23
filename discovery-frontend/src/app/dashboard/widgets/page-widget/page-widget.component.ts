@@ -29,6 +29,8 @@ import {
   ViewChild
 } from '@angular/core';
 
+import {environment} from '@environments/environment';
+
 import {CommonUtil} from '@common/util/common.util';
 import {Alert} from '@common/util/alert.util';
 import {ImageService} from '@common/service/image.service';
@@ -66,6 +68,7 @@ import {SearchQueryRequest} from '@domain/datasource/data/search-query-request';
 import {Filter} from '@domain/workbook/configurations/filter/filter';
 import {Widget} from '@domain/dashboard/widget/widget';
 import {PageWidget, PageWidgetConfiguration} from '@domain/dashboard/widget/page-widget';
+import {AggregationType} from '@domain/workbook/configurations/field/measure-field';
 
 import {DatasourceService} from '../../../datasource/service/datasource.service';
 import {AnalysisPredictionService} from '../../../page/component/analysis/service/analysis.prediction.service';
@@ -73,13 +76,9 @@ import {WidgetService} from '../../service/widget.service';
 import {FilterUtil} from '../../util/filter.util';
 import {ChartLimitInfo, DashboardUtil} from '../../util/dashboard.util';
 import {AbstractWidgetComponent} from '../abstract-widget.component';
-import {AggregationType} from '@domain/workbook/configurations/field/measure-field';
-import {environment} from '@environments/environment';
-import {TimeDateFilter} from '@domain/workbook/configurations/filter/time-date-filter';
 
 declare let $;
 declare let moment;
-declare let async;
 
 @Component({
   selector: 'page-widget',
@@ -1196,7 +1195,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
    */
   public copyWidgetUrlToClipboard() {
     if (this.widget) {
-      let content = location.protocol + '//' + location.host + ':' + location.port + environment.baseHref;
+      let content = location.protocol + '//' + location.host + environment.baseHref;
       content = content + 'embedded/page/' + this.widget.id;
       this._clipboardService.copyFromContent(content);
       Alert.success(this.translateService.instant('msg.page.alert.copy.chart-url'));
@@ -1613,117 +1612,96 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
     this._currentGlobalFilterString = JSON.stringify(cloneGlobalFilters);
     const disableCache: boolean = isForceLoad || this.isRealTimeWidget;
 
-    // Time Single Filter LASTEST_DATETIME 변환 처리
-    const procFileDs: ((callback) => void)[] = [];
-    if( cloneQuery.filters ) {
-      for (let idx = 0, nMax = cloneQuery.filters.length; idx < nMax; idx++) {
-        const filter = cloneQuery.filters[idx];
-        if( FilterUtil.isTimeRangeFilter(filter)
-          && TimeDateFilter.LATEST_DATETIME === ( filter as TimeDateFilter ).intervals[0].split( '/' )[0]
-          && TimeDateFilter.LATEST_DATETIME === ( filter as TimeDateFilter ).intervals[0].split( '/' )[1] ) {
-          procFileDs.push((callback) => {
-            this.datasourceService.getCandidateForFilter(filter, this.widget.dashBoard).then((result) => {
-              const maxDateTime = FilterUtil.getDateTimeFormat(result.maxTime, ( filter as TimeDateFilter ).timeUnit );
-              ( cloneQuery.filters[idx] as TimeDateFilter ).intervals = [ maxDateTime + '/' + maxDateTime];
-              callback();
-            }).catch(() => { callback(); });
-          });
-        }
-      }
-    }
-
     // 차트 데이터 조회
-    async.waterfall(procFileDs, () => {
-      this.datasourceService.searchQuery(cloneQuery, disableCache).then((data) => {
+    this.datasourceService.searchQuery(cloneQuery, this.widget.dashBoard, disableCache).then((data) => {
 
-        if (this.resultData && this.isRealTimeWidget && cloneQuery.pivot.columns.some(item => 'TIMESTAMP' === item.subRole)) {
+      if (this.resultData && this.isRealTimeWidget && cloneQuery.pivot.columns.some(item => 'TIMESTAMP' === item.subRole)) {
 
-          // let time = moment(data.rows[data.rows.length - 1]);
-          // for (let idx = 0; idx < 1; idx++) {
-          //   time.add(5, 's');
-          //   data.rows.push(time.format('MMM D, YYYY HH:mm:ss'));
-          //   data.columns[0].value.push(Math.floor((Math.random() * 12) - 9));
-          // }
+        // let time = moment(data.rows[data.rows.length - 1]);
+        // for (let idx = 0; idx < 1; idx++) {
+        //   time.add(5, 's');
+        //   data.rows.push(time.format('MMM D, YYYY HH:mm:ss'));
+        //   data.columns[0].value.push(Math.floor((Math.random() * 12) - 9));
+        // }
 
-          const columnSize = data.columns.length;
-          const newData = data.rows.map((rowItem, rowIndex) => {
-            const columnValues = [];
-            for (let columnIdx = 0; columnIdx < columnSize; ++columnIdx) {
-              const columnValue = data.columns[columnIdx].value;
-              columnValues.push(columnValue[rowIndex]);
-            }
-            return {
-              row: rowItem,
-              col: columnValues
-            };
-          }).sort((a, b) => {
-            return moment(a.row).isBefore(moment(b.row));
-          });
-          newData.forEach(newItem => {
-            if (!this.resultData.data.rows.some(row => row === newItem.row)) {
-              this.resultData.data.rows.push(newItem.row);
-              for (let columnIdx = 0; columnIdx < columnSize; ++columnIdx) {
-                this.resultData.data.columns[columnIdx].value.push(newItem.col[columnIdx]);
-              }
-            }
-          });
-        } else {
-          this.resultData = {
-            data,
-            config: query,
-            uiOption: this.uiOption,
-            params: {
-              widgetId: this.widget.id,
-              externalFilters: (currentSelectionFilters !== undefined && 0 < currentSelectionFilters.length),
-              // 현재 차트가 선택한 필터목록
-              selectFilterListList: this._selectFilterList
-            }
+        const columnSize = data.columns.length;
+        const newData = data.rows.map((rowItem, rowIndex) => {
+          const columnValues = [];
+          for (let columnIdx = 0; columnIdx < columnSize; ++columnIdx) {
+            const columnValue = data.columns[columnIdx].value;
+            columnValues.push(columnValue[rowIndex]);
+          }
+          return {
+            row: rowItem,
+            col: columnValues
           };
-        }
-
-        const optionKeys = Object.keys(this.uiOption);
-        if (optionKeys && optionKeys.length === 1) {
-          delete this.resultData.uiOption;
-        }
-
-        this._initGridChart();
-
-        // 대시보드 편집일 경우 차트 클릭 막음( params는 차트 클릭시 돌려받는 값)
-        if (this.layoutMode === LayoutMode.EDIT && this.resultData.params) {
-          delete this.resultData.params;
-        }
-
-        setTimeout(() => {
-
-          // 차트 클리어
-          (isClear) && (this.chart.clear());
-
-          // line차트이면서 columns 데이터가 있는경우
-          if (this.chartType === 'line' && this.resultData.data.columns && this.resultData.data.columns.length > 0) {
-            // 고급분석 예측선 API 호출
-            this.getAnalysis(cloneQuery);
-          } else {
-            this.chart.resultData = this.resultData;
-            this.isSetChartData = true;
+        }).sort((a, b) => {
+          return moment(a.row).isBefore(moment(b.row));
+        });
+        newData.forEach(newItem => {
+          if (!this.resultData.data.rows.some(row => row === newItem.row)) {
+            this.resultData.data.rows.push(newItem.row);
+            for (let columnIdx = 0; columnIdx < columnSize; ++columnIdx) {
+              this.resultData.data.columns[columnIdx].value.push(newItem.col[columnIdx]);
+            }
           }
-
-          // Set Limit Info
-          this.limitInfo = DashboardUtil.getChartLimitInfo(this.widget.id, ChartType[this.chartType.toUpperCase()], data);
-          if (this.layoutMode === LayoutMode.EDIT) {
-            this.broadCaster.broadcast('WIDGET_LIMIT_INFO', this.limitInfo);
+        });
+      } else {
+        this.resultData = {
+          data,
+          config: query,
+          uiOption: this.uiOption,
+          params: {
+            widgetId: this.widget.id,
+            externalFilters: (currentSelectionFilters !== undefined && 0 < currentSelectionFilters.length),
+            // 현재 차트가 선택한 필터목록
+            selectFilterListList: this._selectFilterList
           }
+        };
+      }
 
-        }, 1000);
+      const optionKeys = Object.keys(this.uiOption);
+      if (optionKeys && optionKeys.length === 1) {
+        delete this.resultData.uiOption;
+      }
 
-        // 변경 적용
-        this.safelyDetectChanges();
-      }).catch((error) => {
-        // 프로세스 종료 등록 및 No Data 표시
-        this._showError(error);
-        this.updateComplete();
-        // 변경 적용
-        this.safelyDetectChanges();
-      });
+      this._initGridChart();
+
+      // 대시보드 편집일 경우 차트 클릭 막음( params는 차트 클릭시 돌려받는 값)
+      if (this.layoutMode === LayoutMode.EDIT && this.resultData.params) {
+        delete this.resultData.params;
+      }
+
+      setTimeout(() => {
+
+        // 차트 클리어
+        (isClear) && (this.chart.clear());
+
+        // line차트이면서 columns 데이터가 있는경우
+        if (this.chartType === 'line' && this.resultData.data.columns && this.resultData.data.columns.length > 0) {
+          // 고급분석 예측선 API 호출
+          this.getAnalysis(cloneQuery);
+        } else {
+          this.chart.resultData = this.resultData;
+          this.isSetChartData = true;
+        }
+
+        // Set Limit Info
+        this.limitInfo = DashboardUtil.getChartLimitInfo(this.widget.id, ChartType[this.chartType.toUpperCase()], data);
+        if (this.layoutMode === LayoutMode.EDIT) {
+          this.broadCaster.broadcast('WIDGET_LIMIT_INFO', this.limitInfo);
+        }
+
+      }, 1000);
+
+      // 변경 적용
+      this.safelyDetectChanges();
+    }).catch((error) => {
+      // 프로세스 종료 등록 및 No Data 표시
+      this._showError(error);
+      this.updateComplete();
+      // 변경 적용
+      this.safelyDetectChanges();
     });
 
   } // function - _search
