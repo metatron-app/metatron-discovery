@@ -355,7 +355,7 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
 
     this.loadingShow();
 
-    this.datasourceService.searchQuery(cloneQuery).then((data) => {
+    this.datasourceService.searchQuery(cloneQuery, this.widget.dashBoard).then((data) => {
 
       this.resultData = {
         data,
@@ -392,6 +392,7 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
       this.showError();
       this.loadingHide();
     });
+
   } // function - _search
 
   /**

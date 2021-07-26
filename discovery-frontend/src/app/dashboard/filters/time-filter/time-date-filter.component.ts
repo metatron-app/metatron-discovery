@@ -20,7 +20,7 @@ import {Dashboard} from '@domain/dashboard/dashboard';
 import {DatasourceService} from '../../../datasource/service/datasource.service';
 import {FilterUtil} from '../../util/filter.util';
 import {AbstractFilterPopupComponent} from '../abstract-filter-popup.component';
-import {TimeDate} from '../component/time-date.component';
+import {TimeDate, TimeDateData} from '../component/time-date.component';
 
 @Component({
   selector: 'app-time-date-filter',
@@ -47,9 +47,11 @@ export class TimeDateFilterComponent extends AbstractFilterPopupComponent implem
   @Input('mode')
   public mode: 'CHANGE' | 'WIDGET' | 'PANEL' = 'CHANGE';          // 화면 모드
 
-
   public targetFilter: TimeDateFilter;
   public isVertical: boolean = false;
+
+  public dateBoundary: DateBoundary;
+  public isLatestTime: boolean = false;
 
   // UI 상 임시값 정의
   public lastIntervals = '';
@@ -96,8 +98,6 @@ export class TimeDateFilterComponent extends AbstractFilterPopupComponent implem
   public ngAfterViewInit() {
     super.ngAfterViewInit();
     this.setData(this.inputFilter);
-    setTimeout(() => {
-    }, 150 );
     this.subscriptions.push(
       this.broadCaster.on<any>('RESIZE_WIDGET').subscribe(() => {
         if ('WIDGET' === this.mode) {
@@ -112,7 +112,6 @@ export class TimeDateFilterComponent extends AbstractFilterPopupComponent implem
    */
   public ngOnDestroy() {
     super.ngOnDestroy();
-
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -150,6 +149,14 @@ export class TimeDateFilterComponent extends AbstractFilterPopupComponent implem
     return this.targetFilter;
   } // function - getData
 
+  public getTimeDateData(): TimeDateData {
+    if( this.targetFilter ) {
+      return new TimeDateData(
+        this.targetFilter.valueDate, this.dateBoundary.minTime, this.dateBoundary.maxTime, this.targetFilter.timeUnit
+      );
+    }
+  } // func - getTimeDateData
+
   public onDateChange(date: TimeDate){
     this.targetFilter.valueDate = date.valueDate;
     this.targetFilter.intervals = [this.targetFilter.valueDate + '/' + this.targetFilter.valueDate];
@@ -161,6 +168,39 @@ export class TimeDateFilterComponent extends AbstractFilterPopupComponent implem
   public broadcastChange() {
     this._broadcastChange();
   }
+
+  /**
+   * 시간필터 - 최후 시간 설정 On/Off
+   * @param $event
+   */
+  public setLatestTime($event) {
+    const checked = $event.target ? $event.target.checked : $event.currentTarget.checked;
+
+    this.isLatestTime = checked;
+
+    const interval: string = this.targetFilter.intervals[0];
+
+    if (checked) {
+      // 체크시 LATEST_DATETIME 으로 값 설정
+      if (interval.indexOf('/') > -1) {
+        // 레퍼런스 변경으로 뷰 갱신
+        this.targetFilter.valueDate = TimeDateFilter.LATEST_DATETIME;
+        this.targetFilter.intervals = [TimeDateFilter.LATEST_DATETIME + '/' + TimeDateFilter.LATEST_DATETIME];
+      }
+    } else {
+      // 체크 해제시 maxTime으로 값 설정
+      if (interval.indexOf('/') > -1) {
+        // 레퍼런스 변경으로 뷰 갱신
+        const valueDate = FilterUtil.getDateTimeFormat(this.dateBoundary.maxTime, this.targetFilter.timeUnit);
+        this.targetFilter.valueDate = valueDate;
+        this.targetFilter.intervals = [valueDate + '/' + valueDate];
+      }
+    }
+
+    // 변경사항 전파
+    this._broadcastChange();
+
+  } // function - setLatestTime
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method
@@ -188,16 +228,28 @@ export class TimeDateFilterComponent extends AbstractFilterPopupComponent implem
     }
   }
 
-  private _setDateFilter(result: { minTime: Date, maxTime: Date }, targetFilter: TimeDateFilter): TimeDateFilter{
+  private _setDateFilter(result: DateBoundary, targetFilter: TimeDateFilter): TimeDateFilter{
+
+    // 초기화
+    this.isLatestTime = false;
+
+    this.dateBoundary = result;
     if(!targetFilter.intervals) {
-      targetFilter.valueDate = FilterUtil.getDateTimeFormat(result.minTime, targetFilter.timeUnit );
+      targetFilter.valueDate = FilterUtil.getDateTimeFormat(result.maxTime, targetFilter.timeUnit);
       targetFilter.intervals = [targetFilter.valueDate + '/' + targetFilter.valueDate];
     } else {
       const arrInterval: any[] = targetFilter.intervals[0].split('/');
       targetFilter.valueDate = arrInterval[0];
+      if( TimeDateFilter.LATEST_DATETIME === targetFilter.valueDate ) {
+        this.isLatestTime = true;
+      }
     }
     return targetFilter;
   }
 
 }
 
+class DateBoundary {
+  minTime: Date;
+  maxTime: Date;
+}

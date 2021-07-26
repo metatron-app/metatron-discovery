@@ -3811,7 +3811,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       this.chart['setQuery'] = this.query;
     }
 
-    this.datasourceService.searchQuery(cloneQuery, params.disableCache).then(
+    // 차트 데이터 조회
+    this.datasourceService.searchQuery(cloneQuery, this.widget.dashBoard, params.disableCache).then(
       (data) => {
 
         const resultData = {
