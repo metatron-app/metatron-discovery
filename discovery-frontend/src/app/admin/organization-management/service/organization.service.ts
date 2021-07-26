@@ -88,18 +88,6 @@ export class OrganizationService extends AbstractService{
   }
 
   /**
-   * 조직 생성
-   * @param data 조직 데이터
-   */
-  public createOrganization(data: any): Promise<any>{
-
-    // URL
-    const url: string = this.API_URL + this.path;
-
-    return this.post(url, data);
-  }
-
-  /**
    * 조직 이름 중복 체크
    * @param orgName
    */
@@ -115,6 +103,36 @@ export class OrganizationService extends AbstractService{
     return this.post(this.API_URL + this.path + `/code/${orgCode}/duplicated`, null);
   }
 
+
+  /**
+   * 조직 생성
+   * @param data 조직 데이터
+   */
+  public createOrganization(data: any): Promise<any>{
+    // URL
+    const url: string = this.API_URL + this.path;
+    return this.post(url, data);
+  }
+
+  /**
+   * 조직 정보 업데이트
+   * @param data
+   */
+  public updateOrganization(orgCode: string, data: any): Promise<any>{
+    // URL
+    const url: string = this.API_URL + this.path + `/${orgCode}`;
+    return this.put(url, data);
+  }
+
+  /**
+   * 조직 멤버 및 그룹 업데이트
+   * @param data
+   */
+  public addRemoveOrgMember(orgCode: string, data: any): Promise<any>{
+    // URL
+    const url: string = this.API_URL + this.path + `/${orgCode}/members`;
+    return this.patch(url, data);
+  }
   /**
    * 조직 삭제
    * @param orgCode

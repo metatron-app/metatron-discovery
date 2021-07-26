@@ -7,9 +7,11 @@ import {Alert} from "@common/util/alert.util";
 import {Location} from '@angular/common';
 import {Modal} from "@common/domain/modal";
 import {ConfirmModalComponent} from "@common/component/modal/confirm/confirm.component";
-import {RoleDirectory} from "@domain/user/role/roleDirectory";
 import {OrganizationMember} from "@domain/organization/organization-member";
 import {Role} from "@domain/user/role/role";
+import {UpdateOrganizationManagementListComponent} from "../update-list/update-organization-management-list.component";
+import {UpdateContainerOrganizationManagementComponent} from "../update-list/update-container-organization-management.component";
+import {OrganizationGroup} from "@domain/organization/organization-group";
 
 
 @Component({
@@ -51,7 +53,7 @@ export class DetailOrganizationManagementListComponent extends AbstractComponent
 
   public role: Role = new Role();
   public members: OrganizationMember[] = [];
-  public groups: RoleDirectory[] = [];
+  public groups: OrganizationGroup[] = [];
 
   public defaultTab: number;
   public isSetMemberGroupOpen: boolean = false;
@@ -62,6 +64,12 @@ export class DetailOrganizationManagementListComponent extends AbstractComponent
 
   public isMembersDropdownOpen: boolean = false;
   public isGroupsDropdownOpen: boolean = false;
+
+  @ViewChild(UpdateOrganizationManagementListComponent)
+  public updateOrganizationComponent: UpdateOrganizationManagementListComponent;
+
+  @ViewChild(UpdateContainerOrganizationManagementComponent)
+  public updateContainerOrganizationComponent: UpdateContainerOrganizationManagementComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -177,6 +185,10 @@ export class DetailOrganizationManagementListComponent extends AbstractComponent
     this.router.navigate(['/admin/user/groups', groupId]);
   }
 
+  public updateDetail() {
+    this.isSetMemberGroupOpen = false;
+    this._getMembersInOrg(this.orgData.code);
+  }
   /**
    * 그룹 삭제
    */
@@ -270,18 +282,19 @@ export class DetailOrganizationManagementListComponent extends AbstractComponent
 
     const pageParam = {size: 10000, page: 0};
 
-    // 상세정보 조회
+    // 멤버 유저 정보 조회
     this.organizationService.getOrganizationUsers(orgCode, pageParam).then((result) => {
-      // 멤버 목록 초기화
+      // 사용자 목록 초기화
       this.members = [];
-      // 멤버 데이터 수 초기화
+      // 사용자 데이터 수 초기화
       this.orgData.userCount = 0;
 
       if(result.content){
-        // 멤버 데이터
+        // 사용자 데이터
         this.members = result.content;
-        // 멤버 데이터 수 변경
+        // 사용자 데이터 수 변경
         this.orgData.userCount = result.content.length;
+        this.simplifiedMemberList = [];
 
         this.members.map((item) => {
           this.simplifiedMemberList.push({
@@ -294,9 +307,6 @@ export class DetailOrganizationManagementListComponent extends AbstractComponent
         this.members = [];
         this.simplifiedMemberList = [];
       }
-      // loading hide
-      this.loadingHide();
-
     }).catch((error) => {
       this.commonExceptionHandler(error);
 
@@ -304,6 +314,39 @@ export class DetailOrganizationManagementListComponent extends AbstractComponent
       this.loadingHide();
 
     });
+
+    // 멤버 그룹 정보 조회
+    this.organizationService.getOrganizationGroups(orgCode, pageParam).then((result) => {
+      // 그룹 목록 초기화
+      this.groups = [];
+      // 그룹 목록 초기화
+      this.orgData.groupCount = 0;
+      this.simplifiedGroupList = [];
+
+      if(result.content){
+        // 그룹 데이터
+        this.groups = result.content;
+        // 그룹 데이터 수 변경
+        this.orgData.groupCount = result.content.lenth;
+
+        this.groups.map((item) => {
+          this.simplifiedGroupList.push({
+            directoryId: item.memberId,
+            directoryName: item.profile.name,
+            type: item.type
+          });
+        })
+      } else {
+        this.groups = [];
+        this.simplifiedGroupList = [];
+      }
+    }).catch((error) => {
+      this.commonExceptionHandler(error);
+      // loading hide
+      this.loadingHide();
+    });
+
+    this.loadingHide();
   }
 
   /**

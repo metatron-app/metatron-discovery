@@ -267,7 +267,7 @@
 
                   <em class="ddp-icon-drop" (click)="openGroupsDropdown()"></em>
                   <div class="ddp-wrap-link-detail2">
-                    <a href="javascript:" class="ddp-link-info" (click)="onClickLinkGroup(groups[0].directoryId)">{{groups[0].directoryName}}
+                    <a href="javascript:" class="ddp-link-info" (click)="onClickLinkGroup(groups[0].memberId)">{{groups[0].profile.name}}
                     </a>
                   </div>
                   and
@@ -279,7 +279,7 @@
                 <!-- 데이터가 1개 일 경우 -->
                 <div class="ddp-label-dropdown" *ngIf="groups?.length === 1">
                   <div class="ddp-wrap-link-detail2">
-                    <a href="javascript:" class="ddp-link-info" (click)="onClickLinkGroup(groups[0].directoryId)">{{groups[0].directoryName}}
+                    <a href="javascript:" class="ddp-link-info" (click)="onClickLinkGroup(groups[0].memberId)">{{groups[0].profile.name}}
                     </a>
                   </div>
                   <a href="javascript:" class="ddp-btn-option2" (click)="openEditPopup('groups'); isGroupsDropdownOpen = false"></a>
@@ -294,7 +294,7 @@
                 <!-- //데이터가 없을경우  -->
                 <div class="ddp-det-dropdown">
                   <div class="ddp-wrap-link-detail2" *ngFor="let group of filteredGroups()">
-                    <a href="javascript:" class="ddp-link-info ddp-type" (click)="onClickLinkGroup(group.directoryId)">{{group.directoryName}}<em class="ddp-icon-window"></em>
+                    <a href="javascript:" class="ddp-link-info ddp-type" (click)="onClickLinkGroup(group.memberId)">{{group.profile.name}}<em class="ddp-icon-window"></em>
                     </a>
                   </div>
                 </div>
@@ -318,4 +318,11 @@
 <!-- confirm modal -->
 <app-confirm-modal (confirm)="deleteOrganization()"></app-confirm-modal>
 <!-- //confirm modal -->
-
+<app-update-container-organization [orgData]="orgData"
+                                   [defaultTab]="defaultTab"
+                                   *ngIf="isSetMemberGroupOpen"
+                                   (cancelEvent)="closeSetMemberGroupPopup()"
+                                   [members]="simplifiedMemberList"
+                                   [groups]="simplifiedGroupList"
+                                   (applyEvent)="updateDetail()"
+></app-update-container-organization>

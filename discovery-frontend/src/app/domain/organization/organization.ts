@@ -10,7 +10,7 @@ export class Organization extends  AbstractHistoryEntity{
   // organization description
   public description: string;
   // organization group count
-  public groupCount: string;
+  public groupCount: number;
   // organization member count;
   public userCount: number;
 

@@ -40,11 +40,11 @@
             </li>
           </ul>
         </div>
-        <app-set-member-group [defaultTab]="defaultTab"
+        <app-update-organization-list [defaultTab]="defaultTab"
                               [searchPlaceholder]="searchPlaceholder"
-                              (getGroupsOutput)="_getGroupList($event)"
-                              (getMembersOutput)="_getMemberList($event)" (checkEvent)="checkEvent($event)">
-        </app-set-member-group>
+                              (getGroupsOutput)="getGroupList($event)"
+                              (getMembersOutput)="getMemberList($event)" (checkEvent)="checkEvent($event)">
+        </app-update-organization-list>
       </div>
     </div>
 
