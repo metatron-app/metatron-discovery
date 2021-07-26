@@ -17,7 +17,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  HostListener,
   Injector,
   OnDestroy,
   OnInit,
@@ -131,10 +130,10 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
     super.ngOnDestroy();
   }
 
-  @HostListener('window:popstate')
-  public onPopstate() {
-    window.history.pushState(null, null, window.location.href);
-  }
+  // @HostListener('window:popstate')
+  // public onPopstate() {
+  //   window.history.pushState(null, null, window.location.href);
+  // }
 
 
   /**
