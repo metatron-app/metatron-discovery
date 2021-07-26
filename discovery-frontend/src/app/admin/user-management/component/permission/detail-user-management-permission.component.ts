@@ -199,8 +199,7 @@ export class DetailUserManagementPermissionComponent extends AbstractUserManagem
         if (result._embedded) {
           this.members = result._embedded['roleDirectories'];
           this.simplifiedMemberList = [];
-          console.log('Permission members');
-          console.log(result._embedded);
+
           this.members.map((item) => {
             this.simplifiedMemberList.push({
               directoryId: item.directoryId,

@@ -8,7 +8,8 @@ import {Location} from '@angular/common';
 import {Modal} from "@common/domain/modal";
 import {ConfirmModalComponent} from "@common/component/modal/confirm/confirm.component";
 import {RoleDirectory} from "@domain/user/role/roleDirectory";
-import {GroupMember} from "@domain/user/group-member";
+import {OrganizationMember} from "@domain/organization/organization-member";
+import {Role} from "@domain/user/role/role";
 
 
 @Component({
@@ -48,8 +49,8 @@ export class DetailOrganizationManagementListComponent extends AbstractComponent
   // 조직 설명 수정 플래그
   public editDescFlg: boolean;
 
-
-  public members: GroupMember[] = [];
+  public role: Role = new Role();
+  public members: OrganizationMember[] = [];
   public groups: RoleDirectory[] = [];
 
   public defaultTab: number;
@@ -279,20 +280,29 @@ export class DetailOrganizationManagementListComponent extends AbstractComponent
       if(result.content){
         // 멤버 데이터
         this.members = result.content;
-        console.log('Organization members');
-        console.log(result.content);
         // 멤버 데이터 수 변경
         this.orgData.userCount = result.content.length;
+
+        this.members.map((item) => {
+          this.simplifiedMemberList.push({
+            directoryId: item.memberId,
+            directoryName: item.profile.fullName,
+            type: item.type
+          });
+        })
       } else {
         this.members = [];
+        this.simplifiedMemberList = [];
       }
+      // loading hide
+      this.loadingHide();
+
+    }).catch((error) => {
+      this.commonExceptionHandler(error);
 
       // loading hide
       this.loadingHide();
 
-    }).catch(() => {
-      // loading hide
-      this.loadingHide();
     });
   }
 

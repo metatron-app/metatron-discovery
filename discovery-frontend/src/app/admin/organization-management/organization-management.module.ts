@@ -6,6 +6,8 @@ import {OrganizationManagementListComponent} from "./component/list/organization
 import {OrganizationService} from "./service/organization.service";
 import {CreateOrganizationManagementListComponent} from "./component/list/create-list/create-organization-management-list.component";
 import {DetailOrganizationManagementListComponent} from "./component/list/detail-list/detail-organization-management-list.component";
+import {UpdateContainerOrganizationManagementComponent} from "./component/list/update-list/update-container-organization-management.component";
+import {UpdateOrganizationManagementListComponent} from "./component/list/update-list/update-organization-management-list.component";
 
 @NgModule({
   imports: [
@@ -20,7 +22,9 @@ import {DetailOrganizationManagementListComponent} from "./component/list/detail
     OrganizationManagementComponent,
     OrganizationManagementListComponent,
     CreateOrganizationManagementListComponent,
-    DetailOrganizationManagementListComponent
+    DetailOrganizationManagementListComponent,
+    UpdateContainerOrganizationManagementComponent,
+    UpdateOrganizationManagementListComponent
   ],
   providers: [
     OrganizationService

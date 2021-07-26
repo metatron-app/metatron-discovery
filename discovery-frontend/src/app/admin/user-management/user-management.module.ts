@@ -41,11 +41,11 @@ import { UserManagementAccessComponent } from './component/access/user-managemen
   imports: [
     CommonModule,
     RouterModule.forChild([
-      { path: '', component: UserManagementComponent },
-      { path: ':tabId', component: UserManagementComponent },
-      { path: 'members/:userId', component: DetailUserManagementMembersComponent},
-      { path: 'groups/:groupId', component: DetailUserManagementGroupsComponent},
-      { path: 'permission/:roleId', component: DetailUserManagementPermissionComponent},
+      {path: '', component: UserManagementComponent},
+      {path: ':tabId', component: UserManagementComponent},
+      {path: 'members/:userId', component: DetailUserManagementMembersComponent},
+      {path: 'groups/:groupId', component: DetailUserManagementGroupsComponent},
+      {path: 'permission/:roleId', component: DetailUserManagementPermissionComponent},
     ]),
     ChangeWorksspaceOwnerModalModule
   ],
