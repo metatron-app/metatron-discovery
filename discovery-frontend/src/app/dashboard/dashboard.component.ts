@@ -118,7 +118,6 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
   @Input()
   public isShowAutoOn: boolean;
 
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public - Output Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -158,6 +157,9 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
       })
     );
 
+    if( this.isStandAlone ) {
+      $( 'html' ).addClass( 'sys-embed-board' );
+    }
   } // function - ngOnInit
 
   /**
@@ -186,7 +188,7 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
     const ptBoardInfo: PresentationDashboard = this.dashboard as PresentationDashboard;
     if (ptBoardInfo) {
       // 임시 로직 -> 후에 돈일대리와 내용 확인 할 것
-      if (ptBoardInfo.selectionFilters) {
+      if (ptBoardInfo.selectionFilters && this.selectionFilter) {
         ptBoardInfo.selectionFilters.forEach(item => {
           this.selectionFilter.changeFilter(item);
         });
@@ -225,7 +227,7 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
     if (boardFilters && boardFilters.length > 0) {
       this.broadCaster.broadcast('SET_GLOBAL_FILTER', {filters: boardFilters, exclude: filter});
     }
-    this.selectionFilter.init();
+    ( this.selectionFilter ) && ( this.selectionFilter.init() );
   } // function - changeFilterWidgetEventHandler
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -96,6 +96,7 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
       .pipe(
         map( result => ({queryParam: result[0], queryParams:result[1], fragment:result[2]}))
       ).subscribe(result => {
+      this._preFilters = {};
       const params = result.queryParam;
       let fragment = result.fragment;
       let queryParams = {};
