@@ -111,14 +111,22 @@ export class CreateOrganizationManagementListComponent extends AbstractComponent
 
 
   public codeValidation(): void{
+    // 코드가 비어 있다면
     if(StringUtil.isEmpty(this.orgCode)){
       this.isValidCode = false;
       this.codeValidMsg = this.translateService.instant('msg.organization.alert.code.empty');
+      return;
     }
     // 코드 길이 체크
     if (StringUtil.isNotEmpty(this.orgCode) && CommonUtil.getByte(this.orgCode.trim()) > 20) {
-      this.isValidDesc = undefined;
-      this.descValidMsg = this.translateService.instant('msg.organization.alert.code.len');
+      this.isValidCode = false;
+      this.codeValidMsg = this.translateService.instant('msg.organization.alert.code.len');
+      return;
+    }
+    // 코드 공백 체크
+    if (StringUtil.isNotEmpty(this.orgCode) && this.orgCode.trim().includes(' ')){
+      this.isValidCode = false;
+      this.codeValidMsg = this.translateService.instant('msg.organization.alert.code.blank');
       return;
     }
     this._checkDuplicatedOrgCode(StringUtil.replaceURIEncodingInQueryString(this.orgCode.trim()));
@@ -127,7 +135,7 @@ export class CreateOrganizationManagementListComponent extends AbstractComponent
   public descValidation(): void{
     // 설명 길이 체크
     if (StringUtil.isNotEmpty(this.orgDesc) && CommonUtil.getByte(this.orgDesc.trim()) > 900) {
-      this.isValidDesc = undefined;
+      this.isValidDesc = false;
       this.descValidMsg = this.translateService.instant('msg.organization.alert.desc.len');
       return;
     }

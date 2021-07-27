@@ -150,9 +150,6 @@ export class UpdateContainerOrganizationManagementComponent extends AbstractComp
         }
       });
 
-      // console.log('----Add Or Remove Org Member');
-      // console.log(result);
-
       this.flag = true;
       this.organizationService.addRemoveOrgMember(this.orgData.code, result).then(() => {
         this.allList = [];
@@ -223,8 +220,6 @@ export class UpdateContainerOrganizationManagementComponent extends AbstractComp
             });
           });
 
-          console.log('?? cloneMembers');
-          console.log(this.cloneMembers);
           this.updateOrganizationComponent.init({allData : simplifiedList, defaultTab : this.defaultTab, selectedItems : this.cloneMembers, headers : this.getHeaders(), pageResult :this.pageResult});
         }
       })

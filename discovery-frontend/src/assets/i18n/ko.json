@@ -3333,7 +3333,7 @@
   "msg.organization.alert.desc.len" : "설명은 한글기준 약 450자(900byte)까지 가능합니다",
   "msg.organization.alert.name.empty" : "이름은 필수값 입니다",
   "msg.organization.alert.code.empty" : "코드는 필수값 입니다",
-  "msg.organization.alert.code.blank" : "코드는 공백이 불가능합니다",
+  "msg.organization.alert.code.blank" : "코드는 공백을 포함할 수 없습니다",
   "msg.organization.ui.delete.title" : "정말 삭제시겠습니까?",
   "msg.organization.ui.delete.description" : "조직 멤버의 소속이 해제되며 다시 복구할 수 없습니다",
   "msg.organization.ui.delete.btn": "조직 삭제",
