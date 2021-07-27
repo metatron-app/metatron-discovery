@@ -213,14 +213,19 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
   private _setParameterFilterValues(dashboard) {
     Object.keys(this._preFilters).forEach(key => {
       dashboard.configuration.filters.forEach((eachFilter: Filter) => {
-        if (eachFilter.field === key) {
+        if (eachFilter.field && eachFilter.field.toLowerCase() === key.toLowerCase()) {
           FilterUtil.setParameterFilterValue(eachFilter, key, this._preFilters[key]);
         }
       });
       dashboard.widgets.forEach((widget) => {
-        if (widget.type === 'filter' && widget.name === key) {
+        if (widget.type === 'filter') {
           const widgetConf: FilterWidgetConfiguration = widget.configuration as FilterWidgetConfiguration;
-          FilterUtil.setParameterFilterValue(widgetConf.filter, key, this._preFilters[key]);
+          if(
+            ( widgetConf.filter.field && widgetConf.filter.field.toLowerCase() === key.toLowerCase() )
+            || widget.name.toLowerCase() === key.toLowerCase()
+          ) {
+            FilterUtil.setParameterFilterValue(widgetConf.filter, key, this._preFilters[key]);
+          }
         }
       })
     })
