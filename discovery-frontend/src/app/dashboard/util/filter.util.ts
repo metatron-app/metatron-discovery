@@ -338,36 +338,6 @@ export class FilterUtil {
         });
         // 서버에서 quarter 에 대한 필터링을 제공하지 않기 때문에 강제적으로 Month로 변경함 ( Selection 필터를 위함 )
         (TimeUnit.QUARTER === timeRangeFilter.timeUnit) && (timeRangeFilter.timeUnit = TimeUnit.MONTH);
-
-        if(FilterUtil.isTimeSingleFilter(timeRangeFilter)) {
-          filter.type = 'time_range'; // 차트 정보 조회 시 필터를 range로 변경하기 임시로 타입을 변경함
-          // (filter as TimeRangeFilter).intervals.forEach((item: string, idx: number) => {
-          //   const arrInterval: any[] = item.split('/');
-          //   let arrEndTime;
-          //   switch (timeRangeFilter.timeUnit) {
-          //     case TimeUnit.SECOND:
-          //       break;
-          //     case TimeUnit.MINUTE:
-          //       break;
-          //     case TimeUnit.HOUR:
-          //       break;
-          //     case TimeUnit.DAY:
-          //       break;
-          //     case TimeUnit.WEEK:
-          //       arrEndTime = moment( arrInterval[1], 'gggg-w' ).add( 1, 'w' ).format( 'gggg-w' );
-          //       timeRangeFilter.intervals[idx] = arrInterval[0] + '/' + arrEndTime;
-          //       break;
-          //     case TimeUnit.MONTH:
-          //       arrEndTime = moment( arrInterval[1], 'YYYY-MM' ).add( 1, 'M' ).format( 'YYYY-MM' );
-          //       timeRangeFilter.intervals[idx] = arrInterval[0] + '/' + arrEndTime;
-          //       break;
-          //     case TimeUnit.QUARTER:
-          //       break;
-          //     case TimeUnit.YEAR:
-          //       break;
-          //   }
-          // });
-        }
       }
     } // end if - time_range
     else if (FilterUtil.isTimeRelativeFilter(filter)) {
