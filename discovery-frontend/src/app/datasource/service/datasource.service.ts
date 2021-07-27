@@ -41,7 +41,7 @@ import {MeasurePositionFilter} from '@domain/workbook/configurations/filter/meas
 import {ContainsType, WildCardFilter} from '@domain/workbook/configurations/filter/wild-card-filter';
 import {CustomField} from '@domain/workbook/configurations/field/custom-field';
 import {TimeFilter} from '@domain/workbook/configurations/filter/time-filter';
-import {FilteringType} from '@domain/workbook/configurations/field/timestamp-field';
+import {FilteringType, TimeUnit} from '@domain/workbook/configurations/field/timestamp-field';
 import {TimeCompareRequest} from '@domain/datasource/data/time-compare-request';
 import {DashboardUtil} from '../../dashboard/util/dashboard.util';
 import {GeoBoundaryFormat, GeoHashFormat} from '@domain/workbook/configurations/field/geo-field';
@@ -56,6 +56,11 @@ import {Shelf} from '@domain/workbook/configurations/shelf/shelf';
 import {RegExprFilter} from '@domain/workbook/configurations/filter/reg-expr-filter';
 import {SpatialFilter} from '@domain/workbook/configurations/filter/spatial-filter';
 import {Criteria} from '@domain/datasource/criteria';
+import {TimeDateFilter} from '@domain/workbook/configurations/filter/time-date-filter';
+import {TimeListFilter} from '@domain/workbook/configurations/filter/time-list-filter';
+
+declare let moment;
+declare let async;
 
 @Injectable()
 export class DatasourceService extends AbstractService {
@@ -124,30 +129,69 @@ export class DatasourceService extends AbstractService {
   /**
    * 쿼리 전송
    * @param {SearchQueryRequest} query
-   * @param disableCache
+   * @param {Dashboard} dashboard
+   * @param {boolean} disableCache
    * @returns {Promise<any>}
    */
-  public searchQuery(query: SearchQueryRequest, disableCache?: boolean): Promise<any> {
-    // let params: any = {type:'spatial_bbox', field:'cell_point', lowerCorner: '129.444 38.444', upperCorner: '129.888 38.999', dataSource: 'cei_m1_b'};
-    // let params: any = {type:'spatial_bbox', field:'cell_point', lowerCorner: '38.444 129.444', upperCorner: '38.999 129.888', dataSource: 'cei_m1_b'};
+  public searchQuery(query: SearchQueryRequest, dashboard: Dashboard, disableCache?: boolean) {
+    const procFileDs: ((callback) => void)[] = [];
+    // Time Single Filter 변환 처리 - S
+    if( query.filters ) {
+      for (let idx = 0, nMax = query.filters.length; idx < nMax; idx++) {
+        const filter = query.filters[idx];
+        if( FilterUtil.isTimeSingleFilter(filter)) {
+          const timeDateFilter = ( filter as TimeDateFilter );
+          const dateInterval = timeDateFilter.intervals[0].split( '/' );
+          filter.type = 'time_range'; // 차트 정보 조회 시 필터를 range로 변경하기 임시로 타입을 변경함
+          if( TimeDateFilter.LATEST_DATETIME === dateInterval[0] && TimeDateFilter.LATEST_DATETIME === dateInterval[1] ) {
+            procFileDs.push((callback) => {
+              this.getCandidateForFilter(filter, dashboard).then((result) => {
+                const maxDateTime = FilterUtil.getDateTimeFormat(result.maxTime, ( filter as TimeDateFilter ).timeUnit );
+                if( TimeUnit.WEEK === timeDateFilter.timeUnit) {
+                  const timeListFilter: TimeListFilter = filter as TimeListFilter;
+                  timeListFilter.type = 'time_list';
+                  timeListFilter.valueList = [ moment(maxDateTime, 'YYYY-W').format( '[Week ]W, gggg' ) ];
+                  timeListFilter.candidateValues = [];
+                } else {
+                  ( query.filters[idx] as TimeDateFilter ).intervals = [ maxDateTime + '/' + maxDateTime];
+                }
+                callback();
+              }).catch(() => { callback(); });
+            });
+          } else {
+            if( TimeUnit.WEEK === timeDateFilter.timeUnit) {
+              const timeListFilter: TimeListFilter = filter as TimeListFilter;
+              timeListFilter.type = 'time_list';
+              timeListFilter.valueList = [ moment(dateInterval[0], 'YYYY-W').format( '[Week ]W, gggg' ) ];
+              timeListFilter.candidateValues = [];
+            }
+          }
+        } // end of time single filter
+      } // end of cloneQuery.filters loop
+    } // end of cloneQuery.filters
+    // Time Single Filter 변환 처리 - E
 
-    // query.filters.push(params);
-    const stringifyQuery = JSON.stringify(query);
-    const historyItem = this._searchHistory.find(history => history.query === stringifyQuery);
-    if (!disableCache && historyItem) {
-      return new Promise((resolve, _reject) => {
-        console.log('>>>>> history data');
-        resolve(JSON.parse(JSON.stringify(historyItem.result)));
+    return new Promise<any>((resolve, reject) => {
+      async.waterfall(procFileDs, () => {
+        // query.filters.push(params);
+        const stringifyQuery = JSON.stringify(query);
+        const historyItem = this._searchHistory.find(history => history.query === stringifyQuery);
+        if (!disableCache && historyItem) {
+          console.log('>>>>> history data');
+          resolve(JSON.parse(JSON.stringify(historyItem.result)));
+        } else {
+          this.post(this.API_URL + 'datasources/query/search', query)
+            .then(result => {
+              console.log('>>>>> query data');
+              this._searchHistory = this._searchHistory.filter(history => history.query !== stringifyQuery);
+              this._searchHistory.push({query: stringifyQuery, result: JSON.parse(JSON.stringify(result))});
+              resolve(result);
+            }).catch(err => {
+              reject( err );
+            });
+        }
       });
-    } else {
-      return this.post(this.API_URL + 'datasources/query/search', query)
-        .then(result => {
-          console.log('>>>>> query data');
-          this._searchHistory = this._searchHistory.filter(history => history.query !== stringifyQuery);
-          this._searchHistory.push({query: stringifyQuery, result: JSON.parse(JSON.stringify(result))});
-          return result;
-        });
-    }
+    });
   } // function - searchQuery
 
   /**
@@ -823,10 +867,10 @@ export class DatasourceService extends AbstractService {
    * 저장된 Linked 데이터 소스 정보를 기반으로 임시 데이터 소스를 생성합니다.
    * @param {string} dataSourceId
    * @param {Filter[]} param
-   * @param {boolean} async
+   * @param {boolean} isAsync
    */
-  public createLinkedDatasourceTemporary(dataSourceId: string, param?: Filter[], async: boolean = true) {
-    return this.post(this.API_URL + `datasources/${dataSourceId}/temporary?async=${async}`, param);
+  public createLinkedDatasourceTemporary(dataSourceId: string, param?: Filter[], isAsync: boolean = true) {
+    return this.post(this.API_URL + `datasources/${dataSourceId}/temporary?async=${isAsync}`, param);
   } // function - createLinkedDatasourceTemporary
 
   // 데이터소스 수정

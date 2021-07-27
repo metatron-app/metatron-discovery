@@ -29,6 +29,8 @@ import {
   ViewChild
 } from '@angular/core';
 
+import {environment} from '@environments/environment';
+
 import {CommonUtil} from '@common/util/common.util';
 import {Alert} from '@common/util/alert.util';
 import {ImageService} from '@common/service/image.service';
@@ -66,6 +68,7 @@ import {SearchQueryRequest} from '@domain/datasource/data/search-query-request';
 import {Filter} from '@domain/workbook/configurations/filter/filter';
 import {Widget} from '@domain/dashboard/widget/widget';
 import {PageWidget, PageWidgetConfiguration} from '@domain/dashboard/widget/page-widget';
+import {AggregationType} from '@domain/workbook/configurations/field/measure-field';
 
 import {DatasourceService} from '../../../datasource/service/datasource.service';
 import {AnalysisPredictionService} from '../../../page/component/analysis/service/analysis.prediction.service';
@@ -73,8 +76,6 @@ import {WidgetService} from '../../service/widget.service';
 import {FilterUtil} from '../../util/filter.util';
 import {ChartLimitInfo, DashboardUtil} from '../../util/dashboard.util';
 import {AbstractWidgetComponent} from '../abstract-widget.component';
-import {AggregationType} from '@domain/workbook/configurations/field/measure-field';
-import {environment} from '@environments/environment';
 
 declare let $;
 declare let moment;
@@ -1194,7 +1195,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
    */
   public copyWidgetUrlToClipboard() {
     if (this.widget) {
-      let content = location.protocol + '//' + location.host + ':' + location.port + environment.baseHref;
+      let content = location.protocol + '//' + location.host + environment.baseHref;
       content = content + 'embedded/page/' + this.widget.id;
       this._clipboardService.copyFromContent(content);
       Alert.success(this.translateService.instant('msg.page.alert.copy.chart-url'));
@@ -1611,7 +1612,8 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
     this._currentGlobalFilterString = JSON.stringify(cloneGlobalFilters);
     const disableCache: boolean = isForceLoad || this.isRealTimeWidget;
 
-    this.datasourceService.searchQuery(cloneQuery, disableCache).then((data) => {
+    // 차트 데이터 조회
+    this.datasourceService.searchQuery(cloneQuery, this.widget.dashBoard, disableCache).then((data) => {
 
       if (this.resultData && this.isRealTimeWidget && cloneQuery.pivot.columns.some(item => 'TIMESTAMP' === item.subRole)) {
 
@@ -1694,7 +1696,6 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
 
       // 변경 적용
       this.safelyDetectChanges();
-
     }).catch((error) => {
       // 프로세스 종료 등록 및 No Data 표시
       this._showError(error);
@@ -1702,6 +1703,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
       // 변경 적용
       this.safelyDetectChanges();
     });
+
   } // function - _search
 
 // noinspection JSMethodCanBeStatic

@@ -17,7 +17,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  HostListener,
   Injector,
   OnDestroy,
   OnInit,
@@ -131,10 +130,10 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
     super.ngOnDestroy();
   }
 
-  @HostListener('window:popstate')
-  public onPopstate() {
-    window.history.pushState(null, null, window.location.href);
-  }
+  // @HostListener('window:popstate')
+  // public onPopstate() {
+  //   window.history.pushState(null, null, window.location.href);
+  // }
 
 
   /**
@@ -355,7 +354,7 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
 
     this.loadingShow();
 
-    this.datasourceService.searchQuery(cloneQuery).then((data) => {
+    this.datasourceService.searchQuery(cloneQuery, this.widget.dashBoard).then((data) => {
 
       this.resultData = {
         data,
@@ -392,6 +391,7 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
       this.showError();
       this.loadingHide();
     });
+
   } // function - _search
 
   /**

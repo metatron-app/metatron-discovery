@@ -43,8 +43,11 @@
     <!-- //filter -->
 
     <!-- dashboard -->
-    <div class="ddp-ui-widget" [ngStyle]="isStandAlone ? {'top': '50px'} : {}"
-         [style]="!isShowSelectionFilter ? 'top:0' : null">
+    <div class="ddp-ui-widget"
+         [ngStyle]="{
+           'top' : isShowSelectionFilter ? ( isStandAlone ? '50px' : null ) : '0',
+           'min-width' : isStandAlone ? '1200px' : null
+         }" >
       <!-- 로딩 영역 -->
       <div *ngIf="isShowDashboardLoading" class="ddp-loading-part" style="top:150px;" >
         <div style="" class="lds-wedges">

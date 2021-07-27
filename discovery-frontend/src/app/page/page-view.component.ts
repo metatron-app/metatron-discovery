@@ -3931,7 +3931,8 @@ export class PageViewComponent extends AbstractPopupComponent implements OnInit,
       this.chart['setQuery'] = this.query;
     }
 
-    this.datasourceService.searchQuery(cloneQuery).then(
+    // 차트 데이터 조회
+    this.datasourceService.searchQuery(cloneQuery, this.widget.dashBoard).then(
       (data) => {
 
         const resultData = {
@@ -4052,6 +4053,7 @@ export class PageViewComponent extends AbstractPopupComponent implements OnInit,
       this.changeDetect.detectChanges();
       this.loadingHide();
     });
+
   }
 
   /**

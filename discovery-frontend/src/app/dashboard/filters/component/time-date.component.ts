@@ -15,6 +15,9 @@ import {TimeUnit} from '@domain/workbook/configurations/field/timestamp-field';
 import {CommonUtil} from '@common/util/common.util';
 import {EventBroadcaster} from '@common/event/event.broadcaster';
 import {PickerSettings} from '@domain/common/datepicker.settings';
+import {TimeDateFilter} from '@domain/workbook/configurations/filter/time-date-filter';
+import {FilterUtil} from '../../util/filter.util';
+
 
 declare let moment: any;
 declare let $: any;
@@ -54,6 +57,8 @@ export class TimeDateComponent extends AbstractComponent implements OnInit, OnCh
   public comboList: ComboItem[] = [];
   public dateComboIdx: number = 0;
   public selectedDateComboItem: ComboItem;
+
+  public isLatestDateTime: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -158,48 +163,71 @@ export class TimeDateComponent extends AbstractComponent implements OnInit, OnCh
       return;
     }
 
-    const valueDate = this.compData.valueDate;
-    let dateMoment;
-    if (valueDate && 'undefined' !== valueDate){
-      dateMoment = (TimeUnit.WEEK === this.compData.timeUnit) ? valueDate :  this.customMoment(valueDate);
-    } else{
-      dateMoment = moment();
+    const maxTime: Date = this.compData.maxTime;
+    let valueDate = this.compData.valueDate;
+
+    if (valueDate === TimeDateFilter.LATEST_DATETIME) {
+      if( this.isWidgetMode ) {
+        this.isLatestDateTime = false;
+        valueDate = FilterUtil.getDateTimeFormat(maxTime, this.compData.timeUnit);
+      } else {
+        this.isLatestDateTime = true;
+      }
+    } else {
+      this.isLatestDateTime = false;
     }
 
-    if (TimeUnit.WEEK === this.compData.timeUnit){
-      this.comboList = _.cloneDeep(this._weekList);
-      let dateWeek;
-      const arrDateInfo = (valueDate as string).split('-');
-      dateMoment = moment(arrDateInfo[0] + '-01-01');
-      dateWeek = Number(arrDateInfo[1]);
-      this.dateComboIdx = this.comboList.findIndex(item => item.value === dateWeek);
-      this.selectedDateComboItem = this.comboList[this.dateComboIdx];
-    } else if (TimeUnit.QUARTER === this.compData.timeUnit){
-      this.comboList = _.cloneDeep(this._quarterList);
-      const dateQuarter: number = dateMoment.quarter();
-      this.dateComboIdx = this.comboList.findIndex(item => item.value === dateQuarter);
-      this.selectedDateComboItem = this.comboList[this.dateComboIdx];
-    }
-    this._date = dateMoment.toDate();
+    this.safelyDetectChanges();
 
-    if(this.isNullOrUndefined(this._datePicker)){
-      const datePickerSettings: TimeDatePickerSettings
-        = new TimeDatePickerSettings(
-        'ddp-text-calen',
-        (_date: string, date: Date) => {
-          this._date= date;
-        },
-        ()=>{
-          this.onDateChange.emit(this._getTimeDate());
-        },
-        this.compData.timeUnit
-      );
+    if (this.isLatestDateTime) {
+      if(this._datePicker) {
+        this._datePicker.destroy();
+        this._datePicker = undefined;
+      }
+    } else {
+      let dateMoment;
+      if (valueDate && 'undefined' !== valueDate){
+        dateMoment = (TimeUnit.WEEK === this.compData.timeUnit) ? valueDate :  this.customMoment(valueDate);
+      } else{
+        dateMoment = moment();
+      }
 
-      this._datePicker = $(this._datePickerInput.nativeElement).datepicker(datePickerSettings).data('datepicker');
+      if (TimeUnit.WEEK === this.compData.timeUnit){
+        this.comboList = _.cloneDeep(this._weekList);
+        let dateWeek;
+        const arrDateInfo = (valueDate as string).split('-');
+        dateMoment = moment(arrDateInfo[0] + '-01-01');
+        dateWeek = Number(arrDateInfo[1]);
+        this.dateComboIdx = this.comboList.findIndex(item => item.value === dateWeek);
+        this.selectedDateComboItem = this.comboList[this.dateComboIdx];
+      } else if (TimeUnit.QUARTER === this.compData.timeUnit){
+        this.comboList = _.cloneDeep(this._quarterList);
+        const dateQuarter: number = dateMoment.quarter();
+        this.dateComboIdx = this.comboList.findIndex(item => item.value === dateQuarter);
+        this.selectedDateComboItem = this.comboList[this.dateComboIdx];
+      }
+      this._date = dateMoment.toDate();
+
+      if(this.isNullOrUndefined(this._datePicker)){
+        const datePickerSettings: TimeDatePickerSettings
+          = new TimeDatePickerSettings(
+          'ddp-text-calen',
+          (_date: string, date: Date) => {
+            this._date= date;
+          },
+          ()=>{
+            this.onDateChange.emit(this._getTimeDate());
+          },
+          this.compData.timeUnit
+        );
+        this._datePicker = $(this._datePickerInput.nativeElement).datepicker(datePickerSettings).data('datepicker');
+      }
+
       this._datePicker.date = this._date;
       this._datePicker.selectDate(this._date);
     }
-  }
+
+  } // func - _setPicker
 
   /**
    * 값 검증
@@ -227,6 +255,7 @@ export class TimeDateComponent extends AbstractComponent implements OnInit, OnCh
   /**
    * Moment 로 부터 Date 정보를 얻음
    * @param dateMoment
+   * @param range
    * @private
    */
   private _getDateFromMoment(dateMoment: any, range: string): TimeDate{
@@ -247,12 +276,15 @@ export class TimeDate{
 
 export class TimeDateData {
 
+  public minTime: Date;
+  public maxTime: Date;
   public valueDate: Date | string;
   public timeUnit: TimeUnit;
 
-
-  constructor(valueDate: Date | string, timeUnit?: TimeUnit) {
+  constructor(valueDate: Date | string, minTime: Date, maxTime: Date, timeUnit?: TimeUnit) {
     this.valueDate = valueDate;
+    this.minTime = minTime;
+    this.maxTime = maxTime;
     this.timeUnit = (CommonUtil.isNullOrUndefined(timeUnit)) ? TimeUnit.NONE : timeUnit;
   }
 }

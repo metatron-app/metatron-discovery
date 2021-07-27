@@ -30,7 +30,9 @@ public class BulkLoadSpec implements Serializable {
 
   Map<String, Object> properties;
 
-  boolean temporary;
+  boolean temporary = false;
+
+  boolean overwrite = true;
 
   public BulkLoadSpec() {
   }
@@ -40,7 +42,6 @@ public class BulkLoadSpec implements Serializable {
     this.paths = paths;
     this.schema = schema;
     this.tuningConfig = tuningConfig;
-    this.temporary = false;
   }
 
   public BulkLoadSpec(String basePath, List<String> paths, DataSchema schema, Map<String, Object> tuningConfig, boolean temporary) {
@@ -97,5 +98,13 @@ public class BulkLoadSpec implements Serializable {
 
   public void setTemporary(boolean temporary) {
     this.temporary = temporary;
+  }
+
+  public boolean isOverwrite() {
+    return overwrite;
+  }
+
+  public void setOverwrite(boolean overwrite) {
+    this.overwrite = overwrite;
   }
 }

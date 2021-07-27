@@ -686,8 +686,8 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
   private _convertDateTimeFormat(filter: TimeRangeFilter|TimeDateFilter): string[] {
     return filter.intervals.map(item => {
       const arrInterval: any[] = item.split('/');
-      const startDate = arrInterval[0].replace('.000Z', '').replace('T', ' ');
-      if (TimeRangeFilter.EARLIEST_DATETIME !== startDate && TimeRangeFilter.LATEST_DATETIME !== startDate) {
+      if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[0] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[0]) {
+        const startDate = arrInterval[0].replace('.000Z', '').replace('T', ' ');
         // if( ( TimeUnit.YEAR === filter.timeUnit && !/^[0-9]{4}$/.test(startDate) )
         //   || ( TimeUnit.MONTH === filter.timeUnit && !/^[0-9]{4}-[0-9]{2}$/.test(startDate) )
         //   || ( TimeUnit.WEEK === filter.timeUnit && !/^[0-9]{4}-[0-9]{1,2}$/.test(startDate) )
@@ -699,8 +699,9 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
         // }
         arrInterval[0] = FilterUtil.getDateTimeFormat(startDate, filter.timeUnit, true);
       }
-      const endDate = arrInterval[1].replace('.000Z', '').replace('T', ' ');
-      if (TimeRangeFilter.EARLIEST_DATETIME !== endDate && TimeRangeFilter.LATEST_DATETIME !== endDate) {
+
+      if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[1] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[1]) {
+        const endDate = arrInterval[1].replace('.000Z', '').replace('T', ' ');
         // if( ( TimeUnit.YEAR === filter.timeUnit && !/^[0-9]{4}$/.test(endDate) )
         //   || ( TimeUnit.MONTH === filter.timeUnit && !/^[0-9]{4}-[0-9]{2}$/.test(endDate) )
         //   || ( TimeUnit.WEEK === filter.timeUnit && !/^[0-9]{4}-[0-9]{1,2}$/.test(endDate) )

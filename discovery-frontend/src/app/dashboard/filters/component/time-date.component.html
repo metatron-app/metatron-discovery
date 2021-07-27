@@ -16,7 +16,12 @@
   <div [ngStyle]="{'width' : isWidgetMode ? '200px' : ''}" class="ddp-ui-dateinfo ddp-from">
     <div class="ddp-dateinfo-in">
       <span class="ddp-txt-date sys-range-label">Date</span>
-      <div class="ddp-box-rome">
+
+      <div class="ddp-box-rome" *ngIf="isLatestDateTime" >
+        <div class="ddp-messege"> {{ 'msg.board.filter.ui.time-range.latest' | translate }} </div>
+      </div>
+
+      <div *ngIf="!isLatestDateTime" class="ddp-box-rome">
         <div class="ddp-box-dateinfo ddp-clear">
           <div [class.ddp-full]="0 === comboList.length" class="ddp-box-date">
             <em *ngIf="'PANEL' !== mode" class="ddp-icon-calen"></em>
