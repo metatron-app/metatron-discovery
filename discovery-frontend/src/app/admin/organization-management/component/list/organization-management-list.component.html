@@ -43,14 +43,14 @@
     <!-- option -->
     <div class="ddp-ui-option ddp-optiontype ddp-clear">
       <!-- 검색 -->
-<!--      <div class="ddp-form-search ddp-fleft">-->
-<!--        <em class="ddp-icon-search"></em>-->
-<!--        <input type="text" placeholder="{{'msg.groups.ui.search.description' | translate}}"-->
-<!--               [(ngModel)]="searchKeyword"-->
-<!--               (keypress)="onSearchText($event)"-->
-<!--               (keyup.esc)="onSearchTextInit()">-->
-<!--        <em (click)="onSearchTextInit()" class="ddp-btn-search-close" *ngIf="searchKeyword !== ''"></em>-->
-<!--      </div>-->
+      <div class="ddp-form-search ddp-fleft">
+        <em class="ddp-icon-search"></em>
+        <input type="text" placeholder="{{'msg.organization.ui.search.description' | translate}}"
+               [(ngModel)]="searchKeyword"
+               (keypress)="onSearchText($event)"
+               (keyup.esc)="onSearchTextInit()">
+        <em (click)="onSearchTextInit()" class="ddp-btn-search-close" *ngIf="searchKeyword !== ''"></em>
+      </div>
       <!-- //검색 -->
       <!-- right -->
       <div class="ddp-ui-rightoption">

@@ -3366,6 +3366,7 @@
   "msg.organization.ui.create.ph.name" : "Please enter organization name",
   "msg.organization.ui.create.ph.code" : "Please enter organization code",
   "msg.organization.ui.create.ph.desc" : "Please enter description",
+  "msg.organization.ui.search.description" : "Search by organization name",
   "msg.organization.th.members" : "Members",
   "msg.organization.th.members.users" : "Users",
   "msg.organization.th.members.groups" : "Groups",

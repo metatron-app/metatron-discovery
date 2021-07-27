@@ -210,6 +210,21 @@ export class OrganizationManagementListComponent extends AbstractComponent imple
   }
 
   /**
+   * 조직 이름으로 검색
+   * @param event
+   */
+  public onSearchText(event: KeyboardEvent): void {
+    (13 === event.keyCode) && (this._searchText(event.target['value']));
+  }
+
+  /**
+   * 조직 검색 초기화
+   */
+  public onSearchTextInit(): void{
+    this._searchText('');
+  }
+
+  /**
    * 페이지 변경
    * @param data
    */
@@ -274,6 +289,18 @@ export class OrganizationManagementListComponent extends AbstractComponent imple
       // 로딩 hide
       this.loadingHide();
     });
+  }
+
+  /**
+   * 검색어로 조직 검색
+   * @param keyword
+   * @private
+   */
+  private _searchText(keyword: string): void{
+    // key word
+    this.searchKeyword = keyword;
+    // 재조회
+    this.reloadPage();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
