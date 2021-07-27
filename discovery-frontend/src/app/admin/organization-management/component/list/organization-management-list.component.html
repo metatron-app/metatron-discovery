@@ -56,7 +56,9 @@
       <div class="ddp-ui-rightoption">
         <span class="ddp-data-total">{{'msg.log.ui.num.lists' | translate : { value : pageResult.totalElements} }}</span>
         <!--<span class="ddp-data-total">{{'msg.log.ui.num.lists' | translate : { value : groupList.length} }}</span>-->
-        <a href="javascript:" class="ddp-btn-link" (click)="onClickCreateModal()" ><em class="ddp-icon-link-add"></em>조직 생성</a>
+        <a href="javascript:" class="ddp-btn-link" (click)="onClickCreateModal()" >
+          <em class="ddp-icon-link-add"></em>{{'msg.organization.create' | translate}}
+        </a>
       </div>
       <!-- //right -->
     </div>
@@ -75,12 +77,12 @@
     </colgroup>
     <thead>
     <tr>
-      <th>조직 이름</th>
-      <th>조직 코드</th>
-      <th>설명</th>
-      <th>멤버 수</th>
-      <th>그룹 수</th>
-      <th>생성 날짜</th>
+      <th>{{'msg.organization.th.name' | translate}}</th>
+      <th>{{'msg.organization.th.code' | translate}}</th>
+      <th>{{'msg.organization.th.desc' | translate}}</th>
+      <th>{{'msg.organization.th.cnt.member' | translate}}</th>
+      <th>{{'msg.organization.th.cnt.group' | translate}}</th>
+      <th>{{'msg.organization.th.create.date' | translate}}</th>
       <th>  </th>
     </tr>
     </thead>

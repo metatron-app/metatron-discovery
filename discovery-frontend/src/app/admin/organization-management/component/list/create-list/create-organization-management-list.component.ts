@@ -1,9 +1,9 @@
-import {AbstractComponent} from "@common/component/abstract.component";
-import {Component, ElementRef, EventEmitter, Injector, Output} from "@angular/core";
-import {StringUtil} from "@common/util/string.util";
-import {OrganizationService} from "../../../service/organization.service";
-import {Alert} from "@common/util/alert.util";
-import {CommonUtil} from "@common/util/common.util";
+import {Component, ElementRef, EventEmitter, Injector, Output} from '@angular/core';
+import {StringUtil} from '@common/util/string.util';
+import {Alert} from '@common/util/alert.util';
+import {CommonUtil} from '@common/util/common.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {OrganizationService} from '../../../service/organization.service';
 
 @Component({
   selector: 'app-create-organization-list',
@@ -32,7 +32,7 @@ export class CreateOrganizationManagementListComponent extends AbstractComponent
   // description valid result
   public isValidDesc: boolean;
 
-  //show flag
+  // show flag
   public isShowPopup: boolean;
 
   @Output()

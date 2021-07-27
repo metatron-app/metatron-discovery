@@ -17,7 +17,7 @@
     <div class="ddp-box-popup3">
       <a href="javascript:" class="ddp-btn-close" (click)="createCancel()"></a>
       <!-- title -->
-      <div class="ddp-pop-title">조직 생성</div>
+      <div class="ddp-pop-title">{{'msg.organization.create' | translate}}</div>
       <!-- //title -->
       <!-- detail -->
       <div class="ddp-box-detail">
@@ -38,9 +38,10 @@
         </div>
         <!-- error 시 ddp-type-error 추가 -->
         <div class="ddp-ui-input-form" [class.ddp-type-error]="isValidCode === false">
-          <label class="ddp-label-type">코드</label>
+          <label class="ddp-label-type">{{'msg.organization.ui.detail.info.code' | translate}}</label>
           <div class="ddp-input-check">
-            <input type="text" class="ddp-input-type" placeholder="코드를 입력 해주세요"
+            <input type="text" class="ddp-input-type"
+                   placeholder="{{'msg.organization.ui.create.ph.code' | translate}}"
                    [(ngModel)]="orgCode"
                    (keyup)="isValidCode = undefined"
                    (blur)="codeValidation()">
@@ -53,9 +54,10 @@
         </div>
         <!-- error 시 ddp-type-error 추가 -->
         <div class="ddp-ui-input-form" [class.ddp-type-error]="isValidDesc === false">
-          <label class="ddp-label-type">{{'msg.groups.ui.create.desc' | translate}}</label>
+          <label class="ddp-label-type">{{'msg.organization.ui.detail.info.desc' | translate}}</label>
           <div class="ddp-input-check">
-            <input type="text" class="ddp-input-type" placeholder="{{'msg.groups.ui.create.ph.desc' | translate}}"
+            <input type="text" class="ddp-input-type"
+                   placeholder="{{'msg.organization.ui.create.ph.desc' | translate}}"
                    [(ngModel)]="orgDesc"
                    (keyup)="isValidDesc = undefined"
                    (blur)="descValidation()">
