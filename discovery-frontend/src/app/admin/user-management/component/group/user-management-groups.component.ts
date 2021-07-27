@@ -115,6 +115,7 @@ export class UserManagementGroupsComponent extends AbstractUserManagementCompone
 
         const page = params['page'];
         (isNullOrUndefined(page)) || (this.page.page = page);
+        console.log('page: ' + page);
 
         const sort = params['sort'];
         if (!isNullOrUndefined(sort)) {

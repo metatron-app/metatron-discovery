@@ -3,7 +3,6 @@ import {Component, ElementRef, Injector, OnInit, ViewChild} from "@angular/core"
 import {PeriodData} from "@common/value/period.data.value";
 import {PeriodComponent} from "@common/component/period/period.component";
 import {ActivatedRoute} from "@angular/router";
-import {isNullOrUndefined} from "util";
 import {OrganizationService} from "../../service/organization.service";
 import {Alert} from "@common/util/alert.util";
 import {Organization} from "@domain/organization/organization";
@@ -89,13 +88,13 @@ export class OrganizationManagementListComponent extends AbstractComponent imple
 
 
         const size = params['size'];
-        (isNullOrUndefined(size)) || (this.page.size = size);
+        ( this.isNullOrUndefined(size)) || (this.page.size = size);
 
         const page = params['page'];
-        (isNullOrUndefined(page)) || (this.page.page = page);
+        ( this.isNullOrUndefined(page)) || (this.page.page = page);
 
         const sort = params['sort'];
-        if (!isNullOrUndefined(sort)) {
+        if (! this.isNullOrUndefined(sort)) {
           const sortInfo = decodeURIComponent(sort).split(',');
           this.selectedContentSort.key = sortInfo[0];
           this.selectedContentSort.sort = sortInfo[1];
@@ -103,13 +102,13 @@ export class OrganizationManagementListComponent extends AbstractComponent imple
 
         // 검색어
         const searchText = params['nameContains'];
-        (isNullOrUndefined(searchText)) || (this.searchKeyword = searchText);
+        ( this.isNullOrUndefined(searchText)) || (this.searchKeyword = searchText);
 
         this.selectedDate = new PeriodData();
         this.selectedDate.type = 'ALL';
         const from = params['from'];
         const to = params['to'];
-        if (!isNullOrUndefined(from) && !isNullOrUndefined(to)) {
+        if (!this.isNullOrUndefined(from) && !this.isNullOrUndefined(to)) {
           this.selectedDate.startDate = from;
           this.selectedDate.endDate = to;
 
@@ -285,7 +284,7 @@ export class OrganizationManagementListComponent extends AbstractComponent imple
     // 로딩 show
     this.loadingShow();
 
-    // this.orgList = [];
+    this.orgList = [];
 
     // organization 리스트 조회
     const params = this._getOrgParams();
@@ -293,8 +292,8 @@ export class OrganizationManagementListComponent extends AbstractComponent imple
 
       // 현재 페이지에 아이템이 없다면 전 페이지를 불러온다
       if (this.page.page > 0 &&
-        isNullOrUndefined(result['content']) ||
-        (!isNullOrUndefined(result['content']) && result['content'].length === 0))
+        this.isNullOrUndefined(result) ||
+        (this.isNullOrUndefined(result) && result['content'].length === 0))
       {
         this.page.page = result.page.number - 1;
         this._getOrganizationList();
@@ -306,7 +305,7 @@ export class OrganizationManagementListComponent extends AbstractComponent imple
       // 페이지
       this.pageResult = result.page;
 
-      this.orgList = result.content;
+      this.orgList = this.orgList.concat(result.content);
 
       // 로딩 hide
       this.loadingHide();
