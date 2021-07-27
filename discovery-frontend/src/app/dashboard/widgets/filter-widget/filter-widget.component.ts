@@ -288,7 +288,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
   /**
    * 위젯 이름 조회
    * @returns {string}
-   */s
+   */
   public getWidgetName(): string {
     if (this.widget && this.widget.name) {
       return this.widget.name;
