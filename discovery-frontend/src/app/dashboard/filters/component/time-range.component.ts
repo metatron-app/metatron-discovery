@@ -191,6 +191,7 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnC
    * @private
    */
   private _setPicker() {
+
     // 모형 모드일 때는 기능 동작을 하지 않는다
     if (this.compData.mockup) {
       return;
@@ -200,7 +201,6 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnC
     const minTime: Date = this.compData.minTime;
     const maxTime: Date = this.compData.maxTime;
     const interval: TimeRange = this.compData.interval;
-
 
     // 경계값 설정 여부 확인
     if (interval.startDate === TimeRangeFilter.EARLIEST_DATETIME) {
@@ -319,7 +319,6 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnC
         );
         this._toPicker = $(this._toPickerInput.nativeElement).datepicker(endPickerSettings).data('datepicker');
       }
-
       this._toPicker.date = this._toDate;
       this._toPicker.selectDate(this._toDate);
     }

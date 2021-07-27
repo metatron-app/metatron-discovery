@@ -269,7 +269,7 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
    */
   public customMoment(date: (Date | string)) {
     if (date.constructor === String) {
-      return moment((date as string).replace('.000Z', ''));
+      return moment((date as string).replace( /\.[0-9]+Z$/gi, '' ));
     } else {
       return moment(date);
     }
