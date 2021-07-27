@@ -145,7 +145,7 @@ public class OrganizationController {
 
     organization.setCode(orgCode);
 
-    if (orgService.checkDuplicatedName(organization.getName())) {
+    if (null != organization.getName() && orgService.checkDuplicatedName(organization.getName())) {
       throw new BadRequestException("Duplicated organization name : " + organization.getName());
     }
 

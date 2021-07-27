@@ -2487,7 +2487,7 @@
   "msg.groups.alert.name.used": "该名字已被使用",
   "msg.groups.alert.name.create": "生成'{{value}}' 组",
   "msg.groups.alert.grp.update.success": "已修改组",
-
+  "msg.organization.alert.org.update.success": "Organization modified",
   "msg.organization.alert.name.create": "Organization '{{value}}' created",
   "msg.organization.alert.name.len": "Name can be up to 150 characters in English",
   "msg.organization.alert.name.used": "This name is already in use",
@@ -2510,6 +2510,7 @@
   "msg.organization.th.members" : "Members",
   "msg.organization.th.members.users" : "Users",
   "msg.organization.th.members.groups" : "Groups",
+  "msg.space.set.member": "Set Organized member & group",
 
   "msg.permission.th.name": "名字",
   "msg.permission.th.description": "说明",

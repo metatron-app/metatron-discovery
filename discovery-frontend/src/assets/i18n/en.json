@@ -3346,7 +3346,7 @@
   "msg.groups.alert.name.used": "This name is already in use",
   "msg.groups.alert.name.create": "Group '{{value}}' created",
   "msg.groups.alert.grp.update.success": "Group modified",
-
+  "msg.organization.alert.org.update.success": "Organization modified",
   "msg.organization.alert.name.create": "Organization '{{value}}' created",
   "msg.organization.alert.name.len": "Name can be up to 150 characters in English",
   "msg.organization.alert.name.used": "This name is already in use",
@@ -3369,7 +3369,7 @@
   "msg.organization.th.members" : "Members",
   "msg.organization.th.members.users" : "Users",
   "msg.organization.th.members.groups" : "Groups",
-
+  "msg.space.set.member": "Set Organized member & group",
   "msg.permission.th.users" : "Users",
   "msg.permission.btn.email.users" : "Email to all users",
   "msg.permission.th.members" : "Members",

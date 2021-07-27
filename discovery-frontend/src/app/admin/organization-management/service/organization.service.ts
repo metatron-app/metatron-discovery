@@ -118,10 +118,10 @@ export class OrganizationService extends AbstractService{
    * 조직 정보 업데이트
    * @param data
    */
-  public updateOrganization(orgCode: string, data: any): Promise<any>{
+  public updateOrganization(orgCode: string, params: any): Promise<any>{
     // URL
     const url: string = this.API_URL + this.path + `/${orgCode}`;
-    return this.put(url, data);
+    return this.put(url, params);
   }
 
   /**

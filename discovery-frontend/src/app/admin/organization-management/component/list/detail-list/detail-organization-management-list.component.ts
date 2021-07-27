@@ -12,6 +12,7 @@ import {Role} from "@domain/user/role/role";
 import {UpdateOrganizationManagementListComponent} from "../update-list/update-organization-management-list.component";
 import {UpdateContainerOrganizationManagementComponent} from "../update-list/update-container-organization-management.component";
 import {OrganizationGroup} from "@domain/organization/organization-group";
+import {CommonUtil} from "@common/util/common.util";
 
 
 @Component({
@@ -214,6 +215,136 @@ export class DetailOrganizationManagementListComponent extends AbstractComponent
     });
   }
 
+  /**
+   * 조직 이름 변경 모드
+   */
+  public orgNameEditMode(): void {
+    // 현재 조직 이름
+    this.editName = this.orgData.name;
+    // flag
+    this.editNameFlg = true;
+  }
+
+  /**
+   * 조직 코드 변경 모드
+   */
+  public orgCodeEditMode(): void {
+    // 현재 조직 코드
+    this.editCode = this.orgData.code;
+    // flag
+    this.editCodeFlg = true;
+  }
+
+  /**
+   * 조직 설명 변경 모드
+   */
+  public orgDescEditMode(): void {
+    // 현재 조직 설명
+    this.editDesc = this.orgData.description;
+    // flag
+    this.editDescFlg = true;
+  }
+
+  /**
+   * 조직 이름 수정
+   */
+  public updateOrgName(): void {
+    // 이벤트 전파 stop
+    event.stopImmediatePropagation();
+    // validation
+    if (this._nameValidation()) {
+      const params = {
+        name: this.editName
+      };
+      params['description'] = this.orgData.description;
+      // 로딩 show
+      this.loadingShow();
+      // 그룹 수정
+      this._updateOrganization(params)
+        .then(() => {
+          // alert
+          Alert.success(this.translateService.instant('msg.organization.alert.org.update.success'));
+          // flag
+          this.editNameFlg = false;
+          // 그룹 정보 재조회
+          this._getOrgDetail(this._orgCode);
+        })
+        .catch((error) => {
+          // 로딩 hide
+          this.loadingHide();
+          // error show
+          if (error.hasOwnProperty('details') && error.details.includes('Duplicate')) {
+            Alert.warning(this.translateService.instant('msg.organization.alert.name.used'));
+          }
+        });
+    }
+  }
+
+  // /**
+  //  * 조직 코드 수정
+  //  */
+  // public updateOrgCode(): void {
+  //   // 이벤트 전파 stop
+  //   event.stopImmediatePropagation();
+  //   // validation
+  //   if (this._codeValidation()) {
+  //     const params = {
+  //       code: this.editCode
+  //     };
+  //     // 로딩 show
+  //     this.loadingShow();
+  //     // 그룹 수정
+  //     this._updateOrganization(params)
+  //       .then(() => {
+  //         // alert
+  //         Alert.success(this.translateService.instant('msg.organization.alert.org.update.success'));
+  //         // flag
+  //         this.editCodeFlg = false;
+  //         // 그룹 정보 재조회
+  //         this._getOrgDetail(this._orgCode);
+  //       })
+  //       .catch((error) => {
+  //         // 로딩 hide
+  //         this.loadingHide();
+  //         // error show
+  //         if (error.hasOwnProperty('details') && error.details.includes('Duplicate')) {
+  //           Alert.warning(this.translateService.instant('msg.organization.alert.code.used'));
+  //         }
+  //       });
+  //   }
+  // }
+
+  /**
+   * 조직 설명 수정
+   */
+  public updateOrgDesc(): void {
+    // 이벤트 전파 stop
+    event.stopImmediatePropagation();
+    // validation
+    if (this._descValidation()) {
+      const params = {
+        description: this.editDesc
+      };
+      // 로딩 show
+      this.loadingShow();
+      // 그룹 수정
+      this._updateOrganization(params)
+        .then(() => {
+          // alert
+          Alert.success(this.translateService.instant('msg.organization.alert.org.update.success'));
+          // flag
+          this.editDescFlg = false;
+          // 그룹 정보 재조회
+          this._getOrgDetail(this._orgCode);
+        })
+        .catch((error) => {
+          // 로딩 hide
+          this.loadingHide();
+          // error
+          Alert.error(error);
+        });
+    }
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - event
@@ -356,4 +487,79 @@ export class DetailOrganizationManagementListComponent extends AbstractComponent
   private _savePrevRouterUrl(): void {
     this.cookieService.set('PREV_ROUTER_URL', this.router.url);
   }
+
+  /**
+   * name validation
+   * @private
+   */
+  private _nameValidation(): boolean {
+    // 조직 이름이 비어 있다면
+    if(this.isNullOrUndefined(this.editName) || this.editName.trim() === ''){
+      Alert.warning(this.translateService.instant('msg.organization.alert.name.empty'));
+      return false;
+    }
+    // 조직 이름 길이 체크
+    if (CommonUtil.getByte(this.editName.trim()) > 150){
+      Alert.warning(this.translateService.instant('msg.organization.alert.name.len'));
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * code validation
+   * @private
+   */
+  // private _codeValidation(): boolean{
+  //   // 코드가 비어 있다면
+  //   if(StringUtil.isEmpty(this.editCode)){
+  //     Alert.warning(this.translateService.instant('msg.organization.alert.code.empty'));
+  //     return false;
+  //   }
+  //   // 코드 길이 체크
+  //   if (StringUtil.isNotEmpty(this.editCode) && CommonUtil.getByte(this.editCode.trim()) > 20) {
+  //     Alert.warning(this.translateService.instant('msg.organization.alert.code.len'));
+  //     return false;
+  //   }
+  //   // 코드 공백 체크
+  //   if (StringUtil.isNotEmpty(this.editCode) && this.editCode.trim().includes(' ')){
+  //     Alert.warning(this.translateService.instant('msg.organization.alert.code.blank'));
+  //     return false;
+  //   }
+  //   return true;
+  // }
+
+  /**
+   * description validation
+   * @private
+   */
+  private _descValidation(): boolean{
+    if (!this.isNullOrUndefined(this.editDesc) && this.editDesc.trim() !== '') {
+      // 설명 길이 체크
+      if (this.editDesc.trim() !== ''
+        && CommonUtil.getByte(this.editDesc.trim()) > 900) {
+        Alert.warning(this.translateService.instant('msg.organization.alert.desc.len'));
+        return false;
+      }
+      return true;
+    }
+    return true;
+  }
+
+  /**
+   * 조직 수정
+   * @param params
+   * @private
+   */
+  private _updateOrganization(params: object): Promise<any>{
+    return new Promise((resolve, reject) => {
+      // 수정 요청
+      this.organizationService.updateOrganization(this._orgCode, params).then((result) => {
+        resolve(result);
+      }).catch(error => {
+        reject(error);
+      });
+    });
+  }
 }
+

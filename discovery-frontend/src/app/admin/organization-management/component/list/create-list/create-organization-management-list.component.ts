@@ -98,7 +98,7 @@ export class CreateOrganizationManagementListComponent extends AbstractComponent
     // 조직 이름이 비어 있다면
     if (StringUtil.isEmpty(this.orgName)){
       this.isValidName = false;
-      this.nameValidMsg = this.translateService.instant('msg.groups.alert.name.empty');
+      this.nameValidMsg = this.translateService.instant('msg.organization.alert.name.empty');
       return;
     }
     if (CommonUtil.getByte(this.orgName.trim()) > 150) {

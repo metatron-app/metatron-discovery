@@ -3325,6 +3325,7 @@
   "msg.groups.alert.name.used": "이미 사용중인 이름입니다",
   "msg.groups.alert.name.create": "'{{value}}' 그룹이 생성되었습니다",
   "msg.groups.alert.grp.update.success": "그룹이 수정되었습니다",
+  "msg.organization.alert.org.update.success": "조직이 수정되었습니다",
   "msg.organization.alert.name.create": "'{{value}}' 조직이 생성되었습니다",
   "msg.organization.alert.name.len": "이름은 한글기준 50자(150byte)까지 가능합니다",
   "msg.organization.alert.name.used": "이미 사용중인 이름입니다",
@@ -3347,6 +3348,7 @@
   "msg.organization.th.members" : "멤버",
   "msg.organization.th.members.users" : "사용자",
   "msg.organization.th.members.groups" : "그룹",
+  "msg.organization.set.member" : "조직 멤버 및 그룹 설정",
 
   "msg.permission.th.name": "이름",
   "msg.permission.th.description": "설명",

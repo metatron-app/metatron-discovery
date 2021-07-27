@@ -99,6 +99,7 @@
           <td>
             <!-- 클릭시 ddp-selected 추가 -->
             <div class="ddp-txt-edit" [class.ddp-selected]="editNameFlg"
+                 (click)="orgNameEditMode()"
                  (clickOutside)="editNameFlg = false">
               <!-- data -->
               <span class="ddp-data-name">{{orgData.name}}
@@ -109,8 +110,9 @@
               <div class="ddp-wrap-input">
                 <input type="text" class="ddp-input-edit" placeholder="{{'msg.organization.ui.create.ph.name' | translate}}"
                        [(ngModel)]="editName"
-                       [focus]="editNameFlg">
-                <span class="ddp-btn-check"></span>
+                       [focus]="editNameFlg"
+                       (keyup.enter)="updateOrgName()">
+                <span class="ddp-btn-check" (click)="updateOrgName()"></span>
               </div>
               <!-- //edit -->
             </div>
@@ -123,22 +125,12 @@
           </th>
           <td>
             <!-- 클릭시 ddp-selected 추가 -->
-            <div class="ddp-txt-edit" [class.ddp-selected]="editCodeFlg"
-                 (clickOutside)="editCodeFlg = false">
+            <div class="ddp-txt-edit">
               <!-- data -->
-              <span class="ddp-data-name">
+              <span class="ddp-data-name" [style]="'cursor: default'">
                 {{orgData.code}}
-                <em class="ddp-icon-edit2"></em>
               </span>
               <!-- //data -->
-              <!-- edit -->
-              <div class="ddp-wrap-input">
-                <input type="text" class="ddp-input-edit" placeholder="{{'msg.organization.ui.create.ph.code' | translate}}"
-                       [(ngModel)]="editCode"
-                       [focus]="editCodeFlg">
-                <span class="ddp-btn-check"></span>
-              </div>
-              <!-- //edit -->
             </div>
           </td>
         </tr>
@@ -149,6 +141,7 @@
           <td>
             <!-- 클릭시 ddp-selected 추가 -->
             <div class="ddp-txt-edit" [class.ddp-selected]="editDescFlg"
+                 (click)="orgDescEditMode()"
                  (clickOutside)="editDescFlg = false">
               <!-- data -->
               <span class="ddp-data-name">
@@ -160,8 +153,9 @@
               <div class="ddp-wrap-input">
                 <input type="text" class="ddp-input-edit" placeholder="{{'msg.organization.ui.create.ph.desc' | translate}}"
                        [(ngModel)]="editDesc"
-                       [focus]="editDescFlg">
-                <span class="ddp-btn-check"></span>
+                       [focus]="editDescFlg"
+                       (keyup.enter)="updateOrgDesc()">
+                <span class="ddp-btn-check" (click)="updateOrgDesc()"></span>
               </div>
               <!-- //edit -->
             </div>
