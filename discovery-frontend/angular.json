@@ -23,8 +23,7 @@
             "tsConfig": "tsconfig.json",
             "assets": [
               "src/assets",
-              "src/favicon.ico",
-              "src/static"
+              "src/favicon.ico"
             ],
             "styles": [
               "node_modules/codemirror/lib/codemirror.css",
