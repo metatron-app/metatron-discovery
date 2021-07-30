@@ -4,10 +4,10 @@
   "license": "MIT",
   "scripts": {
     "ng": "ng",
-    "start": "node --max_old_space_size=10240 ./node_modules/.bin/ng serve --proxy-config proxy.conf.js --live-reload false --host 0.0.0.0 --disable-host-check",
+    "start": "node --max_old_space_size=2048 ./node_modules/.bin/ng serve --proxy-config proxy.conf.js --live-reload false --host 0.0.0.0 --disable-host-check",
     "build": "npm run package-reinstall && ng build --base-href /app/v2/",
     "package-reinstall": "rm -f package-lock.json && npm install",
-    "prod": "npm run package-reinstall && node --max_old_space_size=10240 ./node_modules/.bin/ng build --deploy-url /resource/ --output-hashing all --prod --base-href /app/v2/",
+    "prod": "npm run package-reinstall && node --max_old_space_size=2048 ./node_modules/.bin/ng build --deploy-url /resource/ --output-hashing all --prod --base-href /app/v2/",
     "test": "ng test",
     "lint": "ng lint",
     "lint-fix": "ng lint --fix",

@@ -70,6 +70,12 @@
                     <em class="ddp-icon-check"></em>
                   </a>
                 </li>
+                <li [ngClass]="{'ddp-selected' : getCurrentLang() == 'ru'}" (click)="changeLanguage('ru');$event.preventDefault();">
+                  <a href="#">
+                    {{'msg.comm.menu.lang.ru' | translate}}
+                    <em class="ddp-icon-check"></em>
+                  </a>
+                </li>
               </ul>
             </div>
             <!-- //popup -->
