@@ -499,7 +499,7 @@ export class FilterUtil {
    */
   public static getDateTimeFormat(date: (Date | string), timeUnit: TimeUnit, isStart: boolean = true): string {
     if (date.constructor === String) {
-      date = (date as string).replace('.000Z', '');
+      date = (date as string).replace( /\.[0-9]+Z$/gi, '' );
     }
     switch (timeUnit) {
       case TimeUnit.SECOND:
