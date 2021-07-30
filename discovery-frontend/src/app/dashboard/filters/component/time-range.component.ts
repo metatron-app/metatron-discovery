@@ -266,6 +266,12 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnC
           },
           this.compData.timeUnit
         );
+        const remainingHeight = window.innerHeight - this._fromPickerInput.nativeElement.getBoundingClientRect().bottom;
+        if( 350 > remainingHeight) {
+          startPickerSettings.position = 'top left';
+        } else {
+          startPickerSettings.position = 'bottom left';
+        }
         this._fromPicker = $(this._fromPickerInput.nativeElement).datepicker(startPickerSettings).data('datepicker');
       }
 
@@ -317,6 +323,12 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnC
           },
           this.compData.timeUnit
         );
+        const remainingHeight = window.innerHeight - this._toPickerInput.nativeElement.getBoundingClientRect().bottom;
+        if( 350 > remainingHeight) {
+          endPickerSettings.position = 'top right';
+        } else {
+          endPickerSettings.position = 'bottom right';
+        }
         this._toPicker = $(this._toPickerInput.nativeElement).datepicker(endPickerSettings).data('datepicker');
       }
       this._toPicker.date = this._toDate;
