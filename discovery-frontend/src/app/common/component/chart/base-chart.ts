@@ -67,7 +67,7 @@ import {ColorRange} from './option/ui-option/ui-color';
 import {UIChartAxisGrid} from './option/ui-option/ui-axis';
 import {TooltipOptionConverter} from './option/converter/tooltip-option-converter';
 import {Shelf} from '@domain/workbook/configurations/shelf/shelf';
-import {fromEvent} from 'rxjs';
+import {from, fromEvent, of} from 'rxjs';
 import {debounceTime, map} from 'rxjs/operators';
 import {Theme} from '../../value/user.setting.value';
 import UI = OptionGenerator.UI;
@@ -2205,13 +2205,38 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
         }
       }
 
-      if( ChartColorType.SERIES == this.uiOption.color.type) {
-        this.uiOption.fieldMeasureList.forEach((item, index) => {
-          // 해당 alias값이 없을때에만 기본색상설정
-          if ((this.uiOption.color as UIChartColorBySeries).schema && !(this.uiOption.color as UIChartColorBySeries).mapping[item.alias]) {
-            (this.uiOption.color as UIChartColorBySeries).mapping[item.alias] = ChartColorList[(this.uiOption.color as UIChartColorBySeries).schema][index];
+      let observeItem;
+      if( ChartColorType.SERIES == this.uiOption.color.type){
+        observeItem = of(this.uiOption.fieldMeasureList);
+      } else {
+        // 차원값 일 때
+        const colorOption = this.uiOption.color;
+        if (ChartColorType.DIMENSION === colorOption.type){
+          const param: any = {};
+          param.targetField = {
+            type: colorOption.type,
+            name: colorOption['targetField']
+          };
+          param.dataSource = DashboardUtil.getDataSourceForApi(_.cloneDeep(this.uiOption.dataSource));
+          param.dataSource['type'] = 'default';
+          param.limit = 100;
+
+          observeItem = from(this.datasourceService.getCandidate(param));
+        }
+      }
+
+      observeItem.subscribe(result => {
+        // 시리즈일 때는 alias 차원값일 때는 field 값으로 색상 설정
+        const dataType = (this.isNullOrUndefined(result[0].alias)) ? 'field' : 'alias';
+        let index = 0;
+        result.forEach((item) => {
+          // 해당 dataType 값이 없을때에만 기본색상설정
+          if ((this.uiOption.color as UIChartColorBySeries).schema && !(this.uiOption.color as UIChartColorBySeries).mapping[item[dataType]]) {
+            (this.uiOption.color as UIChartColorBySeries).mapping[item[dataType]] = ChartColorList[(this.uiOption.color as UIChartColorBySeries).schema][index];
+            index = (++ index ) % ChartColorList[(this.uiOption.color as UIChartColorBySeries).schema].length;
           }
         });
+
         // mapping map array로 변경
         (this.uiOption.color as UIChartColorBySeries).mappingArray = [];
 
@@ -2222,42 +2247,8 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
             color: (this.uiOption.color as UIChartColorBySeries).mapping[key]
           });
         });
-
-      } else {
-        // chart type 이 dimension 일 때
-        const param: any = {};
-        const colorOption= this.uiOption.color;
-        if(ShelveFieldType.DIMENSION.toString() === colorOption.type){
-          param.targetField = {
-            type: colorOption.type,
-            name: colorOption['targetField']
-          };
-          param.dataSource = DashboardUtil.getDataSourceForApi(_.cloneDeep(this.uiOption.dataSource));
-          param.dataSource['type'] = 'default';
-          param.limit = 100;
-
-          this.datasourceService.getCandidate(param).then((result) => {
-            result.forEach((item, index) => {
-              // 해당 alias값이 없을때에만 기본색상설정
-              if ((this.uiOption.color as UIChartColorBySeries).schema && !(this.uiOption.color as UIChartColorBySeries).mapping[item.field]) {
-                (this.uiOption.color as UIChartColorBySeries).mapping[item.field] = ChartColorList[(this.uiOption.color as UIChartColorBySeries).schema][index];
-              }
-            });
-            // mapping map array로 변경
-            (this.uiOption.color as UIChartColorBySeries).mappingArray = [];
-
-            Object.keys((this.uiOption.color as UIChartColorBySeries).mapping).forEach((key) => {
-
-              (this.uiOption.color as UIChartColorBySeries).mappingArray.push({
-                alias: key,
-                color: (this.uiOption.color as UIChartColorBySeries).mapping[key]
-              });
-            });
-          });
-        }
-      }
+      });
     }
-    console.log('uiOption.color: ', this.uiOption.color);
     return this.uiOption.color;
   }
 
