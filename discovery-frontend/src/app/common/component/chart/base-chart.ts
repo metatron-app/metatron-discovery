@@ -71,6 +71,8 @@ import {fromEvent} from 'rxjs';
 import {debounceTime, map} from 'rxjs/operators';
 import {Theme} from '../../value/user.setting.value';
 import UI = OptionGenerator.UI;
+import {DashboardUtil} from "../../../dashboard/util/dashboard.util";
+import {DatasourceService} from "../../../datasource/service/datasource.service";
 
 declare let echarts: any;
 
@@ -171,6 +173,7 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
   // 위젯에서 draw할경우 추가정보
   protected widgetDrawParam: any;
 
+  protected datasourceService: DatasourceService;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -245,7 +248,6 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
     if (!result || !result.data) {
       return;
     }
-
     // 데이터 타입이  Object일 경우 => 맵 차트
     if (result.data instanceof Object && result.data.totalFeatures > 0) {
 
@@ -695,6 +697,9 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
     protected injector: Injector) {
 
     super(elementRef, injector);
+
+    // datasource 서비스
+    this.datasourceService = injector.get(DatasourceService);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -2173,7 +2178,8 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
    */
   protected setMapping(): UIChartColor {
 
-    if (!this.uiOption.color || ChartColorType.SERIES !== this.uiOption.color.type || !this.uiOption.fieldMeasureList || this.uiOption.fieldMeasureList.length === 0) return this.uiOption.color;
+    if (!this.uiOption.color || (ChartColorType.SERIES !== this.uiOption.color.type && ChartColorType.DIMENSION !== this.uiOption.color.type)
+      || !this.uiOption.fieldMeasureList || this.uiOption.fieldMeasureList.length === 0) return this.uiOption.color;
 
     // mapping값이 없거나, 선반값이 변경된경우 mapping값 초기화
     if (!(this.uiOption.color as UIChartColorBySeries).mapping || EventType.CHANGE_PIVOT === this.drawByType) {
@@ -2199,25 +2205,59 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
         }
       }
 
-      this.uiOption.fieldMeasureList.forEach((item, index) => {
-        // 해당 alias값이 없을때에만 기본색상설정
-        if ((this.uiOption.color as UIChartColorBySeries).schema && !(this.uiOption.color as UIChartColorBySeries).mapping[item.alias]) {
-          (this.uiOption.color as UIChartColorBySeries).mapping[item.alias] = ChartColorList[(this.uiOption.color as UIChartColorBySeries).schema][index];
-        }
-      });
-
-      // mapping map array로 변경
-      (this.uiOption.color as UIChartColorBySeries).mappingArray = [];
-
-      Object.keys((this.uiOption.color as UIChartColorBySeries).mapping).forEach((key) => {
-
-        (this.uiOption.color as UIChartColorBySeries).mappingArray.push({
-          alias: key,
-          color: (this.uiOption.color as UIChartColorBySeries).mapping[key]
+      if( ChartColorType.SERIES == this.uiOption.color.type) {
+        this.uiOption.fieldMeasureList.forEach((item, index) => {
+          // 해당 alias값이 없을때에만 기본색상설정
+          if ((this.uiOption.color as UIChartColorBySeries).schema && !(this.uiOption.color as UIChartColorBySeries).mapping[item.alias]) {
+            (this.uiOption.color as UIChartColorBySeries).mapping[item.alias] = ChartColorList[(this.uiOption.color as UIChartColorBySeries).schema][index];
+          }
         });
-      });
-    }
+        // mapping map array로 변경
+        (this.uiOption.color as UIChartColorBySeries).mappingArray = [];
 
+        Object.keys((this.uiOption.color as UIChartColorBySeries).mapping).forEach((key) => {
+
+          (this.uiOption.color as UIChartColorBySeries).mappingArray.push({
+            alias: key,
+            color: (this.uiOption.color as UIChartColorBySeries).mapping[key]
+          });
+        });
+
+      } else {
+        // chart type 이 dimension 일 때
+        const param: any = {};
+        const colorOption= this.uiOption.color;
+        if(ShelveFieldType.DIMENSION.toString() === colorOption.type){
+          param.targetField = {
+            type: colorOption.type,
+            name: colorOption['targetField']
+          };
+          param.dataSource = DashboardUtil.getDataSourceForApi(_.cloneDeep(this.uiOption.dataSource));
+          param.dataSource['type'] = 'default';
+          param.limit = 100;
+
+          this.datasourceService.getCandidate(param).then((result) => {
+            result.forEach((item, index) => {
+              // 해당 alias값이 없을때에만 기본색상설정
+              if ((this.uiOption.color as UIChartColorBySeries).schema && !(this.uiOption.color as UIChartColorBySeries).mapping[item.field]) {
+                (this.uiOption.color as UIChartColorBySeries).mapping[item.field] = ChartColorList[(this.uiOption.color as UIChartColorBySeries).schema][index];
+              }
+            });
+            // mapping map array로 변경
+            (this.uiOption.color as UIChartColorBySeries).mappingArray = [];
+
+            Object.keys((this.uiOption.color as UIChartColorBySeries).mapping).forEach((key) => {
+
+              (this.uiOption.color as UIChartColorBySeries).mappingArray.push({
+                alias: key,
+                color: (this.uiOption.color as UIChartColorBySeries).mapping[key]
+              });
+            });
+          });
+        }
+      }
+    }
+    console.log('uiOption.color: ', this.uiOption.color);
     return this.uiOption.color;
   }
 

@@ -203,8 +203,6 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     } else {
       this.pivot = pivot;
     }
-
-    console.log('pivot!', this.pivot);
     this.changePivot();
   }
 

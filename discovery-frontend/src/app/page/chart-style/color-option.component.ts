@@ -94,7 +94,6 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
 
   @Input('uiOption')
   public set setUiOption(uiOption: UIOption) {
-
     // Set
     this.uiOption = uiOption;
 
@@ -259,7 +258,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   // Init
   public ngOnInit() {
     super.ngOnInit();
-    console.log( 'pivot', this.pivot );
+    // console.log( 'pivot', this.pivot );
   }
 
   // Destroy
@@ -563,6 +562,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     const colorObj: UIChartColorBySeries = this.uiOption.color as UIChartColorBySeries;
     // color setting show / hide 값 반대로 설정
     colorObj.settingUseFl = !colorObj.settingUseFl;
+
     // if( !colorObj.settingUseFl ) {
     //   const colorList = ChartColorList[colorObj.schema];
     //
