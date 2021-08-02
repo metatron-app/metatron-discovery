@@ -2177,7 +2177,6 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
    * color의 mapping, mappingArray값 설정
    */
   protected setMapping(): UIChartColor {
-    console.log('setMapping');
 
     if (!this.uiOption.color || (ChartColorType.SERIES !== this.uiOption.color.type && ChartColorType.DIMENSION !== this.uiOption.color.type)
       || !this.uiOption.fieldMeasureList || this.uiOption.fieldMeasureList.length === 0) return this.uiOption.color;
@@ -2250,7 +2249,6 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
         });
       });
     }
-    console.log(this.uiOption);
     return this.uiOption.color;
   }
 
