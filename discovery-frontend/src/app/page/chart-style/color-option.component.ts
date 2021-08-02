@@ -279,23 +279,23 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   } // get - isLabelChart
 
   public get isSeriesColorType(): boolean {
-    return this.uiOption.color.type === ChartColorType.SERIES;
+    return this.uiOption && this.uiOption.color.type === ChartColorType.SERIES;
   } // get - isSeriesColorType
 
   public get isDimensionColorType(): boolean {
-    return this.uiOption.color.type == ChartColorType.DIMENSION;
+    return this.uiOption && this.uiOption.color.type == ChartColorType.DIMENSION;
   } // get - isDimensionColorType
 
   public get isMeasureColorType(): boolean {
-    return this.uiOption.color.type == ChartColorType.MEASURE;
+    return this.uiOption && this.uiOption.color.type == ChartColorType.MEASURE;
   } // get - isMeasureColorType
 
   public get existPivotSettings(): boolean {
-    return this.pivot.aggregations.some( aggr => !!aggr.color );
+    return this.pivot && this.pivot.aggregations.some( aggr => !!aggr.color );
   } // get - existPivotSettings
 
   public get filteredPivotColors(): Field[] {
-    return this.pivot.aggregations.filter( aggr => !!aggr.color );
+    return this.pivot && this.pivot.aggregations.filter( aggr => !!aggr.color );
   } // get - filteredPivotColors
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
