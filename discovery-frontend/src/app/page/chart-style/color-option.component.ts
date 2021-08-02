@@ -53,6 +53,7 @@ import {ColorOptionConverter} from '@common/component/chart/option/converter/col
 import {FormatOptionConverter} from '@common/component/chart/option/converter/format-option-converter';
 import {Field} from '@domain/workbook/configurations/field/field';
 import UI = OptionGenerator.UI;
+import {Datasource} from "@domain/datasource/datasource";
 
 // 색상 타입 리스트
 const colorTypeList: object[] = [
@@ -252,14 +253,18 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   @Input('pivot')
   public pivot: Pivot;
 
+  @Input('datasource')
+  public datasource: Datasource;
+
   @Output() // Change를 붙이면 해당 모델 변경시 자동 이벤트 발생
   public changePivotColor: EventEmitter<Pivot> = new EventEmitter();
 
   // Init
   public ngOnInit() {
     super.ngOnInit();
-    // console.log( 'pivot', this.pivot );
-  }
+    // dimension 후보 값 API 호출 위한 dataSource
+    this.uiOption.dataSource = this.datasource;
+ }
 
   // Destroy
   public ngOnDestroy() {
