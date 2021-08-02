@@ -1622,6 +1622,7 @@
           <color-option #colorOption
                         *ngIf="isChartShow && possibleChartCheck('color',selectChart) && 'color' === rnbMenu"
                         [(uiOption)]="uiOption" [resultData]="resultData" [pivot]="pivot"
+                        [datasource]="dataSource"
                         (drawChartParam)="onSetDrawChartParam($event)"
                         (changePivotColor)="onChangePivotColor($event)"></color-option>
           <legend-option #legendOption

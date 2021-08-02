@@ -228,8 +228,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   }
 
   get uiOption(): UIOption {
-    // dimension 후보 값 API 호출 위해 dataSource 전달
-    this.widgetConfiguration.chart.dataSource = this.dataSource;
     return this.widgetConfiguration.chart;
   }
 
@@ -1065,7 +1063,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * @param {boolean} isBBoxChange
    */
   public selectDataSource(dataSource: Datasource, isBBoxChange: boolean) {
-
     (this.widget) || (this.widget = _.cloneDeep(this.originalWidget));
 
     if (ChartType.MAP === this.widget.configuration.chart.type) {
@@ -1126,6 +1123,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       if (this.pagePivot) this.pagePivot.removeAnimation();
     }
+
   } // function - selectDataSource
 
   /**
