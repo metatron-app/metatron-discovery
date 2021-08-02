@@ -50,7 +50,6 @@ import {
   UILabelIcon,
   UILabelSecondaryIndicator
 } from '../option/ui-option/ui-label-chart';
-import {DatasourceService} from '../../../../datasource/service/datasource.service';
 import {TimeCompareRequest} from '@domain/datasource/data/time-compare-request';
 import {SearchQueryRequest} from '@domain/datasource/data/search-query-request';
 import {PageWidget} from '@domain/dashboard/widget/page-widget';
@@ -137,7 +136,6 @@ export class LabelChartComponent extends BaseChart<UILabelChart>
 
   // 생성자
   constructor(
-    private datasourceService: DatasourceService,
     protected elementRef: ElementRef,
     protected injector: Injector) {
 

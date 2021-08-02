@@ -280,6 +280,8 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
     this.loadingShow();
     this.datasourceService.getCandidateForFilter(targetFilter, board, [], targetField, 'COUNT', this.searchText, this.itemShowCnt)
       .then(result => {
+        // console.log('getCandidateForFilter');
+        // console.log('result, ' , result);
         this.targetFilter = targetFilter;
         this._targetField = targetField;
         this._board = board;

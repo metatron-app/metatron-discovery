@@ -225,10 +225,11 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     }
 
     this.selectChartSource.next({chartType: chartType, type: EventType.CHART_TYPE});
-
   }
 
   get uiOption(): UIOption {
+    // dimension 후보 값 API 호출 위해 dataSource 전달
+    this.widgetConfiguration.chart.dataSource = this.dataSource;
     return this.widgetConfiguration.chart;
   }
 
@@ -519,6 +520,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * @param {Field} field
    */
   public static updatePivotAliasFromField(pivot: Pivot, field: Field) {
+
     pivot.columns.forEach(col => {
       if (col.name === field.name) {
         // console.log( '>>>>> col alias : %s, fieldAlias : %s, newAlias : %s', col.alias, col.fieldAlias, field.nameAlias.nameAlias );
@@ -577,7 +579,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     super.ngOnInit();
 
     this.init();
-
     // resize시 data panel의 내부 스크롤 설정
     const resizeEvent$ = fromEvent(window, 'resize')
       .pipe(
@@ -645,6 +646,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       // 선택된 데이터 패널의 내부 스크롤 설정
       this.dataPanelInnerScroll();
     }, 700); // css의 duration이 0.5s로 되어 있으므로 600 이하로 설정하면 안됨
+
   }
 
   // Destory
@@ -673,7 +675,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * @param {string} sText
    * @param {string} targetText
    * @returns {boolean}
-   */
+   */ㅌㄱ
   public isContainSearchText(sText: string, targetText: string) {
     // ngIf로 하면 dragular값이 초기화 되기 때문에 display none으로 처리
     if (StringUtil.isEmpty(sText)) return true;
@@ -770,6 +772,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
           this.mapPivot.convertField(targetField, 'layer' + layerNum);
         }
       }
+
       return;
 
     }
@@ -1200,6 +1203,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       this.widgetService.createWidget(param, this.widget.dashBoard.id)
         .then((widget) => {
+
           const pageWidget: PageWidget = _.extend(new PageWidget(), widget);
           pageWidget.dashBoard = this.widget.dashBoard;
 

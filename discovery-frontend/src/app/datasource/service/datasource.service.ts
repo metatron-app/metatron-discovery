@@ -1202,4 +1202,5 @@ export class DatasourceService extends AbstractService {
 
     return field['alias'];
   } // function - _setFieldAlias
+
 }
