@@ -29,6 +29,9 @@
         <div class="ddp-txt-pop-info" *ngIf="translateService.getBrowserLang() === 'zh'">
           {{ 'msg.comm.menu.admin.user.modal.description.first' | translate }}<strong>{{ workspaces.length | number: '1.0-3' }}</strong>{{ 'msg.comm.menu.admin.user.modal.description.last' | translate }}
         </div>
+        <div class="ddp-txt-pop-info" *ngIf="translateService.getBrowserLang() === 'ru'">
+          {{ 'msg.comm.menu.admin.user.modal.description.first' | translate }}<strong>{{ workspaces.length | number: '1.0-3' }}</strong>{{ 'msg.comm.menu.admin.user.modal.description.last' | translate }}
+        </div>
       </div>
 
       <!-- box -->

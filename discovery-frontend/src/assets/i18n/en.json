@@ -240,6 +240,7 @@
   "msg.comm.menu.lang.ko": "Korean",
   "msg.comm.menu.lang.en": "English",
   "msg.comm.menu.lang.zh": "Chinese",
+  "msg.comm.menu.lang.ru": "Russian",
   "msg.comm.menu.theme" : "Themes",
   "msg.comm.alert.del.fail": "Operation failed due to network error. Please try again.",
   "msg.comm.alert.save.success": "Saved",
