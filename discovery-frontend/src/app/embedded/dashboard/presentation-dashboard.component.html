@@ -94,6 +94,6 @@
   <!-- //프리젠 태이션 -->
 
   <app-dashboard *ngIf="selectedDashboard" [dashboard]="selectedDashboard" [standalone]="true"
-                 (dashboardEvent)="onDashboardEvent($event)"
+                 [isShowSelectionFilter]="true" (dashboardEvent)="onDashboardEvent($event)"
                  style="position: absolute;top: 50px; left: 0px; right: 0px; bottom: 0px;overflow-y: auto;"></app-dashboard>
 </div>
