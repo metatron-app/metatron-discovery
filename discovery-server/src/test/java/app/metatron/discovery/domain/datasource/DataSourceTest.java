@@ -19,9 +19,14 @@ import com.google.common.collect.Sets;
 
 import com.facebook.presto.jdbc.internal.guava.collect.Maps;
 
+import org.assertj.core.util.Lists;
 import org.junit.Test;
 
 import java.util.*;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -156,6 +161,40 @@ public class DataSourceTest {
     candidateFields.add(candidateField4);
 
     return candidateFields;
+  }
+
+  @Test
+  public void duplicatedFieldTest() {
+
+    List<Field> fields = Lists.newArrayList();
+
+    // Create a field
+    Field m1 = new Field();
+    m1.setName("measure1");
+    m1.setType(DataType.DOUBLE);
+    m1.setRole(Field.FieldRole.MEASURE);
+
+    fields.add(m1);
+
+    // Create a second field with same name (measure1)
+    Field m2 = new Field();
+    m2.setName("measure1");
+    m2.setType(DataType.DOUBLE);
+    m2.setRole(Field.FieldRole.MEASURE);
+
+    fields.add(m2);
+
+    final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+
+    final DataSource ds = new DataSourceBuilder()
+        .name("DuplicatedDatasource")
+        .fields(m1, m2)
+        .build();
+
+    final Collection<ConstraintViolation<DataSource>> constraintViolations = validator.validate(ds);
+
+    assertThat(constraintViolations.iterator().next().getMessage()
+        .equals("Duplicated Field : " + m1.getName())).isTrue();
   }
 
 }
