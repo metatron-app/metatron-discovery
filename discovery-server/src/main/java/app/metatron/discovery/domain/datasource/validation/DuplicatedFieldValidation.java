@@ -24,10 +24,10 @@ import javax.validation.Constraint;
 import javax.validation.Payload;
 
 @Documented
-@Constraint(validatedBy = DuplicatedFiledValidator.class)
+@Constraint(validatedBy = DuplicatedFieldValidator.class)
 @Target( { ElementType.METHOD, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface DuplicatedFiledValidation {
+public @interface DuplicatedFieldValidation {
 
   String message() default "Duplicated field";
 

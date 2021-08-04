@@ -23,10 +23,10 @@ import javax.validation.ConstraintValidatorContext;
 
 import app.metatron.discovery.domain.datasource.Field;
 
-public class DuplicatedFiledValidator implements ConstraintValidator<DuplicatedFiledValidation, List<Field>> {
+public class DuplicatedFieldValidator implements ConstraintValidator<DuplicatedFieldValidation, List<Field>> {
 
   @Override
-  public void initialize(DuplicatedFiledValidation duplicatedFiledValidation) {
+  public void initialize(DuplicatedFieldValidation duplicatedFieldValidation) {
   }
 
   @Override
