@@ -73,8 +73,8 @@ public class IngestionSpecBuilder extends AbstractSpecBuilder {
   public IngestionSpecBuilder hdfsTuningConfig(Map<String, Object> tuningProperties, Map<String, Object> jobProperties) {
 
     tuningConfig = HadoopTuningConfig.hdfsDefaultConfig();
-
-    ((HadoopTuningConfig) tuningConfig).overrideConfig(tuningProperties, jobProperties);
+    ((HadoopTuningConfig) tuningConfig).addJobProperty(jobProperties);
+    ((HadoopTuningConfig) tuningConfig).overrideConfig(tuningProperties);
 
     addSecondaryIndexing();
 
@@ -85,7 +85,8 @@ public class IngestionSpecBuilder extends AbstractSpecBuilder {
 
     tuningConfig = HadoopTuningConfig.hiveDefaultConfig();
 
-    ((HadoopTuningConfig) tuningConfig).overrideConfig(tuningProperties, jobProperties);
+    ((HadoopTuningConfig) tuningConfig).addJobProperty(jobProperties);
+    ((HadoopTuningConfig) tuningConfig).overrideConfig(tuningProperties);
 
     addSecondaryIndexing();
 
