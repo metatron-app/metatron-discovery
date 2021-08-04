@@ -552,7 +552,7 @@ public class DataSourceController {
     if(CollectionUtils.isNotEmpty(updateRequest.getPatchFields())) {
       dataSource.patchFields(updateRequest.getPatchFields());
 
-      // TODO if somebody knows to validate when adding the object into the list, please fix this block.
+      // todo: if somebody knows to validate when adding the object into the list, please fix this block.
       Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
       Set<ConstraintViolation<DataSource>> validate = validator.validate(dataSource);
@@ -565,7 +565,7 @@ public class DataSourceController {
 
     }
 
-    // TODO Only support realtime case now
+    // todo: Only support realtime case now
     if (dataSource.getIngestionInfo() instanceof RealtimeIngestionInfo) {
 
       IngestionInfo ingestionInfo = dataSource.getIngestionInfo();
