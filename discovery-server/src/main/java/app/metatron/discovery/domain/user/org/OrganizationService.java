@@ -135,6 +135,9 @@ public class OrganizationService {
 
   private void addMember(String code, String memberId, String memberName, DirectoryProfile.Type type) {
 
+    //remove member from previous org
+    deleteOrgMembers(memberId);
+
     Organization persistOrg = findOrganizationByCode(code);
 
     persistOrg.addMember(new OrganizationMember(memberId, memberName, type));
