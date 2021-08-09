@@ -29,7 +29,7 @@ import {Alert} from '@common/util/alert.util';
 import * as _ from 'lodash';
 import {StringUtil} from '@common/util/string.util';
 import {DIRECTION} from '@domain/workbook/configurations/sort';
-import {ChartType, EventType, SeriesType} from '@common/component/chart/option/define/common';
+import {AxisLabelType, ChartType, EventType, SeriesType} from '@common/component/chart/option/define/common';
 import {AggregationType} from '@domain/workbook/configurations/field/measure-field';
 import {UIChartAxis} from '@common/component/chart/option/ui-option/ui-axis';
 import {Modal} from '@common/domain/modal';
@@ -512,6 +512,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
     // 보조축
     const secondaryAxis: UIChartAxis = _.cloneDeep(this.uiOption.yAxis);
     // secondaryAxis.name = this.editingField.alias;
+    secondaryAxis.mode = AxisLabelType.SUBCOLUMN;
     this.editingField.isSecondaryAxis = !this.editingField.isSecondaryAxis;
     this.uiOption.secondaryAxis = secondaryAxis;
 

@@ -20,6 +20,7 @@ import {AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy,
 import {BaseChart, PivotTableInfo} from '../base-chart';
 import {BaseOption} from '../option/base-option';
 import {
+  AxisLabelType,
   AxisType,
   BarMarkType,
   CHART_STRING_DELIMITER,
@@ -147,6 +148,7 @@ export class CombineChartComponent extends BaseChart<UICombineChart> implements 
     // Secondary Axis Migration
     if (!this.uiOption.secondaryAxis) {
       this.uiOption.secondaryAxis = _.cloneDeep(this.uiOption.yAxis);
+      this.uiOption.secondaryAxis.mode = AxisLabelType.SUBCOLUMN;
     }
 
     // 차트가 그려진 후 UI에 필요한 옵션 설정 - 축 정보
