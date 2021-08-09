@@ -74,6 +74,7 @@ import app.metatron.discovery.util.AuthUtils;
 
 import static app.metatron.discovery.domain.user.UserService.DuplicatedTarget.EMAIL;
 import static app.metatron.discovery.domain.user.UserService.DuplicatedTarget.USERNAME;
+import static app.metatron.discovery.domain.user.org.Organization.DEFAULT_ORGANIZATION_CODE;
 
 /**
  *
@@ -330,6 +331,15 @@ public class UserController {
     //password expr check
     userService.validateUserPassword(user.getUsername(), user);
 
+    // check user org code if exist
+    if(user.getOrgCodes() != null && user.getOrgCodes().size() > 0) {
+      for(String orgCode : user.getOrgCodes()){
+        if(!orgService.checkDuplicatedCode(orgCode)){
+          throw new UserException(UserErrorCodes.ORGANIZATION_NOT_VALID, "Not valid Org Code : " + orgCode);
+        }
+      }
+    }
+
     if (StringUtils.isBlank(user.getFullName())) {
       user.setFullName(user.getUsername());
     }
@@ -348,8 +358,13 @@ public class UserController {
     userRepository.save(user);
 
     // Add Organization
-    String orgCode = CommonLocalVariable.getLocalVariable().getTenantAuthority().getOrgCode();
-    orgService.addMembers(Lists.newArrayList(orgCode), user.getUsername(), user.getFullName(), DirectoryProfile.Type.USER);
+    if(user.getOrgCodes() != null && user.getOrgCodes().size() > 0) {
+      for(String orgCode : user.getOrgCodes()){
+        orgService.addMembers(Lists.newArrayList(orgCode), user.getUsername(), user.getFullName(), DirectoryProfile.Type.USER);
+      }
+    } else {
+      orgService.addMembers(Lists.newArrayList(DEFAULT_ORGANIZATION_CODE), user.getUsername(), user.getFullName(), DirectoryProfile.Type.USER);
+    }
 
     mailer.sendSignUpRequestMail(user, false);
 

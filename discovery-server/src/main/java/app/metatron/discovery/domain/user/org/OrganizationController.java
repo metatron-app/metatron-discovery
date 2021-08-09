@@ -271,4 +271,18 @@ public class OrganizationController {
 
   }
 
+  @RequestMapping(path = "/organizations/code/{value}/validate", method = RequestMethod.POST)
+  public ResponseEntity<?> validateOrgCode(@PathVariable("value") String orgCode) {
+
+    Preconditions.checkArgument(StringUtils.isNotBlank(orgCode), "Organization code to check validation required");
+
+    Map<String, Boolean> duplicated = Maps.newHashMap();
+    if (orgService.checkDuplicatedCode(orgCode)) {
+      duplicated.put("valid", true);
+    } else {
+      duplicated.put("valid", false);
+    }
+
+    return ResponseEntity.ok(duplicated);
+  }
 }
