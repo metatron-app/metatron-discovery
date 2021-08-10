@@ -38,7 +38,6 @@ import {DataZoomType} from '../option/define/datazoom';
 import {UIChartAxisGrid} from '../option/ui-option/ui-axis';
 import {Axis} from '../option/define/axis';
 import {AxisOptionConverter} from '../option/converter/axis-option-converter';
-import {DashboardUtil} from "../../../../dashboard/util/dashboard.util";
 
 @Component({
   selector: 'bar-chart',
@@ -102,27 +101,6 @@ export class BarChartComponent extends BaseChart<UIBarChart> implements OnInit, 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  public colorTest(){
-    console.log('colorTest');
-
-    const param: any = {};
-    console.log(this.uiOption.color);
-    const colorOption = this.uiOption.color;
-    if('dimension' === colorOption.type){
-      param.targetField = {
-        type: colorOption.type,
-        name: colorOption['targetField'],
-        limit: 1000
-      };
-      param.dataSource = DashboardUtil.getDataSourceForApi(_.cloneDeep(this.uiOption.dataSource));
-
-      this.datasourceService.getCandidate(param).then((result) => {
-        console.log('getRowsOfD');
-        console.log(result);
-      });
-    }
-  }
 
   /**
    * 선반정보를 기반으로 차트를 그릴수 있는지 여부를 체크

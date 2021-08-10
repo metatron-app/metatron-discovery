@@ -14,12 +14,14 @@
 
 import {
   Component,
-  ElementRef, EventEmitter,
+  ElementRef,
+  EventEmitter,
   Injector,
   Input,
   NgZone,
   OnDestroy,
-  OnInit, Output,
+  OnInit,
+  Output,
   QueryList,
   ViewChild,
   ViewChildren
@@ -52,8 +54,11 @@ import {GradationGeneratorComponent} from '@common/component/gradation/gradation
 import {ColorOptionConverter} from '@common/component/chart/option/converter/color-option-converter';
 import {FormatOptionConverter} from '@common/component/chart/option/converter/format-option-converter';
 import {Field} from '@domain/workbook/configurations/field/field';
-import UI = OptionGenerator.UI;
 import {Datasource} from "@domain/datasource/datasource";
+import UI = OptionGenerator.UI;
+import {DashboardUtil} from "../../dashboard/util/dashboard.util";
+import {DatasourceService} from "../../datasource/service/datasource.service";
+import {EventBroadcaster} from "@common/event/event.broadcaster";
 
 // 색상 타입 리스트
 const colorTypeList: object[] = [
@@ -76,7 +81,9 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   // constructor
   constructor(protected elementRef: ElementRef,
               protected injector: Injector,
-              private zone: NgZone) {
+              private zone: NgZone,
+              private datasourceService: DatasourceService,
+              private broadCaster: EventBroadcaster) {
 
     super(elementRef, injector);
   }
@@ -97,6 +104,8 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   public set setUiOption(uiOption: UIOption) {
     // Set
     this.uiOption = uiOption;
+    console.log('color-option UIOption: ', _.cloneDeep(this.uiOption));
+
 
     if( ChartType.LABEL === this.uiOption.type && !this.uiOption.color ) {
       this.uiOption.color = UI.Color.measureUIChartColor('SC1');
@@ -149,6 +158,38 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
       this.maxValue = FormatOptionConverter.getDecimalValue(this.uiOption.maxValue, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep);
     }
 
+    if (ChartColorType.DIMENSION === this.uiOption.color.type){
+      const param: any = {
+        dataSource: DashboardUtil.getDataSourceForApi(_.cloneDeep(this.uiOption.dataSource)),
+        limit: 100,
+        sortBy: "field.name"
+      };
+      param.dataSource['type'] = 'default';
+      param.targetField = {
+        type: this.uiOption.color.type,
+        name: this.uiOption.color['targetField']
+      };
+
+      // 차원값에 따른 candidate row data 부르기
+      this.datasourceService.getCandidate(param).then((result) => {
+
+        result = result.sort((a,b) => a.field.localeCompare(b.field));
+        this.dimensionMappingArray = [];
+        let index = 0;
+        result.forEach((item) => {
+          let mapping = {};
+          // 해당 alias 값이 없을 때에만 기본 색상 설정
+          if ((this.uiOption.color as UIChartColorBySeries).schema && !(this.uiOption.color as UIChartColorBySeries).mapping[item.field]){
+            mapping['color'] = ChartColorList[(this.uiOption.color as UIChartColorBySeries).schema][index];
+          } else {
+            mapping['color'] = (this.uiOption.color as UIChartColorBySeries).mapping[item.field];
+          }
+          mapping['alias'] = item.field;
+          this.dimensionMappingArray.push(mapping);
+          index = (++ index ) % ChartColorList[(this.uiOption.color as UIChartColorBySeries).schema].length;
+        });
+      });
+    }
   }
 
   // selected item index in gradation list
@@ -258,6 +299,9 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
 
   @Output() // Change를 붙이면 해당 모델 변경시 자동 이벤트 발생
   public changePivotColor: EventEmitter<Pivot> = new EventEmitter();
+
+  // dimension uiOption mapping 값
+  public dimensionMappingArray = [];
 
   // Init
   public ngOnInit() {
@@ -387,7 +431,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
       }
     }
 
-    // dimension인 경우
+    // dimension 인 경우
     if (typeId === ChartColorType.DIMENSION.toString()) {
 
       // targetField를 입력
@@ -617,7 +661,6 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
    * 컬러팔렛트의 색상을 선택시
    */
   public colorPaletteSelected(colorCode: string, item?: any) {
-
     // color by series일때
     if (this.uiOption.color.type === ChartColorType.SERIES) {
       // 선택된 필드의 index 가져오기
@@ -647,7 +690,6 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
             this.uiOption.color['colorTarget'] = CellColorTarget.TEXT;
           }
         }
-
         this.uiOption = (_.extend({}, this.uiOption, {
           color: {
             type: this.uiOption.color.type,
@@ -692,6 +734,35 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
       this.currentRange = null;
 
       this.update();
+
+    } else if (this.uiOption.color.type === ChartColorType.DIMENSION){
+
+      const color = ChartColorList[(this.uiOption.color as UIChartColorBySeries).schema];
+      // 선택된 필드의 index 가져오기
+      const index = (_.findIndex(this.dimensionMappingArray, {alias: item.alias})) % color.length;
+
+      // 해당 선택된 아이템이 있는 경우
+      if(-1 !== index) {
+        // userCodes 값이 업는 경우 color codes 값을 deep copy
+        if (!(this.uiOption.color as UIChartColorBySeries).mapping) {
+          (this.uiOption.color as UIChartColorBySeries).mapping = _.cloneDeep(color);
+        }
+
+        let changedMapping = {};
+        // changedMapping[this.dimensionMappingArray[index]['alias']] = colorCode;
+        // mapping list에 변경된 값 설정
+        this.dimensionMappingArray[index]['color'] = colorCode;
+
+        this.dimensionMappingArray.forEach(item => {
+          changedMapping[item['alias']] = item['color'];
+         // changedMapping.push(item['color']);
+        });
+
+        this.broadCaster.broadcast('CHANGE_DIMENSION_COLOR', {changedMapping: changedMapping});
+
+        // this.safelyDetectChanges();
+        // this.update();
+      }
     }
   }
 

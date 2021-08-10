@@ -1201,7 +1201,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       this.widgetService.createWidget(param, this.widget.dashBoard.id)
         .then((widget) => {
-
           const pageWidget: PageWidget = _.extend(new PageWidget(), widget);
           pageWidget.dashBoard = this.widget.dashBoard;
 
@@ -1240,14 +1239,12 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
           console.log(err);
         });
 
-
     } else {
       // 위젯 수정
       const param = {
         configuration: this.widgetConfiguration,
         name: this.widget.name
       };
-
 
       if (ChartType.GRID.toString() === this.selectChart && this.chart.chart) {
         param.configuration.chart['gridColumnWidth'] = this.chart.chart.getLeafColumnWidth();
@@ -1267,6 +1264,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       this.widgetService.updateWidget(this.widget.id, param)
         .then((widget) => {
+          console.log('update Widget: ', _.cloneDeep(widget));
 
           // 대시보드 옵션 업데이트
           this.dashboardService.updateDashboard(
