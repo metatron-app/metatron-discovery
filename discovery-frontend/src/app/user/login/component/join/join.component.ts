@@ -31,12 +31,28 @@ import {AbstractComponent} from '@common/component/abstract.component';
 import {User} from '@domain/user/user';
 import {UserService} from '../../../service/user.service';
 
+interface JoinValidation {
+  username: boolean;
+  usernameMessage: string;
+  email: boolean;
+  emailMessage: string;
+  fullName: boolean;
+  fullNameMessage: string;
+  password: boolean;
+  passwordMessage: string;
+  confirmPassword: boolean;
+  confirmPasswordMessage: string;
+  tel: boolean;
+  telMessage: string;
+  org: boolean;
+  orgMessage: string;
+}
+
 @Component({
   selector: 'app-join',
   templateUrl: './join.component.html',
 })
 export class JoinComponent extends AbstractComponent implements OnInit, OnDestroy {
-
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
@@ -44,8 +60,11 @@ export class JoinComponent extends AbstractComponent implements OnInit, OnDestro
   // User Domain
   public user: User;
 
+  // 조직 코드 입력값
+  public inputOrgCode: string = '';
+
   // 벨리데이션 관련 자료
-  public joinValidation;
+  public joinValidation: JoinValidation;
 
   // 프로필 기본 이미지 경로
   public defaultProfileImageSrc = '/assets/images/img_photo.png';
@@ -58,6 +77,7 @@ export class JoinComponent extends AbstractComponent implements OnInit, OnDestro
 
   // 팝업 Show 플래그
   public isShow = false;
+
 
   // 프로필 이미지 파일(input)
   @ViewChild('profileImageFile') profileImageFile: any;
@@ -407,6 +427,8 @@ export class JoinComponent extends AbstractComponent implements OnInit, OnDestro
       confirmPasswordMessage: '',
       tel: true,
       telMessage: '',
+      org: null,
+      orgMessage: ''
     };
 
   }
