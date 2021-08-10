@@ -198,7 +198,6 @@ export class ColorPickerComponent extends AbstractComponent implements OnInit, O
       clickoutFiresChange: data.clickoutFiresChange,
       // 색상 선택시
       change: ((color) => {
-
         // 선택된 색상 emit
         this.selected.emit(color.toHexString());
       }),

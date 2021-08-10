@@ -908,13 +908,11 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    * @param {string} dashboardId
    */
   public scrollToDashboard(dashboardId: string) {
-    console.log('scrollToDashboard')
     const selectedIdx: number = this.dashboards.findIndex(item => item.id === dashboardId);
     const speed = this.isFirstLoad ? 800 : 0;
     const locOfY = this.isFirstLoad ? selectedIdx * ('LIST' === this.listType ? 52 : 185)
       : this.scrollLoc;
 
-    console.log(locOfY);
     if ('LIST' === this.listType) {
       $('.ddp-ui-board-listview').animate({scrollTop: locOfY}, speed, 'swing');
     } else {

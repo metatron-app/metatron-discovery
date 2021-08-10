@@ -67,12 +67,11 @@ import {ColorRange} from './option/ui-option/ui-color';
 import {UIChartAxisGrid} from './option/ui-option/ui-axis';
 import {TooltipOptionConverter} from './option/converter/tooltip-option-converter';
 import {Shelf} from '@domain/workbook/configurations/shelf/shelf';
-import {from, fromEvent, of} from 'rxjs';
+import {fromEvent} from 'rxjs';
 import {debounceTime, map} from 'rxjs/operators';
 import {Theme} from '../../value/user.setting.value';
 import UI = OptionGenerator.UI;
-import {DashboardUtil} from "../../../dashboard/util/dashboard.util";
-import {DatasourceService} from "../../../datasource/service/datasource.service";
+import {EventBroadcaster} from "@common/event/event.broadcaster";
 
 declare let echarts: any;
 
@@ -164,6 +163,8 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
   @Output()
   protected drawFinished = new EventEmitter();
 
+  protected broadCaster = new EventBroadcaster();
+
   // 차트 draw를 발생시킨 이벤트 타입
   protected drawByType: EventType;
 
@@ -173,7 +174,6 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
   // 위젯에서 draw할경우 추가정보
   protected widgetDrawParam: any;
 
-  protected datasourceService: DatasourceService;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -215,6 +215,7 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
   // UI Option Setter
   @Input('uiOption')
   set setUIOption(value: T) {
+    console.log('kk value ', _.cloneDeep(value));
 
     // Set
     this.uiOption = value;
@@ -248,6 +249,7 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
     if (!result || !result.data) {
       return;
     }
+
     // 데이터 타입이  Object일 경우 => 맵 차트
     if (result.data instanceof Object && result.data.totalFeatures > 0) {
 
@@ -698,8 +700,7 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
 
     super(elementRef, injector);
 
-    // datasource 서비스
-    this.datasourceService = injector.get(DatasourceService);
+    this.broadCaster = injector.get(EventBroadcaster);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -727,6 +728,17 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
     });
 
     this.subscriptions.push(windowResizeSubscribe);
+
+    this.subscriptions.push(
+      this.broadCaster.on<any>('CHANGE_DIMENSION_COLOR').subscribe((data: {changedMapping: string[]}) => {
+        const changedMapping = data.changedMapping;
+        // this.draw(false, true);
+        if(changedMapping){
+          this.uiOption.color['mapping'] = changedMapping;
+          this.draw(false);
+        }
+      })
+    );
   }
 
   // Destory
@@ -767,6 +779,7 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
    * 차트에 설정된 옵션으로 차트를 그린다.
    * - 각 차트에서 Override
    * @param isKeepRange: 현재 스크롤 위치를 기억해야 할 경우
+   * @param changedMapping: 차원 값 그래프의 바뀐 색 데이터
    */
   public draw(isKeepRange?: boolean): void {
 
@@ -863,6 +876,9 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
     ////////////////////////////////////////////////////////
     // apply
     ////////////////////////////////////////////////////////
+
+    // console.log('draw chartOption', this.chartOption);
+    // console.log('draw uiOption,' , this.uiOption);
 
     // 차트 반영
     this.apply();
@@ -1391,7 +1407,8 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
 
     // 초기화를 하는경우
     // externalFilters가 true인 경우 - 다른차트에서 selection필터를 설정시 적용되는 차트를 그리는경우 차트 초기화
-    if ((this.isUpdateRedraw && initFl) || this.params.externalFilters) {
+    if ((this.isUpdateRedraw && initFl) ||
+      (!this.isNullOrUndefined(this.params) && this.params.externalFilters)) {
       // 차트 제거
       this.chart.dispose();
 
@@ -1402,7 +1419,7 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
     if (this.chartOption.legend && this.chartOption.legend.textStyle) {
       const isWidget = (0 < this.$element.closest('page-widget').length);
       if (isWidget && $('body').hasClass(Theme.DARK)) {
-        this.chartOption.legend.textStyle.color = '#fff';
+        this.chartOption.legend.textStyle.color = '#ffffff';
       } else {
         this.chartOption.legend.textStyle.color = '#333';
       }
@@ -2178,6 +2195,7 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
    */
   protected setMapping(): UIChartColor {
 
+    console.log('setMapping: , ', _.cloneDeep(this.uiOption));
     if (!this.uiOption.color || (ChartColorType.SERIES !== this.uiOption.color.type && ChartColorType.DIMENSION !== this.uiOption.color.type)
       || !this.uiOption.fieldMeasureList || this.uiOption.fieldMeasureList.length === 0) return this.uiOption.color;
 
@@ -2192,60 +2210,39 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
       // mapping값이 제거된경우 이후 색상값을 초기화
       let colorChangedFl: boolean = false;
 
-      // fieldMeasureList에서 제거된 값 제거
-      for (const key in (this.uiOption.color as UIChartColorBySeries).mapping) {
-        if (key) {
-          const index = _.findIndex(this.uiOption.fieldMeasureList, {alias: key});
+      // dimension 인 경우 fieldMeasureList 로부터 mapping 값을 가져오지 않으니 제외
+      if(ChartColorType.DIMENSION != this.uiOption.color.type){
+        // fieldMeasureList에서 제거된 값 제거
+        for (const key in (this.uiOption.color as UIChartColorBySeries).mapping) {
+          if (key) {
+            const index = _.findIndex(this.uiOption.fieldMeasureList, {alias: key});
 
-          // fieldMeasureList에서 없는 리스트이거나 이전의 값이 제거된경우 색상 초기화를 위해 제거
-          if (-1 === index || colorChangedFl) {
-            delete (this.uiOption.color as UIChartColorBySeries).mapping[key];
-            colorChangedFl = true;
+            // fieldMeasureList에서 없는 리스트이거나 이전의 값이 제거된경우 색상 초기화를 위해 제거
+            if (-1 === index || colorChangedFl) {
+              delete (this.uiOption.color as UIChartColorBySeries).mapping[key];
+              colorChangedFl = true;
+            }
           }
         }
       }
 
-      let observeItem;
-      if( ChartColorType.SERIES == this.uiOption.color.type){
-        observeItem = of(this.uiOption.fieldMeasureList);
-      } else {
-        // 차원값 일 때
-        const colorOption = this.uiOption.color;
-        if (ChartColorType.DIMENSION === colorOption.type){
-          const param: any = {};
-          param.targetField = {
-            type: colorOption.type,
-            name: colorOption['targetField']
-          };
-          param.dataSource = DashboardUtil.getDataSourceForApi(_.cloneDeep(this.uiOption.dataSource));
-          param.dataSource['type'] = 'default';
-          param.limit = 100;
-
-         observeItem = from(this.datasourceService.getCandidate(param));
-        }
-      }
-
-      observeItem.subscribe(result => {
-        // 시리즈일 때는 alias 차원값일 때는 field 값으로 색상 설정
-        const dataType = (this.isNullOrUndefined(result[0].alias)) ? 'field' : 'alias';
-        let index = 0;
-        result.forEach((item) => {
-          // 해당 dataType 값이 없을때에만 기본색상설정
-          if ((this.uiOption.color as UIChartColorBySeries).schema && !(this.uiOption.color as UIChartColorBySeries).mapping[item[dataType]]) {
-            (this.uiOption.color as UIChartColorBySeries).mapping[item[dataType]] = ChartColorList[(this.uiOption.color as UIChartColorBySeries).schema][index];
-            index = (++ index ) % ChartColorList[(this.uiOption.color as UIChartColorBySeries).schema].length;
+      if(ChartColorType.SERIES == this.uiOption.color.type){
+        this.uiOption.fieldMeasureList.forEach((item, index) => {
+          // 해당 alias 값이 없을 때에만 기본 색상 설정
+          if ((this.uiOption.color as UIChartColorBySeries).schema && !(this.uiOption.color as UIChartColorBySeries).mapping[item.alias]) {
+            (this.uiOption.color as UIChartColorBySeries).mapping[item.alias] = ChartColorList[(this.uiOption.color as UIChartColorBySeries).schema][index];
           }
         });
+      }
 
-        // mapping map array로 변경
-        (this.uiOption.color as UIChartColorBySeries).mappingArray = [];
+      // mapping map array 로 변경
+      (this.uiOption.color as UIChartColorBySeries).mappingArray = [];
 
-        Object.keys((this.uiOption.color as UIChartColorBySeries).mapping).forEach((key) => {
+      Object.keys((this.uiOption.color as UIChartColorBySeries).mapping).forEach((key) => {
 
-          (this.uiOption.color as UIChartColorBySeries).mappingArray.push({
-            alias: key,
-            color: (this.uiOption.color as UIChartColorBySeries).mapping[key]
-          });
+        (this.uiOption.color as UIChartColorBySeries).mappingArray.push({
+          alias: key,
+          color: (this.uiOption.color as UIChartColorBySeries).mapping[key]
         });
       });
     }
