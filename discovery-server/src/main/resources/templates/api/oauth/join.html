@@ -103,6 +103,31 @@
                 </div>
                 <!-- // E-Mail 입력 -->
 
+                <!-- 조직 입력 -->
+                <div id="formInputOrg" class="ddp-ui-input-form" >
+                    <label class="ddp-label-type">
+                        <span th:text="#{message.app.oauth.join.org}"></span>
+                        <!-- tooltip -->
+                        <div class="ddp-ui-tooltip">
+                            <em class="ddp-icon-question"></em>
+                            <div class="ddp-ui-tooltip-info">
+                                <em class="ddp-icon-view-left"></em>
+                                <span th:text="#{message.app.oauth.join.org.description}"></span>
+                            </div>
+                        </div>
+                        <!-- //tooltip -->
+                    </label>
+                    <div class="ddp-input-check">
+                        <input th:placeholder="#{message.app.oauth.join.org.ph}"
+                               id="inputOrg" type="text" class="ddp-input-type">
+                        <em class="sys-form-icon"></em>
+                    </div>
+                    <!-- error 메시지 -->
+                    <span id="msgInputOrg" class="ddp-ui-error" ></span>
+                    <!-- //error 메시지 -->
+                </div>
+                <!-- // 조직 입력 -->
+
                 <!-- Password 입력 -->
                 <div class="ddp-wrap-overflow ddp-clear">
                     <div class="ddp-ui-fleft ">
@@ -174,6 +199,10 @@
         const $formInputEmail = $('#formInputEmail');
         const $inputEmail = $('#inputEmail');
         const $msgInputEmail = $('#msgInputEmail');
+        // Organization
+        const $formInputOrg = $('#formInputOrg');
+        const $inputOrg = $('#inputOrg');
+        const $msgInputOrg = $('#msgInputOrg');
         // Password
         const $formInputPassword = $('#formInputPassword');
         const $inputPassword = $('#inputPassword');
@@ -213,8 +242,34 @@
                 UR0008: '[(#{message.app.oauth.UR0008})]'
             };
 
-            // 아이디 validation
-            if ('username' === type) {
+            if( 'org' === type ) {
+                let text = $inputOrg.val();
+                if (text.length === 0) {
+                    return;
+                }
+                // 이메일 중복체크 API
+                $.ajax({
+                    type: 'post',
+                    url: '/api/organizations/code/' + text + '/validate',
+                    accept: "application/json",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        if (result && result.valid === true) {
+                            $msgInputOrg.text('');
+                            setStatusInputForm($formInputOrg, 'OK');
+                        } else {
+                            $msgInputOrg.text('[(#{message.app.oauth.invalid_org})]');
+                            setStatusInputForm($formInputOrg, 'ERROR');
+                        }
+                    },
+                    error: function () {
+                        $msgInputOrg.text('[(#{message.app.oauth.invalid_org})]');
+                        setStatusInputForm($msgInputOrg, 'ERROR');
+                    }
+                });
+            }
+            else if ('username' === type) {
                 let text = $inputName.val();
                 if (text.length === 0) {
                     return;
@@ -310,7 +365,8 @@
                 if ('' !== $inputConfirmPassword.val()) {
                     validation('confirmPassword');
                 }
-            } else if ('confirmPassword' === type) {
+            }
+            else if ('confirmPassword' === type) {
                 let text = $inputConfirmPassword.val();
                 if (text.length === 0) {
                     return;
@@ -346,6 +402,16 @@
                 },
                 'keydown': function () {
                     setStatusInputForm($formInputEmail, 'CLEAR');
+                }
+            }
+        );
+        $inputOrg.bind(
+            {
+                'blur': function () {
+                    validation('org');
+                },
+                'keydown': function () {
+                    setStatusInputForm($formInputOrg, 'CLEAR');
                 }
             }
         );
@@ -388,18 +454,21 @@
                 $msgInputConfirmPassword.text('[(#{message.app.oauth.empty_input})]');
             }
 
+            const requestData = {
+                fullName: $inputFullName.val(),
+                email: $inputEmail.val(),
+                username: $inputName.val(),
+                password: $inputPassword.val(),
+                confirmPassword: $inputConfirmPassword.val()
+            };
+            ( '' !== $inputOrg.val() ) && ( requestData.orgCodes = [$inputOrg.val()] );
+
             if (0 === $('.ddp-type-error').length) {
                 $.ajax({
                     type: 'post',
                     url: '/api/users/signup',
                     contentType: "application/json; charset=utf-8",
-                    data: JSON.stringify({
-                        fullName: $inputFullName.val(),
-                        email: $inputEmail.val(),
-                        username: $inputName.val(),
-                        password: $inputPassword.val(),
-                        confirmPassword: $inputConfirmPassword.val()
-                    }),
+                    data: JSON.stringify(requestData),
                     success: function () {
                         alert(
                             '[(#{message.app.oauth.join.title})]' + '\n' +

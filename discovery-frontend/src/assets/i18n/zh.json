@@ -4,6 +4,7 @@
   "LOGIN_JOIN_INPUT_EMAIL": "请输入邮箱",
   "LOGIN_JOIN_SEND_EMAIL": "通过该邮箱发送临时密码",
   "LOGIN_JOIN_VALID_ID": "ID需为3位到20位的英文与数字的组合，韩文无法使用",
+  "LOGIN_JOIN_INVALID_ORG": "组织代码无效。",
   "LOGIN_JOIN_INPUT_ID": "请输入ID.",
   "LOGIN_JOIN_INPUT_NAME": "请输入用户名",
   "LOGIN_JOIN_USE_ID": "已被使用的ID",

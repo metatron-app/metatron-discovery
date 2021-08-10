@@ -4,6 +4,7 @@
     "LOGIN_JOIN_INPUT_EMAIL": "Пожалуйста, введите адрес электронной почты.",
     "LOGIN_JOIN_SEND_EMAIL": "Временный пароль был отправлен на электронную почту.",
     "LOGIN_JOIN_VALID_ID": "Имя пользователя представляет собой комбинацию алфавита и цифр, от 3 до 20 букв.",
+    "LOGIN_JOIN_INVALID_ORG": "Неверный код организации.",
     "LOGIN_JOIN_INPUT_ID": "Пожалуйста, введите имя пользователя.",
     "LOGIN_JOIN_INPUT_NAME": "Пожалуйста, введите полное имя.",
     "LOGIN_JOIN_USE_ID": "Это имя пользователя уже используется.",
@@ -36,7 +37,7 @@
     "msg.sso.ui.welcome.desc2": "Создайте свою первую диаграмму в личной рабочей области.",
     "msg.sso.btn.continue-app": "Создайте свою первую диаграмму в личной рабочей области.",
     "msg.sso.btn.use-metatron": "Использовать Metatron",
-  
+
     "msg.comm.ui.ok": "ОК",
     "msg.comm.ui.copy": "Копировать",
     "msg.comm.ui.clone": "Клонировать",
@@ -355,7 +356,7 @@
     "msg.comm.ui.sort.updated.asc": "Обновить по возрастанию",
     "msg.comm.ui.sort.updated.desc": "Обновить по убыванию",
     "msg.comm.btn.reset.all": "Сбросить все",
-  
+
     "msg.lnb.btn.manual": "Загрузить",
     "msg.lnb.btn.manual.web": "В сети",
     "msg.lnb.btn.workspace-list": "Список рабочих областей",
@@ -363,7 +364,7 @@
     "msg.lnb.label.help": "Руководство пользователя",
     "msg.lnb.label.contact": "Контакт",
     "msg.lnb.label.admin": "Администратор",
-  
+
     "msg.space.alert.folder.del.success": "Папка удалена",
     "msg.space.alert.notebook.del.success": "Блокнот удален.",
     "msg.space.alert.workbench.del.success": "Инструментальные средства удалены.",
@@ -479,7 +480,7 @@
     "msg.space.ui.notebook.unauthorized": "Неавторизовано.\nПроверьте разрешение сервера ноутбука.",
     "msg.space.ui.workbench.unauthorized": "Неавторизовано.\nПроверьте разрешение на публикацию подключения к данным.",
     "msg.space.ui.dashboard.unauthorized": "Пожалуйста, проверьте разрешение на публикацию источника данных.<br>Пожалуйста, попробуйте еще раз",
-  
+
     "msg.alert.retrieve.fail": "Не удалось получить данные",
     "msg.alert.del.success": "удалено",
     "msg.alert.del.fail": "Ошибка удаления.",
@@ -501,6 +502,9 @@
     "msg.login.join.email": "Электронная почта",
     "msg.login.join.email.ph": "Введите адрес электронной почты",
     "msg.login.join.email.description": "Используйте правильный адрес электронной почты для подтверждения",
+    "msg.login.join.org": "Организация",
+    "msg.login.join.org.ph": "Пожалуйста, введите код вашей организации",
+    "msg.login.join.org.description": "Он будет использоваться как организация, к которой вы принадлежите, поэтому при вводе введите его правильно.",
     "msg.login.join.name": "Имя пользователя",
     "msg.login.join.name.ph": "Введите имя пользователя",
     "msg.login.join.name.description": "Это будет отображаться как ваше имя. Допускается корейский язык, и если нет ввода, вместо него будет использоваться ваше имя пользователя.",
@@ -527,7 +531,7 @@
     "msg.login.alert.reset.passwd.email.not.found": "Незарегистрированный адрес электронной почты",
     "msg.login.alert.reset.passwd.email.success": "На этот адрес электронной почты был отправлен временный пароль",
     "msg.login.alert.reset.passwd.email.fail": "Не удалось отправить временный пароль",
-  
+
     "msg.book.ui.list.usr.conf": "Пользовательские настройки",
     "msg.book.ui.list.name.asc": "Имя по возрастанию",
     "msg.book.ui.list.name.desc": "Имя по убыванию",
@@ -557,7 +561,7 @@
     "msg.book.widget.header.chartview": "Просмотр диаграммы",
     "msg.book.alert.create.workbook.success": "Книга создана.",
     "msg.book.alert.create.workbook.fail": "Не удалось создать книгу",
-  
+
     "msg.lineage.ui.list.search.placeholder": "Искать происхождение по ключевому слову",
     "msg.lineage.ui.list.search.table": "Таблица",
     "msg.lineage.ui.list.search.column": "Столбец",
@@ -594,7 +598,7 @@
     "msg.lineage.ui.download.title.path": "ПУТЬ",
     "msg.lineage.ui.download.title.placeholder": "Поиск по происхождению",
     "msg.lineage.ui.property.title.log-type": "Тип журнала",
-  
+
     "msg.bench.alert.socket.link.fail.retry": "Попытка повторного подключения из-за сбоя подключения к веб-сокету.",
     "msg.bench.alert.close.editortab.fail": "Не удалось закрыть вкладку редактора.",
     "msg.bench.alert.execute.query": "Введите запрос для выполнения.",
@@ -710,7 +714,7 @@
     "msg.bench.ui.save-as-hive-table.table-name.ph": "Пожалуйста, введите: сохранить как имя таблицы",
     "msg.bench.alert.invalid-hive-table-name": "Разрешены только числа, алфавиты и символы подчеркивания",
     "msg.bench.alert.already-exists-table": "Таблица уже существует.",
-  
+
     "msg.nbook.alert.input.name": "Введите имя записной книжки",
     "msg.nbook.alert.input.description": "Введите описание записной книжки",
     "msg.nbook.alert.update.success": "Успешно обработано.",
@@ -774,7 +778,7 @@
     "msg.nbook.ui.url.ph": "Пожалуйста, введите URL",
     "msg.nbook.ui.not.used": "не используется",
     "msg.nbook.ui.no.nb": "Нет записной книжки",
-  
+
     "msg.dp.alert.check.formula": "Проверить формулу",
     "msg.dp.alert.check.expression": "Пожалуйста, проверьте выражение",
     "msg.dp.alert.enter.groupby": "Пожалуйста, введите группировку по столбцам",
@@ -979,7 +983,7 @@
     "msp.dp.alert.col.empty": "Название столбца не должно быть пустым",
     "msg.dp.alert.merge.col.error": "Проверьте имя нового столбца",
     "msg.dp.ui.max.length.error": "Вы можете ввести до 150 символов",
-  
+
     "msg.dp.alert.teddy.parse.failed": "Ошибка синтаксического анализа правила.",
     "msg.dp.alert.teddy.parse.failed.by.rulename": "Неподдерживаемое имя правила.",
     "msg.dp.alert.teddy.parse.failed.by.move.before.and.after": "Ошибка синтаксического анализа правила перемещения. Проверьте поле ссылочного столбца.",
@@ -1030,10 +1034,10 @@
     "msg.dp.alert.teddy.parse.failed.by.union.dataset2": "Ошибка синтаксического анализа правила объединения. Проверьте второй набор данных.",
     "msg.dp.alert.teddy.parse.failed.by.window.value": "Проверить значение выражения правила окна",
     "mgs.dp.ui.continue.new.rule": "Продолжить редактирование правил с этим набором данных в новом потоке данных",
-  
+
     "msg.dp.alert.unsupported.number.format": "Неподдерживаемый числовой формат.",
     "msg.dp.alert.hive.column.error": "Есть имена столбцов, которые не могут быть сохранены в Hive. Хотите просмотреть и изменить название столбца?",
-  
+
     "msg.dp.ui.no.snapshot.history": "Нет истории создания снимков",
     "msg.dp.ui.snapshot.cancel.confirm": "Вы уверены, что хотите отменить создание снимка?",
     "msg.dp.ui.creating.snapshot": "Создание снимка",
@@ -1447,7 +1451,7 @@
     "msg.dp.th.col.cnt.ph": "Введите количество столбцов",
     "msg.dp.th.quote": "Цитата персонажа",
     "msg.dp.th.quote.ph": "(может быть пустым)",
-  
+
     "msg.board.create.add-ds": "Добавить источник данных",
     "msg.board.create.add-ds.desc": "Добавьте источники данных, которые вы хотите визуализировать, и установите связи",
     "msg.board.create.set-relation": "Настройка отношений между источниками данных",
@@ -2346,7 +2350,7 @@
     "msg.storage.ui.stream.upload.description": "Допускаются форматы .csv, .json.",
     "msg.storage.ui.stream.upload.data.description": "Пожалуйста, загрузите информацию о новой схеме",
     "msg.storage.ui.stream.data.reload": "Перезагрузка данных",
-  
+
     "msg.storage.ui.timezone.country.zimbabwe": "Зимбабве",
     "msg.storage.ui.timezone.country.zambia": "Замбия",
     "msg.storage.ui.timezone.country.yemen": "Йемен",
@@ -2591,7 +2595,7 @@
     "msg.storage.ui.timezone.country.albania": "Албания",
     "msg.storage.ui.timezone.country.aland": "Аландские острова",
     "msg.storage.ui.timezone.country.afghanistan": "Афганистан",
-  
+
     "msg.storage.ui.timezone.continent.africa": "Африка",
     "msg.storage.ui.timezone.continent.america": "Америка",
     "msg.storage.ui.timezone.continent.antarctica": "Антарктида",
@@ -2646,7 +2650,7 @@
     "msg.storage.ui.timezone.continent.WET": "WET",
     "msg.storage.ui.timezone.continent.W-SU": "W-SU",
     "msg.storage.ui.timezone.continent.zulu": "Зулусский",
-  
+
     "msg.storage.ui.timezone.city.abidjan": "Абиджан",
     "msg.storage.ui.timezone.city.accra": "Аккра",
     "msg.storage.ui.timezone.city.acre": "Акр",
@@ -3141,7 +3145,7 @@
     "msg.storage.ui.timezone.city.zaporozhye": "Запорожье",
     "msg.storage.ui.timezone.city.zulu": "Зулусский",
     "msg.storage.ui.timezone.city.zurich": "Цюрих",
-  
+
     "msg.log.th.status": "Статус",
     "msg.log.ui.search.description": "Поиск по имени задания, идентификатору приложения и пользователю",
     "msg.log.ui.num.lists": "{{value}} списков",
@@ -3175,7 +3179,7 @@
     "msg.log.btn.over.num.ms": "Более {{value}} мс",
     "msg.log.ui.use.record": "Недавняя история того же подключения",
     "msg.log.ui.no.log": "Нет журнала заданий",
-  
+
     "msg.statistics.ui.daily.query.success-fail": "Ежедневный процент успешных / неудачных запросов",
     "msg.statistics.ui.daily.query.frequency": "Ежедневная частота запросов пользователя",
     "msg.statistics.ui.longest": "В порядке наибольшей длины",
@@ -3199,7 +3203,7 @@
     "msg.statistics.th.start.time": "Выполненное время начала",
     "msg.statistics.th.task.type": "Тип задачи",
     "msg.statistics.th.cpu": "ЦП",
-  
+
     "msg.approval.th.reject.reason": "Причина отклонения",
     "msg.approval.ui.reject.ph": "Введите причину отклонения",
     "msg.approval.btn.reject": "Отклонить",
@@ -3213,7 +3217,7 @@
     "msg.approval.alert.approved": "Одобрено",
     "msg.approval.th.mem": "Участник",
     "msg.approval.th.group": "Группа",
-  
+
     "msg.mem.th.active": "Активный",
     "msg.mem.th.inactive": "Неактивно",
     "msg.mem.th.usr.level": "Уровень пользователя",
@@ -3271,7 +3275,7 @@
     "msg.mem.btn.approve": "Подтвердить",
     "msg.mem.btn.reject": "Отклонить",
     "msg.mem.alert.name.create": "'{{value}}' зарегистрировано",
-  
+
     "msg.groups.ui.search.description": "Поиск по имени пользователя или полному имени",
     "msg.groups.ui.create.grp": "Создать группу",
     "msg.groups.th.description": "Описание",
@@ -3339,7 +3343,7 @@
     "msg.groups.alert.name.used": "Это имя уже используется",
     "msg.groups.alert.name.create": "Группа '{{value}}' создана",
     "msg.groups.alert.grp.update.success": "Группа изменена",
-  
+
     "msg.permission.th.users": "Пользователи",
     "msg.permission.btn.email.users": "Электронная почта всем пользователям",
     "msg.permission.th.members": "Участники",
@@ -3393,7 +3397,7 @@
     "msg.permission.ui.sys-perm.guest.desc": "Гость",
     "msg.permission.alert.delete.ok": "Схема удалена",
     "msg.permission.alert.create.ok": "Схема '{{value}}' создана",
-  
+
     "msg.page.pivot.layout.condition.dimension.over.desc": "Более {{value}} размеров",
     "msg.page.pivot.layout.condition.dimension.desc": "{{value}} измерение",
     "msg.page.pivot.layout.condition.dimension.and.desc": "и размер {{value}}",
@@ -3641,7 +3645,7 @@
     "msg.page.common.kpi.indocator.period.hour": "Предыдущий час",
     "msg.page.common.pie.max.category": "Максимальное количество категорий перед \"Другое\"",
     "msg.page.common.pie.max.category.placeholder": "Показать все",
-  
+
     "msg.page.common.map.layer": "Слой карты",
     "msg.page.common.map.layer.service": "Картографический сервис",
     "msg.page.common.map.layer.service.openstreet": "Карта Openstreet",
@@ -3755,7 +3759,7 @@
     "msg.page.calc.show.calculated.row": "Показать вычисленную строку",
     "msg.page.calc.show.calculated.column": "Показать вычисляемый столбец",
     "msg.page.waterfall.color.direction": "Направление цвета",
-  
+
     "msg.page.prediction.analysis": "Анализ",
     "msg.page.prediction.sub.menu": "Линия прогноза",
     "msg.page.prediction.span.active": "Активация",
@@ -3787,7 +3791,7 @@
     "msg.page.analysis.cluster.title": "Кластер",
     "msg.page.analysis.cluster.allow.use.description": "График, который может использовать кластер",
     "msg.page.analysis.cluster.allow.section.count": "Номер раздела",
-  
+
     "msg.page.ui.search.ph": "Поиск",
     "msg.page.ui.selected.chart": "диаграмма",
     "msg.page.ui.no.data.show": "Нет данных для отображения",
@@ -3901,7 +3905,7 @@
     "msg.page.chart.map.spatial.select.step": "Если внутри, параметр choropleth должен быть включен",
     "msg.page.chart.map.spatial.mainlayer.setting": "레이어 는 point 로 설정 해주세요.",
     "msg.page.chart.map.spatial.comparelayer.setting": "비교 레이어 는 line 으로 설정 해주세요.",
-  
+
     "msg.spaces.ui.permission.schemas": "Схемы разрешений",
     "msg.spaces.spaces.ui.status": "Статус",
     "msg.spaces.spaces.ui.allowance": "Допуск",
@@ -3981,7 +3985,7 @@
     "msg.spaces.shared.detail.statistics.overall": "В целом",
     "msg.spaces.shared.th.detail.member": "ЧЛЕН",
     "msg.spaces.shared.th.detail.group": "ГРУППА",
-  
+
     "msg.cluster.ui.title": "Управление кластером",
     "msg.cluster.ui.tab.cluster.list": "Кластеры",
     "msg.cluster.ui.tab.storage.class": "Класс хранилища",
@@ -4009,7 +4013,7 @@
     "msg.cluster.ui.create.explanation": "Объяснение",
     "msg.cluster.ui.create.explanation.description": "Metatron включает Zookeeper, MariaDB, Druid и Metatron Discovery.",
     "msg.cluster.ui.create.add.btn": "Добавить",
-  
+
     "msg.metadata.ui.create.main.title": "Создать метаданные",
     "msg.metadata.ui.create.connection.sub": "Установите соединение для передачи данных",
     "msg.metadata.ui.create.data.sub": "Выберите данные",
@@ -4136,7 +4140,7 @@
     "msg.metadata.ui.dictionary.type.city": "Город",
     "msg.metadata.ui.dictionary.type.gu": "Гу",
     "msg.metadata.ui.dictionary.type.dong": "Донг",
-  
+
     "msg.metadata.ui.codetable.detail.created.on": "Создано",
     "msg.metadata.ui.codetable.detail.by": "автор",
     "msg.metadata.ui.codetable.detail.updated.on": "Последнее обновление",
@@ -4284,11 +4288,11 @@
     "msg.metadata.metadata.detail.ui.delete.metadata": "Удалить эти метаданные",
     "msg.metadata.metadata.detail.ui.alert.metadata.modified": "Метаданные изменены",
     "msg.metadata.metadata.detail.ui.alert.catalog.already.included": "Каталог уже включен",
-  
+
     "msg.catalog.alert.catalog.already.exists": "Каталог уже существует",
     "msg.catalog.alert.catalog.create.success": "Каталог '{{value}}' создан.",
-  
-  
+
+
     "msg.explore.ui.title": "Исследование",
     "msg.explore.ui.tab.catalogs": "Каталоги",
     "msg.explore.ui.tab.tags": "Теги",
@@ -4396,7 +4400,7 @@
     "msg.engine.monitoring.alert.ds.enable.success": "Источник данных включен",
     "msg.engine.monitoring.confirm.ds.list.disable.description": "Вы хотите отключить источник данных?",
     "msg.engine.monitoring.btn.ds.list.disable": "Отключить",
-  
+
     "workbench": "Рабочая среда",
     "workbook": "Рабочая тетрадь",
     "msg.board.ui.copy-url": "Скопировать адрес панели управления",
@@ -4404,4 +4408,3 @@
     "msg.board.ui.copy-embedded-url": "Скопировать адрес встроенной панели",
     "msg.board.alert.copy.embedded-dashboard-url": "Ссылка скопирована"
   }
-  

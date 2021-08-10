@@ -192,6 +192,7 @@ public class OAuth2ServerConfig {
           .antMatchers(HttpMethod.GET, "/api/images/load/**").permitAll()
           .antMatchers(HttpMethod.POST, "/api/users/password").permitAll()
           .antMatchers(HttpMethod.POST, "/api/users/password/validate").permitAll()
+          .antMatchers(HttpMethod.POST, "/api/organizations/code/*/validate").permitAll()
           .antMatchers(HttpMethod.POST, "/api/users").permitAll()
           .antMatchers(HttpMethod.PATCH, "/api/users/**").permitAll()
           .antMatchers(HttpMethod.GET, "/api/users/*/duplicated").permitAll()
