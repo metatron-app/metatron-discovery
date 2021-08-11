@@ -229,6 +229,38 @@ public class IndexSpecTest {
   }
 
   @Test
+  public void HiveTuningConfigTest() {
+    IngestionSpecBuilder ingestionSpecBuilder = new IngestionSpecBuilder();
+
+    Map<String, Object> tuningProperties = Maps.newHashMap();
+    tuningProperties.put("ignoreInvalidRows", true);
+
+    IndexSpec indexSpec = new IndexSpec();
+    indexSpec.setAllowNullForNumbers(true);
+
+    tuningProperties.put("indexSpec", indexSpec);
+    tuningProperties.put("mapSplitSize", "512MB");
+
+    Map<String, Object> jobProperties = Maps.newHashMap();
+    jobProperties.put("abc", "def");
+    jobProperties.put("mapreduce.map.memory.mb", 1024);
+
+    IngestionSpec ingestionSpec = ingestionSpecBuilder.hiveTuningConfig(tuningProperties, jobProperties).build();
+
+    String s = GlobalObjectMapper.writeValueAsString(ingestionSpec);
+
+    System.out.println(s);
+
+    DocumentContext jsonContext = JsonPath.parse(s);
+
+    assertThat(jsonContext.read("$['tuningConfig']['type']"), is("hadoop"));
+    assertThat(jsonContext.read("$['tuningConfig']['ignoreInvalidRows']"), is(true));
+    assertThat(jsonContext.read("$['tuningConfig']['indexSpec']['allowNullForNumbers']"), is(true));
+    assertThat(jsonContext.read("$['tuningConfig']['jobProperties']['mapreduce.map.memory.mb']"), is("1024"));
+
+  }
+
+  @Test
   public void KafkaTuningConfigTest() {
     KafkaRealTimeIndexBuilder ingestionSpecBuilder = new KafkaRealTimeIndexBuilder();
 
