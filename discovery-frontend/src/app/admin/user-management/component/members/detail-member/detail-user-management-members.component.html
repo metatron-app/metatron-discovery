@@ -93,6 +93,10 @@
           <!-- //edit option -->
         </div>
         <!-- //edit -->
+        <a href="javascript:" class="ddp-btn-selection ddp-line" (click)="onClickOpenPopupChangePw()" style="padding: 6px
+        10px 6px 10px;">
+          <em class="ddp-icon-key"></em>{{'msg.mem.btn.change.pw' | translate}}
+        </a>
         <a href="javascript:" class="ddp-btn-selection ddp-line" (click)="onClickResetPassword()" style="padding: 6px 10px 6px 10px;">
           <em class="ddp-icon-key"></em>{{'msg.mem.btn.reset.pw' | translate}}
         </a>
@@ -208,3 +212,57 @@
 <!-- change-workspace-owner modal -->
 <change-workspace-owner-modal (onComplete)="showDeleteUserConfirm($event);"></change-workspace-owner-modal>
 <!-- //change-workspace-owner modal -->
+
+
+
+<div class="ddp-wrap-layout-popup" *ngIf="isShowPopupChangePw">
+
+  <div class="ddp-box-popup">
+    <a href="javascript:" class="ddp-btn-close" (click)="isShowPopupChangePw = false"></a>
+    <!-- title -->
+    <div class="ddp-pop-title">{{ 'msg.mem.ui.detail.password.title'| translate}}</div>
+    <!-- //title -->
+
+    <div class="ddp-wrap-editbox">
+      <!-- edit -->
+      <div class="ddp-wrap-edit2" [class.ddp-error]="isInvalidPw">
+        <label class="ddp-label-type">{{'msg.mem.ui.detail.password' | translate}}</label>
+        <input type="password" class="ddp-input-type"
+               placeholder="{{'msg.mem.ui.detail.password.ph' | translate}}"
+               [(ngModel)]="inputPw"
+               (keydown)="changePwHideError('password')" (blur)="changePwValidation('password')"/>
+        <!-- error -->
+        <span class="ddp-ui-error">{{invalidPwMsg}}</span>
+        <!-- error -->
+      </div>
+      <!-- //edit -->
+
+      <!-- edit -->
+      <div class="ddp-wrap-edit2" [class.ddp-error]="isInvalidConfirmPw">
+        <label class="ddp-label-type">{{'msg.mem.ui.detail.password.confirm' | translate}}</label>
+        <input type="password" class="ddp-input-type"
+               placeholder="{{'msg.mem.ui.detail.password.confirm.ph' | translate}}"
+               [(ngModel)]="inputConfirmPw"
+               (keydown)="changePwHideError('confirmPassword')" (blur)="changePwValidation('confirmPassword')"/>
+        <!-- error -->
+        <span class="ddp-ui-error">{{invalidConfirmPwMsg}}</span>
+        <!-- error -->
+      </div>
+      <!-- //edit -->
+      <div class="ddp-txt-alert">
+      </div>
+    </div>
+    <!-- button -->
+    <div class="ddp-ui-buttons">
+      <a href="javascript:" class="ddp-btn-type-popup" (click)="isShowPopupChangePw = false">
+        {{'msg.comm.btn.cancl' | translate}}
+      </a>
+      <!-- disabled 시 ddp-disabled 추가 -->
+      <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black"
+         [class.ddp-disabled]="isInvalidPw || isInvalidConfirmPw || '' === inputPw || '' === inputConfirmPw"
+         (click)="onClickChangePassword()">{{'msg.comm.btn.done' | translate}}</a>
+    </div>
+    <!-- //button -->
+  </div>
+
+</div>
