@@ -699,6 +699,7 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
         // }
         arrInterval[0] = FilterUtil.getDateTimeFormat(startDate, filter.timeUnit, true);
       }
+
       if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[1] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[1]) {
         const endDate = arrInterval[1].replace('.000Z', '').replace('T', ' ');
         // if( ( TimeUnit.YEAR === filter.timeUnit && !/^[0-9]{4}$/.test(endDate) )

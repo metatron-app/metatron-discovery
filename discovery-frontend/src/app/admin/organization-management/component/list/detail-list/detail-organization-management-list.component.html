@@ -1,0 +1,322 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- contents -->
+<div class="ddp-type-contents2">
+
+  <div class="ddp-top-flow">
+    <!-- navi wrap -->
+    <div class="ddp-wrap-navi">
+      <a href="javascript:" class="ddp-btn-back" (click)="onClickPrevOrgList()"></a>
+      <!-- navi -->
+      <div class="ddp-ui-naviarea">
+        <!-- name -->
+        <div class="ddp-box-navi">
+          <div class="ddp-wrap-naviname">
+            <span class="ddp-data-naviname ddp-readonly">{{orgData.name}}</span>
+          </div>
+        </div>
+        <!-- //name -->
+      </div>
+      <!-- //navi -->
+    </div>
+    <!-- //navi wrap -->
+  </div>
+
+  <!-- 상세 -->
+  <div class="ddp-wrap-datadetail">
+    <div class="ddp-ui-option ddp-clear">
+      <!-- edit -->
+      <div class="ddp-wrap-edit">
+        <label class="ddp-label-type">{{'msg.groups.ui.detail.created.on' | translate}}</label>
+        <!-- edit option -->
+        <div class="ddp-ui-edit-option">
+          <div class="ddp-data-txt">
+            {{orgData.createdTime| mdate:'YYYY-MM-DD HH:mm'}} {{'msg.groups.ui.detail.by' | translate}}
+            <div class="ddp-wrap-link-detail2">
+              <a href="javascript:" class="ddp-link-info">{{orgData.createdBy?.fullName}}
+              </a>
+              <user-information [name]="orgData.createdBy?.fullName"
+                                [id]="orgData.createdBy?.username"
+                                [email]="orgData.createdBy?.email">
+              </user-information>
+            </div>
+          </div>
+        </div>
+        <!-- //edit option -->
+      </div>
+      <!-- //edit -->
+      <!-- edit -->
+      <div class="ddp-wrap-edit">
+        <label class="ddp-label-type">{{'msg.groups.ui.detail.last.updated' | translate}}</label>
+        <!-- edit option -->
+        <div class="ddp-ui-edit-option">
+          <div class="ddp-data-txt">
+            {{orgData.modifiedTime| mdate:'YYYY-MM-DD HH:mm'}} {{'msg.groups.ui.detail.by' | translate}}
+            <div class="ddp-wrap-link-detail2">
+              <a href="javascript:" class="ddp-link-info">{{orgData.modifiedBy?.fullName}}
+              </a>
+              <user-information [name]="orgData.modifiedBy?.fullName"
+                                [id]="orgData.modifiedBy?.username"
+                                [email]="orgData.modifiedBy?.email">
+              </user-information>
+            </div>
+          </div>
+        </div>
+        <!-- //edit option -->
+      </div>
+      <!-- //edit -->
+
+      <!-- right -->
+      <div class="ddp-ui-rightoption">
+        <a href="javascript:" class="ddp-btn-selection ddp-reject" (click)="onClickDeleteOrganization()"><em class="ddp-icon-delete"></em>{{'msg.organization.ui.delete.btn' | translate}}</a>
+      </div>
+      <!-- //right -->
+    </div>
+    <div class="ddp-ui-datadetail">
+      <label class="ddp-label-detail">{{'msg.groups.ui.detail.info' | translate}}</label>
+      <table class="ddp-table-detail">
+        <colgroup>
+          <col width="160px">
+          <col width="*">
+        </colgroup>
+        <tbody>
+        <tr>
+          <th>
+            {{'msg.organization.ui.detail.info.name' | translate}}
+          </th>
+          <td>
+            <!-- 클릭시 ddp-selected 추가 -->
+            <div class="ddp-txt-edit" [class.ddp-selected]="editNameFlg"
+                 (click)="orgNameEditMode()"
+                 (clickOutside)="editNameFlg = false">
+              <!-- data -->
+              <span class="ddp-data-name">{{orgData.name}}
+                <em class="ddp-icon-edit2" ></em>
+              </span>
+              <!-- //data -->
+              <!-- edit -->
+              <div class="ddp-wrap-input">
+                <input type="text" class="ddp-input-edit" placeholder="{{'msg.organization.ui.create.ph.name' | translate}}"
+                       [(ngModel)]="editName"
+                       [focus]="editNameFlg"
+                       (keyup.enter)="updateOrgName()">
+                <span class="ddp-btn-check" (click)="updateOrgName()"></span>
+              </div>
+              <!-- //edit -->
+            </div>
+
+          </td>
+        </tr>
+        <tr>
+          <th>
+            {{'msg.organization.ui.detail.info.code' | translate}}
+          </th>
+          <td>
+            <!-- 클릭시 ddp-selected 추가 -->
+            <div class="ddp-txt-edit">
+              <!-- data -->
+              <span class="ddp-data-name" [style]="'cursor: default'">
+                {{orgData.code}}
+              </span>
+              <!-- //data -->
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <th>
+            {{'msg.organization.ui.detail.info.desc' | translate}}
+          </th>
+          <td>
+            <!-- 클릭시 ddp-selected 추가 -->
+            <div class="ddp-txt-edit" [class.ddp-selected]="editDescFlg"
+                 (click)="orgDescEditMode()"
+                 (clickOutside)="editDescFlg = false">
+              <!-- data -->
+              <span class="ddp-data-name">
+                {{orgData.description}}
+                <em class="ddp-icon-edit2"></em>
+              </span>
+              <!-- //data -->
+              <!-- edit -->
+              <div class="ddp-wrap-input">
+                <input type="text" class="ddp-input-edit" placeholder="{{'msg.organization.ui.create.ph.desc' | translate}}"
+                       [(ngModel)]="editDesc"
+                       [focus]="editDescFlg"
+                       (keyup.enter)="updateOrgDesc()">
+                <span class="ddp-btn-check" (click)="updateOrgDesc()"></span>
+              </div>
+              <!-- //edit -->
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+      <!-- table detail -->
+      <div class="ddp-wrap-table-detail">
+        <div class="ddp-type-plan">
+          <label class="ddp-label-detail">{{'msg.organization.th.members' | translate}}</label>
+        </div>
+
+        <table class="ddp-table-detail">
+          <colgroup>
+            <col width="160px">
+            <col width="*">
+          </colgroup>
+          <tbody>
+          <tr>
+            <th>
+              {{'msg.organization.th.members.users' | translate}} ({{ members.length}})
+            </th>
+            <td>
+              <!-- dropdown -->
+              <!-- 클릭시 ddp-selected 추가 -->
+              <div class="ddp-ui-dropdown" [ngClass]="{'ddp-selected':isMembersDropdownOpen}">
+
+                <div class="ddp-label-dropdown" *ngIf="members?.length > 1">
+
+                  <em class="ddp-icon-drop" (click)="openMembersDropdown()"></em>
+                  <div class="ddp-wrap-link-detail2">
+                    <a href="javascript:" class="ddp-link-info">{{members[0]?.profile.fullName}}
+                    </a>
+                    <!-- popup -->
+                    <user-information
+                      [left]="true"
+                      [name]="members[0]?.profile.fullName"
+                      [id]="members[0]?.memberId">
+                    </user-information>
+                    <!-- //popup -->
+                  </div>
+                  and
+                  <span class="ddp-data">{{members?.length-1}}</span>
+                  more members.
+                  <a href="javascript:" class="ddp-btn-option2" (click)="openEditPopup('members'); isMembersDropdownOpen = false"></a>
+                </div>
+
+                <div class="ddp-label-dropdown" *ngIf="members?.length === 1">
+                  <div class="ddp-wrap-link-detail2">
+                    <a href="javascript:" class="ddp-link-info">{{members[0]?.profile.fullName}}
+                    </a>
+                    <!-- popup -->
+                    <user-information
+                      [left]="true"
+                      [name]="members[0]?.profile.fullName"
+                      [id]="members[0]?.memberId">
+                    </user-information>
+                    <!-- //popup -->
+                  </div>
+
+                  <a href="javascript:" class="ddp-btn-option2" (click)="openEditPopup('members'); isMembersDropdownOpen = false"></a>
+
+                </div>
+
+                <div class="ddp-label-dropdown" *ngIf="members?.length === 0">
+                  <span class="ddp-no-data">{{'msg.permission.ui.no.mem' | translate}}</span>
+                  <a href="javascript:" class="ddp-btn-option2" (click)="openEditPopup('members'); isMembersDropdownOpen = false"></a>
+                </div>
+
+                <div class="ddp-det-dropdown">
+                  <!-- link detail -->
+                  <div class="ddp-wrap-link-detail2" *ngFor="let member of filteredMembers()">
+                    <a href="javascript:" class="ddp-link-info">{{member.profile.fullName}}
+                    </a>
+                    <!-- popup -->
+                    <user-information
+                      [left]="true"
+                      [name]="member.profile.fullName"
+                      [id]="member.memberId">
+                    </user-information>
+                    <!-- //popup -->
+                  </div>
+                  <!-- //link detail -->
+                </div>
+
+              </div>
+              <!-- //dropdown -->
+
+            </td>
+          </tr>
+          <tr>
+            <th>
+              {{'msg.organization.th.members.groups' | translate}} ({{groups.length}})
+            </th>
+            <td>
+              <!-- dropdown -->
+              <!-- 클릭시 ddp-selected 추가 -->
+              <div class="ddp-ui-dropdown" [ngClass]="{'ddp-selected':isGroupsDropdownOpen}">
+                <!-- 데이터가 1개 이상일 경우 -->
+                <div class="ddp-label-dropdown" *ngIf="groups?.length > 1">
+
+                  <em class="ddp-icon-drop" (click)="openGroupsDropdown()"></em>
+                  <div class="ddp-wrap-link-detail2">
+                    <a href="javascript:" class="ddp-link-info" (click)="onClickLinkGroup(groups[0].memberId)">{{groups[0].profile.name}}
+                    </a>
+                  </div>
+                  and
+                  <span class="ddp-data">{{groups?.length-1}}</span>
+                  more groups.
+                  <a href="javascript:" class="ddp-btn-option2" (click)="openEditPopup('groups'); isGroupsDropdownOpen = false"></a>
+                </div>
+                <!-- //데이터가 1개 이상일 경우 -->
+                <!-- 데이터가 1개 일 경우 -->
+                <div class="ddp-label-dropdown" *ngIf="groups?.length === 1">
+                  <div class="ddp-wrap-link-detail2">
+                    <a href="javascript:" class="ddp-link-info" (click)="onClickLinkGroup(groups[0].memberId)">{{groups[0].profile.name}}
+                    </a>
+                  </div>
+                  <a href="javascript:" class="ddp-btn-option2" (click)="openEditPopup('groups'); isGroupsDropdownOpen = false"></a>
+
+                </div>
+                <!-- //데이터가 1개 일 경우 -->
+                <!-- 데이터가 없을경우  -->
+                <div class="ddp-label-dropdown" *ngIf="groups?.length === 0">
+                  <span class="ddp-no-data">{{'msg.permission.ui.no.group' | translate}}</span>
+                  <a href="javascript:" class="ddp-btn-option2" (click)="openEditPopup('groups'); isGroupsDropdownOpen = false"></a>
+                </div>
+                <!-- //데이터가 없을경우  -->
+                <div class="ddp-det-dropdown">
+                  <div class="ddp-wrap-link-detail2" *ngFor="let group of filteredGroups()">
+                    <a href="javascript:" class="ddp-link-info ddp-type" (click)="onClickLinkGroup(group.memberId)">{{group.profile.name}}<em class="ddp-icon-window"></em>
+                    </a>
+                  </div>
+                </div>
+
+              </div>
+              <!-- //dropdown -->
+
+            </td>
+          </tr>
+
+          </tbody>
+        </table>
+
+      </div>
+      <!-- //table detail -->
+    </div>
+  </div>
+  <!-- //상세 -->
+</div>
+<!-- //contents -->
+<!-- confirm modal -->
+<app-confirm-modal (confirm)="deleteOrganization()"></app-confirm-modal>
+<!-- //confirm modal -->
+<app-update-container-organization [orgData]="orgData"
+                                   [defaultTab]="defaultTab"
+                                   *ngIf="isSetMemberGroupOpen"
+                                   (cancelEvent)="closeSetMemberGroupPopup()"
+                                   [members]="simplifiedMemberList"
+                                   [groups]="simplifiedGroupList"
+                                   (applyEvent)="updateDetail()"
+></app-update-container-organization>

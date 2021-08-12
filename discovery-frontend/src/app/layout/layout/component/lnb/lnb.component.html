@@ -303,6 +303,16 @@
                 </li>
               </ul>
             </li>
+            <li [ngClass]="{'ddp-selected': lnbManager.administration.organization.fold == false}">
+              <a (click)="adminMenuClickListener('ORGANIZATION')" href="javascript:">
+                <em class="ddp-icon-dot"></em> {{'msg.comm.menu.admin.organization' | translate}}
+              </a>
+              <ul class="ddp-list-sublnb-2depth">
+                <li>
+                  <a href="javascript:" (click)="move('admin/organization/list')">{{'msg.comm.menu.admin.organization' | translate}}</a>
+                </li>
+              </ul>
+            </li>
             <li [ngClass]="{'ddp-selected': lnbManager.administration.workspaces.fold == false}" *ngIf="permission.workspaceAdmin" >
               <a (click)="adminMenuClickListener('WORKSPACE')" href="javascript:">
                 <em class="ddp-icon-dot"></em> {{'msg.comm.menu.admin.workspace' | translate}}

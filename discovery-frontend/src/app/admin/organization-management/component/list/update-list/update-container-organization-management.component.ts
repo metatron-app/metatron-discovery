@@ -1,34 +1,30 @@
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
+import {AbstractComponent} from "@common/component/abstract.component";
 import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
+  Component,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  EventEmitter,
+  Injector,
+  ElementRef,
   ViewChild
-} from '@angular/core';
-import { PermissionService } from '../../../../user/service/permission.service';
-import { AbstractUserManagementComponent } from '../../abstract.user-management.component';
-import { SetMemberGroupComponent } from './set-member-group.component';
-import { Alert } from '@common/util/alert.util';
-import * as _ from 'lodash';
-import { Role, RoleType } from '@domain/user/role/role';
-import { Action } from '@domain/user/user';
+} from "@angular/core";
+import * as _ from "lodash";
+import {MembersService} from "../../../../user-management/service/members.service";
+import {GroupsService} from "../../../../user-management/service/groups.service";
+import {Alert} from "@common/util/alert.util";
+import {UpdateOrganizationManagementListComponent} from "./update-organization-management-list.component";
+import {OrganizationService} from "../../../service/organization.service";
+import {RoleType} from "@domain/user/role/role";
+import {Action} from "@domain/user/user";
+import {Organization} from "@domain/organization/organization";
 
 @Component({
-  selector: 'app-set-member-group-container',
-  templateUrl: './set-member-group-container.component.html'
+  selector: 'app-update-container-organization',
+  templateUrl: './update-container-organization-management.component.html'
 })
-export class SetMemberGroupContainerComponent extends AbstractUserManagementComponent implements OnInit, OnDestroy {
+export class UpdateContainerOrganizationManagementComponent extends AbstractComponent implements OnInit, OnDestroy{
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -42,22 +38,12 @@ export class SetMemberGroupContainerComponent extends AbstractUserManagementComp
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 탭 0 - Members or 1 - Groups
+  // 탭 0 -  Members of 1 - Groups
   @Input()
   public defaultTab: number;
 
-  // 취소 or X 버튼 클릭 시
-  @Output()
-  public cancelEvent = new EventEmitter();
-
-  @Output()
-  public applyEvent = new EventEmitter();
-
-  // 검색 placeholder - member, group 다르다
-  public searchPlaceholder : string;
-
-  //
-  public allList: any = [];
+  @Input()
+  public orgData: Organization;
 
   @Input()
   public members : any;
@@ -67,27 +53,36 @@ export class SetMemberGroupContainerComponent extends AbstractUserManagementComp
   public groups : any;
   public cloneGroups : any;
 
-  @Input()
-  public role: Role;
+  @Output()
+  public cancelEvent = new EventEmitter();
 
-  public flag : boolean = false;
+  @Output()
+  public applyEvent = new EventEmitter();
 
-  @ViewChild(SetMemberGroupComponent)
-  public _setMemberGroupComponent : SetMemberGroupComponent;
+  public searchPlaceholder: string;
+  public allList: any = [];
+
+
+  public flag: boolean = false;
+
+  @ViewChild(UpdateOrganizationManagementListComponent)
+  public updateOrganizationComponent: UpdateOrganizationManagementListComponent;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 생성자
-  constructor(private permissionService: PermissionService,
+  constructor(private organizationService: OrganizationService,
+              private membersService: MembersService,
+              private groupsService: GroupsService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Override Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+ | Override Method
+ |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // Init
   public ngOnInit() {
@@ -102,6 +97,7 @@ export class SetMemberGroupContainerComponent extends AbstractUserManagementComp
   public ngOnDestroy() {
     super.ngOnDestroy();
   }
+
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
@@ -118,23 +114,22 @@ export class SetMemberGroupContainerComponent extends AbstractUserManagementComp
   }
 
   /**
-   * DONE 버튼 클릭시
+   * DONE 클릭 시
    */
   public done() {
-
     const result = [];
-    if (this.flag === false) {
+    if(this.flag === false){
 
       this.members.forEach((item) => {
         if(_.findIndex(this.cloneMembers,{directoryName : item.directoryName}) === -1) {
-          result.push({type : RoleType.USER, directoryId : item.directoryId, op : Action.remove});
+          result.push({type : RoleType.USER, memberId : item.directoryId, op : Action.remove});
         }
       });
       // 현재 리스트가 원본 리스트에 존재하는지 확인
       this.cloneMembers.forEach((member) => {
         // 없다면 추가
         if (_.findIndex(this.members, {directoryName: member.directoryName}) === -1) {
-          result.push({type : RoleType.USER, directoryId : member.directoryId, op : Action.add});
+          result.push({type : RoleType.USER, memberId : member.directoryId, op : Action.add});
         } else { // 있다면 권한 변경인지 그대로인지 확인
 
         }
@@ -142,71 +137,65 @@ export class SetMemberGroupContainerComponent extends AbstractUserManagementComp
 
       this.groups.forEach((item) => {
         if(_.findIndex(this.cloneGroups,{directoryName : item.directoryName}) === -1) {
-          result.push({type : RoleType.GROUP, directoryId : item.directoryId, op : Action.remove});
+          result.push({type : RoleType.GROUP, memberId : item.directoryId, op : Action.remove});
         }
       });
       // 현재 리스트가 원본 리스트에 존재하는지 확인
       this.cloneGroups.forEach((member) => {
         // 없다면 추가
         if (_.findIndex(this.groups, {directoryName: member.directoryName}) === -1) {
-          result.push({type : RoleType.GROUP, directoryId : member.directoryId, op : Action.add});
+          result.push({type : RoleType.GROUP, memberId : member.directoryId, op : Action.add});
         } else { // 있다면 권한 변경인지 그대로인지 확인
 
         }
       });
 
       this.flag = true;
-      this.permissionService.addRemoveAssignedRoleMember(this.role.id,result).then(() => {
+      this.organizationService.addRemoveOrgMember(this.orgData.code, result).then(() => {
         this.allList = [];
         this.cloneGroups = [];
         this.cloneMembers = [];
         this.flag = false;
         Alert.success(this.translateService.instant('msg.comm.alert.save.success'));
         this.applyEvent.emit();
-
       }).catch((err) => {
         Alert.warning(err);
-      })
-
+      });
 
     }
   }
 
   /**
-   * 탭 클릭시
-   * @param tabNo 탭 넘버
+   * 탭 클릭 시 전환
+   * @param tabNo
    */
   public onTabClick(tabNo: number) {
     this.defaultTab = tabNo;
-    this._setMemberGroupComponent.allList = [];
+    this.updateOrganizationComponent.allList = [];
     this.init(this.defaultTab);
   }
 
-
   /**
    * 화면 최초 진입시 실행. 어떤 Tab 인지에 따라 달라진다.
-   * @param tabNo - (0 - member, 1 - group)
+   * @param tabNo - ( 0 : member, 1 : group)
    */
-  public init(tabNo) {
+  public init(tabNo){
     this.allList = [];
     if (tabNo === 0) {
-      this._getMemberList(false);
+      this.getMemberList(false);
     } else {
-      this._getGroupList(false);
+      this.getGroupList(false);
     }
   }
 
-  /**
-   * 멤버 리스트 조회
-   * @param data - set-member-group.component 에서 데이터를 보낸다면 ..
-   */
-  public _getMemberList(data): void {
+  public getMemberList(data): void {
     // 로딩 show
     this.loadingShow();
 
-    if(data.isInitial === true) {
+    if(data.isInitial === true){
       this.allList = [];
     }
+
     // member 리스트 조회
     this.membersService.getRequestedUser(data.params ? data.params : this.getParams())
       .then((result) => {
@@ -231,11 +220,8 @@ export class SetMemberGroupContainerComponent extends AbstractUserManagementComp
             });
           });
 
-          console.log('?? cloneMembers');
-          console.log(this.cloneMembers);
-          this._setMemberGroupComponent.init({allData : simplifiedList, defaultTab : this.defaultTab, selectedItems : this.cloneMembers, headers : this.getHeaders(), pageResult :this.pageResult});
+          this.updateOrganizationComponent.init({allData : simplifiedList, defaultTab : this.defaultTab, selectedItems : this.cloneMembers, headers : this.getHeaders(), pageResult :this.pageResult});
         }
-
       })
       .catch((error) => {
         // alert
@@ -249,9 +235,10 @@ export class SetMemberGroupContainerComponent extends AbstractUserManagementComp
    * 그룹 리스트 조회
    * @param data - set-member-group.component 에서 데이터를 보낸다면 ..
    */
-  public _getGroupList(data): void {
+  public getGroupList(data): void {
     // 로딩 show
     this.loadingShow();
+
 
     if(data.isInitial === true) {
       this.allList = [];
@@ -273,7 +260,7 @@ export class SetMemberGroupContainerComponent extends AbstractUserManagementComp
             simplifiedList.push({directoryId : item.id, directoryName : item.name, type : 'GROUP'});
           });
 
-          this._setMemberGroupComponent.init({allData : simplifiedList, defaultTab : this.defaultTab, selectedItems : this.cloneGroups, headers : this.getHeaders(), pageResult :this.pageResult});
+          this.updateOrganizationComponent.init({allData : simplifiedList, defaultTab : this.defaultTab, selectedItems : this.cloneGroups, headers : this.getHeaders(), pageResult :this.pageResult});
         }
         // 로딩 hide
         this.loadingHide();
@@ -284,6 +271,22 @@ export class SetMemberGroupContainerComponent extends AbstractUserManagementComp
         // 로딩 hide
         this.loadingHide();
       });
+  }
+
+  public checkEvent(data) {
+    if (this.defaultTab === 0 ) {
+      if (data.hasOwnProperty('index')) {
+        this.cloneMembers.splice(data.index,1);
+      } else {
+        this.cloneMembers.push(data.item);
+      }
+    } else {
+      if (data.hasOwnProperty('index')) {
+        this.cloneGroups.splice(data.index,1);
+      } else {
+        this.cloneGroups.push(data.item);
+      }
+    }
   }
 
 
@@ -316,24 +319,4 @@ export class SetMemberGroupContainerComponent extends AbstractUserManagementComp
     }
     return returnValue
   }
-
-  public checkEvent(data) {
-    if (this.defaultTab === 0 ) {
-      if (data.hasOwnProperty('index')) {
-        this.cloneMembers.splice(data.index,1);
-      } else {
-        this.cloneMembers.push(data.item);
-      }
-    } else {
-      if (data.hasOwnProperty('index')) {
-        this.cloneGroups.splice(data.index,1);
-      } else {
-        this.cloneGroups.push(data.item);
-      }
-    }
-
-  }
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 }

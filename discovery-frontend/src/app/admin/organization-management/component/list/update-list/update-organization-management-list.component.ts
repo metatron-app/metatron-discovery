@@ -1,17 +1,4 @@
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
+import {AbstractComponent} from "@common/component/abstract.component";
 import {
   ChangeDetectorRef,
   Component,
@@ -22,19 +9,19 @@ import {
   OnDestroy,
   OnInit,
   Output
-} from '@angular/core';
-import {User} from '@domain/user/user';
-import {MembersService} from '../../service/members.service';
-import {isUndefined} from 'util';
-import {AbstractUserManagementComponent} from '../../abstract.user-management.component';
-import * as $ from 'jquery';
-import * as _ from 'lodash';
+} from "@angular/core";
+import * as $ from "jquery";
+import * as _ from "lodash";
+import {isUndefined} from "util";
+import {User} from "@domain/user/user";
+import {MembersService} from "../../../../user-management/service/members.service";
 
 @Component({
-  selector: 'app-set-member-group',
-  templateUrl: './set-member-group.component.html'
+  selector: 'app-update-organization-list',
+  templateUrl: './update-organization-management-list.component.html'
 })
-export class SetMemberGroupComponent extends AbstractUserManagementComponent implements OnInit, OnDestroy {
+export class UpdateOrganizationManagementListComponent extends AbstractComponent implements OnInit, OnDestroy{
+
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -78,12 +65,14 @@ export class SetMemberGroupComponent extends AbstractUserManagementComponent imp
 
   public headers: any;
 
+
   // 선택된 페이지 넘버
   private _selectedPage: number;
   private _selectedPageSize: number;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=;-=-=-=-=-=-=
-   | Constructor
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+ | Constructor
+ |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
   constructor(public membersService: MembersService,
@@ -91,6 +80,8 @@ export class SetMemberGroupComponent extends AbstractUserManagementComponent imp
               protected injector: Injector) {
     super(elementRef, injector);
   }
+
+
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Override Method
@@ -106,6 +97,8 @@ export class SetMemberGroupComponent extends AbstractUserManagementComponent imp
   public ngOnDestroy() {
     super.ngOnDestroy();
   }
+
+
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
@@ -138,6 +131,7 @@ export class SetMemberGroupComponent extends AbstractUserManagementComponent imp
     }
 
   }
+
 
   public _initView(): void {
     // 페이지 초기화
@@ -184,6 +178,7 @@ export class SetMemberGroupComponent extends AbstractUserManagementComponent imp
       return false;
     }
   }
+
 
   /**
    * 체크박스 하나씩 선택
@@ -292,6 +287,7 @@ export class SetMemberGroupComponent extends AbstractUserManagementComponent imp
     return this.selectedItems.slice(0, (this._selectedPage + 1) * this._selectedPageSize);
   }
 
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -376,4 +372,5 @@ export class SetMemberGroupComponent extends AbstractUserManagementComponent imp
       this.addSelectedItem(item);
     });
   }
+
 }
