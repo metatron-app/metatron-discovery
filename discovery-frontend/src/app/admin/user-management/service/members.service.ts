@@ -133,6 +133,15 @@ export class MembersService extends AbstractService {
   }
 
   /**
+   * 어드민 > 사용자 비밀번호 수정
+   * @param param
+   * @returns {Promise<any>}
+   */
+  public updateUserPassword(param: { username: string, password: string }): Promise<any> {
+    return this.put(this.API_URL + this.path + `/password/manual`, param);
+  } // func - updateUserPassword
+
+  /**
    * 어드민 > 사용자 비밀번호 초기화
    * @param {string} email
    * @returns {Promise<any>}
@@ -195,7 +204,7 @@ export class MembersService extends AbstractService {
   }
 
   public validatePassword(params: any): Promise<any> {
-    return this.postWithoutToken(this.API_URL + 'users/password/validate', params);
+    return this.postWithoutToken(this.API_URL + this.path + '/password/validate', params);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

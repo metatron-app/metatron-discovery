@@ -293,11 +293,10 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
    */
   public onClickChangePassword(): void {
     this.isShowPopupChangePw = false;
-    /*
     // loading show
     this.loadingShow();
     // 사용자의 그룹 변경
-    this.membersService.updateUser(this.userData.id, { password : this.inputPw })
+    this.membersService.updateUserPassword({ username: this.userData.username, password : this.inputPw })
       .then(() => {
         // success alert
         Alert.success(this.translateService.instant('msg.comm.alert.save.success'));
@@ -311,7 +310,6 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
         // 로딩 hide
         this.loadingHide();
       });
-     */
   } // func - onClickChangePassword
 
   /**

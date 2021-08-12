@@ -511,6 +511,38 @@ public class UserController {
   }
 
   /**
+   * 관리자용 사용자 정보 업데이트
+   */
+  @Transactional
+  @PreAuthorize("hasAuthority('PERM_SYSTEM_MANAGE_USER')")
+  @RequestMapping(path = "/users/password/manual", method = RequestMethod.PUT)
+  public ResponseEntity<?> updateUserPasswordByAdmin(@RequestBody User user) {
+
+    User updatedUser = userRepository.findByUsername(user.getUsername());
+
+    if (updatedUser == null) {
+      return ResponseEntity.notFound().build();
+    }
+
+    // encode password
+    String encodedPassword = passwordEncoder.encode(user.getPassword());
+    updatedUser.setPassword(encodedPassword);
+
+    userRepository.saveAndFlush(updatedUser);
+
+    // user 정보 갱신
+    if (AuthUtils.getAuthUserName().equals(updatedUser.getUsername())) {
+      updatedUser.setRoleService(roleService);
+      AuthUtils.refreshAuth(updatedUser);
+    }
+
+    // Cache 저장 정보 갱신
+    cachedUserService.removeCachedUser(updatedUser.getUsername());
+
+    return ResponseEntity.ok(updatedUser);
+  }
+
+  /**
    * @param additionalInfo
    * @return
    */
