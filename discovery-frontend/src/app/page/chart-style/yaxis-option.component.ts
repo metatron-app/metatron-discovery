@@ -129,7 +129,7 @@ export class YAxisOptionComponent extends FormatOptionComponent implements OnIni
       this.uiOption.secondaryAxis.label = UI.AxisLabel.axisLabelForValue(ChartAxisLabelType.VALUE);
     }
 
-    if( this.uiOption.secondaryAxis.mode !== AxisLabelType.SUBCOLUMN ) {
+    if( this.uiOption.secondaryAxis && this.uiOption.secondaryAxis.mode !== AxisLabelType.SUBCOLUMN ) {
       this.uiOption.secondaryAxis.mode = AxisLabelType.SUBCOLUMN;
     }
 

@@ -160,7 +160,7 @@
               <div class="ddp-ui-board-listview" *ngIf="listType == 'LIST'">
                 <ul class="ddp-list-board-listview" [dragula]="'boardListSort'" [dragulaModel]="filteredDashboard">
                   <li *ngFor="let dashboard of filteredDashboard ; let x = index"
-                      (click)="detailDashboard(dashboard)"
+                      (click)="moveToDashboard(dashboard)"
                       [class.ddp-selected]="selectedDashboard && dashboard.id === selectedDashboard.id"
                       [class.ddp-disabled]="isInvalidDatasource(dashboard)"
                       style="max-width: 300px;">
@@ -212,7 +212,7 @@
                 <ul class="ddp-list-board-thumbview"
                     [dragula]="'boardListSort'" [dragulaModel]="filteredDashboard">
                   <li *ngFor="let dashboard of filteredDashboard; let x = index"
-                      (click)="detailDashboard(dashboard)"
+                      (click)="moveToDashboard(dashboard)"
                       [class.ddp-selected]="selectedDashboard && dashboard.id === selectedDashboard.id"
                       [class.ddp-disabled]="isInvalidDatasource(dashboard)"
                       style="max-width: 300px;">
