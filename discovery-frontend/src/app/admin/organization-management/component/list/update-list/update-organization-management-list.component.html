@@ -1,0 +1,113 @@
+<!--
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~      http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ --> <!-- //tab -->
+<div class="ddp-wrap-tab-contents">
+  <!-- 멤버 tab contents -->
+  <div class="ddp-ui-tab-contents" style="display:block;">
+    <!-- left -->
+    <div class="ddp-ui-left">
+      <div class="ddp-wrap-switch">
+        <!-- 검색 -->
+        <div class="ddp-form-search">
+          <em class="ddp-icon-search"></em>
+          <input type="text" placeholder="{{ searchPlaceholder | translate}}" (keypress)="onSearchText($event)"
+                 (keyup.esc)="onSearchTextInit()"
+                 [ngModel]="searchKeyword">
+          <em class="ddp-btn-search-close" *ngIf="searchKeyword" (click)="onSearchTextInit()"></em>
+        </div>
+        <!-- //검색 -->
+      </div>
+
+      <!-- member -->
+      <div class="ddp-ui-member">
+        <ul class="ddp-list-checktype">
+          <li class="ddp-all">
+            <label class="ddp-label-checkbox" (click)="checkAll()">
+              <input type="checkbox" [checked]="isCheckAll()">
+              <i class="ddp-icon-checkbox"></i>
+              <span class="ddp-txt-checkbox">{{'msg.comm.ui.list.all' | translate}} ({{allList.length}}/{{pageResult.totalElements}})</span>
+            </label>
+          </li>
+          <li *ngFor="let item of allList">
+            <label class="ddp-label-checkbox" (click)="checkItem(item)">
+              <input type="checkbox" [checked]="isSelected(item)">
+              <i class="ddp-icon-checkbox"></i>
+              <span class="ddp-txt-checkbox">{{item.directoryName}} <span *ngIf="defaultTab===0">({{item.directoryId}})</span></span>
+            </label>
+          </li>
+        </ul>
+      </div>
+      <!-- //member -->
+      <!-- 더보기 -->
+      <div class="ddp-ui-moretype" *ngIf="isLoadMoreItems()">
+        <a href="javascript:" class="ddp-btn-moretype" (click)="onClickLoadMoreItems()">{{'msg.groups.btn.update.more' | translate}}</a>
+      </div>
+      <!-- //더보기 -->
+    </div>
+    <!-- //left -->
+    <!-- right -->
+    <div class="ddp-ui-right ddp-wrap-member-table">
+      <!-- 그룹 -->
+      <div class="ddp-ui-member-table">
+
+        <span class="ddp-data-total2">{{'msg.permission.ui.sel.count' | translate : { value : selectedItems.length} }}</span>
+        <div class="ddp-box-viewtable2 ddp-user">
+          <!-- head -->
+          <div class="ddp-ui-gridhead2">
+            <table class="ddp-table-form2">
+              <colgroup class="table-colgroup">
+              </colgroup>
+              <thead >
+              <tr>
+                <th *ngFor="let item of headers">
+                  {{item.name}}
+                </th>
+              </tr>
+              </thead>
+
+            </table>
+          </div>
+          <!-- //head -->
+          <!-- body -->
+          <div class="ddp-ui-gridbody2">
+            <table class="ddp-table-form2 ddp-long">
+              <colgroup class="table-colgroup">
+              </colgroup>
+              <tbody>
+              <tr *ngFor="let item of getSelectedList()">
+                <td *ngFor="let data of headers" [ngClass]="{'ddp-table-icons' : item[data.key]=== ''}">
+                  <div class="ddp-ui-photo" *ngIf="data.name === 'Username'">
+                    <img [src]="getUserImage(item)" class="ddp-data-photo">
+                    <span>{{ item[data.key] }}</span>
+                  </div>
+                  <div *ngIf="data.name !== 'Username'">{{ item[data.key] }}</div>
+                  <em class="ddp-icon-sclose" *ngIf="data.key=== ''" (click)="checkItem(item)"></em>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+
+          </div>
+          <!-- //body -->
+        </div>
+        <!-- 더보기 -->
+        <div class="ddp-ui-moretype" *ngIf="isLoadMoreSelectedItems()">
+          <a href="javascript:" class="ddp-btn-moretype" (click)="onClickLoadMoreSelectedItems()">{{'msg.groups.btn.update.more' | translate}}</a>
+        </div>
+        <!-- //더보기 -->
+      </div>
+      <!-- //그룹 -->
+    </div>
+    <!-- right -->
+  </div>
+</div>

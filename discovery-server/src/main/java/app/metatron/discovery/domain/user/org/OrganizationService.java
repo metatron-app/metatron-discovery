@@ -14,19 +14,10 @@
 
 package app.metatron.discovery.domain.user.org;
 
-import app.metatron.discovery.common.exception.MetatronException;
-import app.metatron.discovery.common.exception.ResourceNotFoundException;
-import app.metatron.discovery.domain.CollectionPatch;
-import app.metatron.discovery.domain.user.CachedUserService;
-import app.metatron.discovery.domain.user.DirectoryProfile;
-import app.metatron.discovery.domain.user.User;
-import app.metatron.discovery.domain.user.UserRepository;
-import app.metatron.discovery.domain.user.group.Group;
-import app.metatron.discovery.domain.user.group.GroupRepository;
-import app.metatron.discovery.util.EnumUtils;
-import app.metatron.discovery.util.PolarisUtils;
 import com.google.common.collect.Sets;
+
 import com.querydsl.core.types.Predicate;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -40,6 +31,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
+
+import app.metatron.discovery.common.exception.MetatronException;
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
+import app.metatron.discovery.domain.CollectionPatch;
+import app.metatron.discovery.domain.user.CachedUserService;
+import app.metatron.discovery.domain.user.DirectoryProfile;
+import app.metatron.discovery.domain.user.User;
+import app.metatron.discovery.domain.user.UserRepository;
+import app.metatron.discovery.domain.user.group.Group;
+import app.metatron.discovery.domain.user.group.GroupRepository;
+import app.metatron.discovery.util.EnumUtils;
+import app.metatron.discovery.util.PolarisUtils;
 
 /**
  * Service class of Organization
@@ -111,14 +114,6 @@ public class OrganizationService {
     }
 
     Organization persistOrg = findOrganizationByCode(code);
-
-    // delete groups in organization
-    // FIXME: need an efficient method of deletion.
-    List<String> groupIds = orgRepository.findMemberIdByOrgCode(code, DirectoryProfile.Type.GROUP);
-    for (String groupId : groupIds) {
-      groupRepository.delete(groupId);
-    }
-
     orgRepository.delete(persistOrg);
   }
 
@@ -139,6 +134,9 @@ public class OrganizationService {
   }
 
   private void addMember(String code, String memberId, String memberName, DirectoryProfile.Type type) {
+
+    //remove member from previous org
+    deleteOrgMembers(memberId);
 
     Organization persistOrg = findOrganizationByCode(code);
 
@@ -195,6 +193,9 @@ public class OrganizationService {
             }
             memberName = group.getName();
           }
+
+          //If it is already included as a member, it will be removed.
+          orgMemberRepository.deleteByMemberId(memberId);
 
           persistOrg.addMember(new OrganizationMember(memberId, memberName, memberType));
           break;
