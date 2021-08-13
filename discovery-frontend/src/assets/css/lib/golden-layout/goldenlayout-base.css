@@ -266,7 +266,9 @@
 
 .lm_dragProxy .lm_content {
   border-top: none;
-  overflow: hidden
+  overflow: hidden;
+  min-width: 400px;
+  max-width: 400px;
 }
 
 .lm_dropTargetIndicator {
