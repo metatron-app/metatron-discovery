@@ -133,15 +133,6 @@ export class MembersService extends AbstractService {
   }
 
   /**
-   * 어드민 > 사용자 비밀번호 수정
-   * @param param
-   * @returns {Promise<any>}
-   */
-  public updateUserPassword(param: { username: string, password: string }): Promise<any> {
-    return this.put(this.API_URL + this.path + `/password/manual`, param);
-  } // func - updateUserPassword
-
-  /**
    * 어드민 > 사용자 비밀번호 초기화
    * @param {string} email
    * @returns {Promise<any>}

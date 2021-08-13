@@ -292,11 +292,17 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
    * 비밀번호 변경 클릭
    */
   public onClickChangePassword(): void {
+    if( this.isInvalidPw || this.isInvalidConfirmPw || '' === this.inputPw || '' === this.inputConfirmPw ) {
+      return;
+    }
     this.isShowPopupChangePw = false;
     // loading show
     this.loadingShow();
     // 사용자의 그룹 변경
-    this.membersService.updateUserPassword({ username: this.userData.username, password : this.inputPw })
+    this.membersService.updateUser(
+      this.userData.id,
+      { username: this.userData.username, password : this.inputPw, confirmPassword: this.inputConfirmPw }
+    )
       .then(() => {
         // success alert
         Alert.success(this.translateService.instant('msg.comm.alert.save.success'));

@@ -478,10 +478,21 @@ public class UserController {
       return ResponseEntity.notFound().build();
     }
 
-    userService.setUserToGroups(updatedUser, user.getGroupNames());
-    updatedUser.setFullName(user.getFullName());
-    updatedUser.setEmail(user.getEmail());
-    updatedUser.setTel(user.getTel());
+    if(user.getGroupNames() != null && user.getGroupNames().size() > 0){
+      userService.setUserToGroups(updatedUser, user.getGroupNames());
+    }
+
+    if (StringUtils.isNotBlank(user.getFullName())) {
+      updatedUser.setFullName(user.getFullName());
+    }
+
+    if (StringUtils.isNotBlank(user.getEmail())) {
+      updatedUser.setEmail(user.getEmail());
+    }
+
+    if (StringUtils.isNotBlank(user.getTel())) {
+      updatedUser.setTel(user.getTel());
+    }
 
     if (StringUtils.isBlank(user.getImageUrl()) && StringUtils.isNotBlank(updatedUser.getImageUrl())) {
       userService.deleteUserImage(updatedUser.getUsername());
@@ -491,6 +502,13 @@ public class UserController {
     if (StringUtils.isNotBlank(user.getImageUrl())) {
       userService.updateUserImage(username);
       updatedUser.setImageUrl(user.getImageUrl());
+    }
+
+    updatedUser.setStatus(User.Status.ACTIVATED);
+    if (user.getPassword() != null) {
+      userService.validateUserPassword(username, user);
+      String encodedPassword = passwordEncoder.encode(user.getPassword());
+      updatedUser.setPassword(encodedPassword);
     }
 
     userRepository.saveAndFlush(updatedUser);
@@ -506,38 +524,6 @@ public class UserController {
 
     // Workspace Member 이름 갱신
     workspaceMemberRepository.updateMemberName(updatedUser.getUsername(), updatedUser.getFullName());
-
-    return ResponseEntity.ok(updatedUser);
-  }
-
-  /**
-   * 관리자용 사용자 정보 업데이트
-   */
-  @Transactional
-  @PreAuthorize("hasAuthority('PERM_SYSTEM_MANAGE_USER')")
-  @RequestMapping(path = "/users/password/manual", method = RequestMethod.PUT)
-  public ResponseEntity<?> updateUserPasswordByAdmin(@RequestBody User user) {
-
-    User updatedUser = userRepository.findByUsername(user.getUsername());
-
-    if (updatedUser == null) {
-      return ResponseEntity.notFound().build();
-    }
-
-    // encode password
-    String encodedPassword = passwordEncoder.encode(user.getPassword());
-    updatedUser.setPassword(encodedPassword);
-
-    userRepository.saveAndFlush(updatedUser);
-
-    // user 정보 갱신
-    if (AuthUtils.getAuthUserName().equals(updatedUser.getUsername())) {
-      updatedUser.setRoleService(roleService);
-      AuthUtils.refreshAuth(updatedUser);
-    }
-
-    // Cache 저장 정보 갱신
-    cachedUserService.removeCachedUser(updatedUser.getUsername());
 
     return ResponseEntity.ok(updatedUser);
   }
