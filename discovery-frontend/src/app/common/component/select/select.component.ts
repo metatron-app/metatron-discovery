@@ -56,6 +56,12 @@ export class SelectComponent extends AbstractComponent implements OnInit, OnDest
       }
     }
 
+    // 선택된 차원값을 삭제했을 때 사용자 색상 설정에 반영하기 위해 emit
+    if (!this.isNullOrUndefined(this.array) && this.selectedItem &&
+      !this.array.some((item) => item.name === this.selectedItem.name)){
+      this.onSelected.emit(this.selectedItem);
+    }
+
     // 선택된 아이템 제거
     this.selectedItem = null;
 

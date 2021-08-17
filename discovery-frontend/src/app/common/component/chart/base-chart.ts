@@ -215,7 +215,6 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
   // UI Option Setter
   @Input('uiOption')
   set setUIOption(value: T) {
-    console.log('kk value ', _.cloneDeep(value));
 
     // Set
     this.uiOption = value;
@@ -391,6 +390,7 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
 
     // 차트 표현
     if (this.chart) {
+      this.uiOption = result.uiOption;
       this.draw();
     }
 
@@ -730,11 +730,14 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
     this.subscriptions.push(windowResizeSubscribe);
 
     this.subscriptions.push(
-      this.broadCaster.on<any>('CHANGE_DIMENSION_COLOR').subscribe((data: {changedMapping: string[]}) => {
+      this.broadCaster.on<any>('CHANGE_DIMENSION_COLOR').subscribe((data: {changedMapping: object}) => {
+
         const changedMapping = data.changedMapping;
-        // this.draw(false, true);
         if(changedMapping){
           this.uiOption.color['mapping'] = changedMapping;
+          this.uiOption.color['mappingArray'] = Object.keys( changedMapping ).map( key => {
+            return {alias: key, color: changedMapping[key]};
+          });
           this.draw(false);
         }
       })
@@ -876,9 +879,6 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
     ////////////////////////////////////////////////////////
     // apply
     ////////////////////////////////////////////////////////
-
-    // console.log('draw chartOption', this.chartOption);
-    // console.log('draw uiOption,' , this.uiOption);
 
     // 차트 반영
     this.apply();
@@ -2194,8 +2194,6 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
    * color의 mapping, mappingArray값 설정
    */
   protected setMapping(): UIChartColor {
-
-    console.log('setMapping: , ', _.cloneDeep(this.uiOption));
     if (!this.uiOption.color || (ChartColorType.SERIES !== this.uiOption.color.type && ChartColorType.DIMENSION !== this.uiOption.color.type)
       || !this.uiOption.fieldMeasureList || this.uiOption.fieldMeasureList.length === 0) return this.uiOption.color;
 

@@ -132,7 +132,7 @@
         <!-- //color by series part -->
 
         <!-- color by dimension part -->
-        <div *ngIf="isDimensionColorType" class="ddp-wrap-divide">
+        <div *ngIf="isDimensionColorType && !isTimestampType" class="ddp-wrap-divide">
 
           <div class="ddp-wrap-option-slider">
             <span class="ddp-label-slider">{{'msg.page.chart.color.series.color.setting' | translate}}</span>
