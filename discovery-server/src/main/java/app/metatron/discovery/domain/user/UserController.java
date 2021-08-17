@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 
 import app.metatron.discovery.common.CommonLocalVariable;
+import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.Mailer;
 import app.metatron.discovery.common.StatLogger;
 import app.metatron.discovery.common.entity.SearchParamValidator;
@@ -338,6 +339,8 @@ public class UserController {
           throw new UserException(UserErrorCodes.ORGANIZATION_NOT_VALID, "Not valid Org Code : " + orgCode);
         }
       }
+
+      user.setRequestOrgCodes(GlobalObjectMapper.writeValueAsString(user.getOrgCodes()));
     }
 
     if (StringUtils.isBlank(user.getFullName())) {
@@ -356,15 +359,6 @@ public class UserController {
     user.setStatus(User.Status.REQUESTED);
 
     userRepository.save(user);
-
-    // Add Organization
-    if(user.getOrgCodes() != null && user.getOrgCodes().size() > 0) {
-      for(String orgCode : user.getOrgCodes()){
-        orgService.addMembers(Lists.newArrayList(orgCode), user.getUsername(), user.getFullName(), DirectoryProfile.Type.USER);
-      }
-    } else {
-      orgService.addMembers(Lists.newArrayList(DEFAULT_ORGANIZATION_CODE), user.getUsername(), user.getFullName(), DirectoryProfile.Type.USER);
-    }
 
     mailer.sendSignUpRequestMail(user, false);
 
@@ -639,12 +633,16 @@ public class UserController {
 
     user.setStatus(User.Status.ACTIVATED);
 
-    // 기본 그룹에 포함
-    Group defaultGroup = groupService.getDefaultGroup();
-    if (defaultGroup == null) {
-      LOGGER.warn("Default group not found.");
-    } else {
-      defaultGroup.addGroupMember(new GroupMember(user.getUsername(), user.getFullName()));
+    // Add Organization
+    List<String> orgCodes = null;
+    if(StringUtils.isNotEmpty(user.getRequestOrgCodes())){
+      orgCodes = GlobalObjectMapper.readListValue(user.getRequestOrgCodes(), String.class);
+    }
+    if(orgCodes == null || orgCodes.size() < 1) {
+      orgCodes = Lists.newArrayList(DEFAULT_ORGANIZATION_CODE);
+    }
+    for(String orgCode : orgCodes){
+      orgService.addMembers(Lists.newArrayList(orgCode), user.getUsername(), user.getFullName(), DirectoryProfile.Type.USER);
     }
 
     // 워크스페이스 생성(등록된 워크스페이스가 없을 경우 생성)
