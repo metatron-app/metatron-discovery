@@ -1034,10 +1034,10 @@
     "msg.dp.alert.teddy.parse.failed.by.union.dataset2": "Ошибка синтаксического анализа правила объединения. Проверьте второй набор данных.",
     "msg.dp.alert.teddy.parse.failed.by.window.value": "Проверить значение выражения правила окна",
     "mgs.dp.ui.continue.new.rule": "Продолжить редактирование правил с этим набором данных в новом потоке данных",
-  
+
     "msg.dp.alert.unsupported.number.format": "Неподдерживаемый числовой формат.",
     "msg.dp.alert.hive.column.error": "Есть имена столбцов, которые не могут быть сохранены в Hive. Хотите просмотреть и изменить название столбца?",
-  
+
     "msg.dp.ui.no.snapshot.history": "Нет истории создания снимков",
     "msg.dp.ui.snapshot.cancel.confirm": "Вы уверены, что хотите отменить создание снимка?",
     "msg.dp.ui.creating.snapshot": "Создание снимка",
@@ -3263,6 +3263,12 @@
     "msg.mem.ui.detail.info.permission": "Разрешение",
     "msg.mem.ui.detail.info.phone": "Телефон",
     "msg.mem.ui.detail.groups": "Группы",
+    "msg.mem.ui.detail.password.title": "Пожалуйста, введите новый пароль и подтвердите пароль.",
+    "msg.mem.ui.detail.password" : "Пароль",
+    "msg.mem.ui.detail.password.ph" : "Введите пароль",
+    "msg.mem.ui.detail.password.confirm" : "Подтвердите пароль",
+    "msg.mem.ui.detail.password.confirm.ph" : "Введите Подтвердите Пароль",
+    "msg.mem.btn.change.pw" : "Измени пароль",
     "msg.mem.btn.reset.pw": "Сбросить пароль",
     "msg.mem.ui.update.title": "Группы \"{{value}}\"",
     "msg.mem.ui.update.sel.count": "Выбор {{value}}",
@@ -4288,7 +4294,7 @@
     "msg.metadata.metadata.detail.ui.delete.metadata": "Удалить эти метаданные",
     "msg.metadata.metadata.detail.ui.alert.metadata.modified": "Метаданные изменены",
     "msg.metadata.metadata.detail.ui.alert.catalog.already.included": "Каталог уже включен",
-  
+
     "msg.catalog.alert.catalog.already.exists": "Каталог уже существует",
     "msg.catalog.alert.catalog.create.success": "Каталог '{{value}}' создан.",
 

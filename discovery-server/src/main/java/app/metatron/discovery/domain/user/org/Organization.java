@@ -97,7 +97,9 @@ public class Organization extends AbstractHistoryEntity implements MetatronDomai
   }
 
   public void update(Organization organization) {
-    this.name = organization.getName();
+    if(null != organization.getName()){
+      this.name = organization.getName();
+    }
     this.description = organization.getDescription();
   }
 

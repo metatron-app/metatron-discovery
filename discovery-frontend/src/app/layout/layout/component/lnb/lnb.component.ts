@@ -186,6 +186,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
     administration: {
       fold: true,
       users: {fold: true},
+      organization: {fold: true},
       workspaces: {fold: true}
     }
   };
@@ -401,6 +402,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
   public adminMenuClickListener(menuName: string) {
     this.lnbManager.administration.users.fold = true;
     this.lnbManager.administration.workspaces.fold = true;
+    this.lnbManager.administration.organization.fold = true;
     this.getExtensions('administration').forEach(item => {
       this.lnbManager.administration[item.name]['fold'] = true;
     });
@@ -410,6 +412,9 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
         break;
       case 'WORKSPACE' :
         this.lnbManager.administration.workspaces.fold = false;
+        break;
+      case 'ORGANIZATION' :
+        this.lnbManager.administration.organization.fold = false;
         break;
       default :
         if (this.lnbManager.administration[menuName]) {

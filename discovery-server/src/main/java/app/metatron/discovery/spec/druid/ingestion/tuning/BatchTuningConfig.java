@@ -109,4 +109,12 @@ public class BatchTuningConfig extends AbstractTuningConfig {
   public void setNumBackgroundPersistThreads(Integer numBackgroundPersistThreads) {
     this.numBackgroundPersistThreads = numBackgroundPersistThreads;
   }
+
+  @Override
+  public void overrideConfig(Map<String, Object> tuningConfig) {
+    this.buildV9Directly = true;
+
+    super.overrideConfig(tuningConfig);
+  }
+
 }

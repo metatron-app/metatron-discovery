@@ -140,7 +140,6 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
   @Output('changeFieldAlias')
   public changeFieldAliasEvent: EventEmitter<Field> = new EventEmitter();
 
-
   public widgets: Widget[] = [];
   public globalFilters: Filter[] = [];
   public showDatasourcePanel: boolean = false;

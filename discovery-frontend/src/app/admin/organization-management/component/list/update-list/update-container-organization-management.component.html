@@ -18,7 +18,7 @@
     <!-- title -->
     <div class="ddp-ui-popup-title">
       <span class="ddp-txt-title-name">
-        {{'msg.space.set.member' | translate}}
+        {{'msg.organization.set.member' | translate}}
       </span>
       <div class="ddp-ui-pop-buttons">
         <a href="javascript:" class="ddp-btn-pop" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
@@ -40,12 +40,13 @@
             </li>
           </ul>
         </div>
-        <app-set-member-group [defaultTab]="defaultTab"
+        <app-update-organization-list [defaultTab]="defaultTab"
                               [searchPlaceholder]="searchPlaceholder"
-                              (getGroupsOutput)="_getGroupList($event)"
-                              (getMembersOutput)="_getMemberList($event)" (checkEvent)="checkEvent($event)">
-        </app-set-member-group>
+                              (getGroupsOutput)="getGroupList($event)"
+                              (getMembersOutput)="getMemberList($event)" (checkEvent)="checkEvent($event)">
+        </app-update-organization-list>
       </div>
     </div>
+
   </div>
 </div>

@@ -501,7 +501,7 @@ public class DataSourceController {
       throw new ResourceNotFoundException(id);
     }
 
-    LOGGER.debug("appendDataSource({}) ingestionInfo : {}", id, GlobalObjectMapper.writeValueAsString(ingestionInfo));
+    LOGGER.info("appendDataSource({}) ingestionInfo : {}", id, GlobalObjectMapper.writeValueAsString(ingestionInfo));
 
     // TODO: 기존 적재 작업과 비교하여 제한이 필요한 경우 제한 필요
     dataSource.setIngestionInfo(ingestionInfo);
