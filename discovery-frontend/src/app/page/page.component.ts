@@ -191,6 +191,9 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       // ui 초기화
       this.uiOption = OptionGenerator.initUiOption(this.uiOption);
+      if(ChartColorType.DIMENSION === this.uiOption.color.type){
+        this.uiOption.dataSource = this.dataSource;
+      }
 
       // 차트만 변경시 min / max값은 변경되지 않으므로 초기화되지않게 설정
       this.uiOption.minValue = deepCopyUiOption.minValue;
@@ -686,7 +689,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * @param {boolean} isDimension
    */
   public onPivotSelect(targetField: Field, isDimension: boolean): void {
-
     // 필드 변환
     // ( 초기에 이곳에서 fieldAlias 를 설정했으나,
     // pivot에 설정된 후에 convertField 메서드를 이용해서 필드가 재설정되므로 이곳에서의 설정은 의미 없음
@@ -1264,7 +1266,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       this.widgetService.updateWidget(this.widget.id, param)
         .then((widget) => {
-          console.log('update Widget: ', _.cloneDeep(widget));
 
           // 대시보드 옵션 업데이트
           this.dashboardService.updateDashboard(
@@ -2020,7 +2021,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * @param uiOption
    */
   public updateUIOption(uiOption) {
-    console.log('updateUIOption~');
     this.uiOption = _.extend({}, this.uiOption, uiOption);
   }
 
@@ -3792,6 +3792,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     this.isNoData = false;
     this.isError = false;
     this.isChartShow = true;
+    this.uiOption.dataSource = this.dataSource;
 
     // 변경사항 반영 (resultData설정시 설정할 옵션전에 패널이 켜지므로 off)
     // this.changeDetect.detectChanges();
