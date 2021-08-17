@@ -158,7 +158,14 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
 
     if (ChartColorType.DIMENSION === this.uiOption.color.type
       && uiOption.color['targetField']){
-      if(!this.isTimestampType){
+
+      // 현재 사용자 색상 설정하려는 pivot type이 dimension 인지
+      const item = this.uiOption.fielDimensionList.find(
+        (item) => item.name === this.uiOption.color['targetField']);
+      this.isCannotChangeColorType = this.isNullOrUndefined(item) ? false : item.type != ChartColorType.DIMENSION;
+
+      // 아닐 경우 사용자 색상설정 불가능
+      if(!this.isCannotChangeColorType){
         this.getCandidatesOfDimension();
       }
     }
@@ -275,6 +282,9 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   // dimension uiOption mapping 값
   public dimensionMappingArray = [];
 
+  // 차원값 사용자 색상 설정이 안되는 pivot type
+  public isCannotChangeColorType: boolean = false;
+
   // Init
   public ngOnInit() {
     super.ngOnInit();
@@ -319,14 +329,6 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     return this.pivot.aggregations.filter( aggr => !!aggr.color );
   } // get - filteredPivotColors
 
-  public get isTimestampType(): boolean {
-    if(this.isNullOrUndefined(this.uiOption.color['targetField'])){
-      return false;
-    } else {
-      return this.uiOption.fielDimensionList.find(
-        (item) => item.name === this.uiOption.color['targetField']).type != ChartColorType.DIMENSION
-    }
-  } // get - isTimestampType
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
