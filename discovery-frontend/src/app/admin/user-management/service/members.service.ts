@@ -194,6 +194,10 @@ export class MembersService extends AbstractService {
     return this.get(url + '&projection=list');
   }
 
+  public validatePassword(params: any): Promise<any> {
+    return this.postWithoutToken(this.API_URL + this.path + '/password/validate', params);
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
