@@ -504,6 +504,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
       }
     }) as UIOption);
 
+    console.log('schema update:', _.cloneDeep(this.uiOption));
     // update
     this.update();
   }
