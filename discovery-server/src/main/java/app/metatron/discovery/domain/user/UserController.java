@@ -663,6 +663,14 @@ public class UserController {
       orgService.addMembers(Lists.newArrayList(orgCode), user.getUsername(), user.getFullName(), DirectoryProfile.Type.USER);
     }
 
+    // 기본 그룹에 포함
+    Group defaultGroup = groupService.getDefaultGroup(orgCodes.get(0));
+    if (defaultGroup == null) {
+      LOGGER.warn("Default group not found.");
+    } else {
+      defaultGroup.addGroupMember(new GroupMember(user.getUsername(), user.getFullName()));
+    }
+
     // 워크스페이스 생성(등록된 워크스페이스가 없을 경우 생성)
     workspaceService.createWorkspaceByUserCreation(user, false);
 

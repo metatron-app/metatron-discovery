@@ -285,6 +285,9 @@ public class GroupService {
     Role privateWorkspaceRole = roleRepository.findOne(Role.PREDEFINED_ROLE_SYSTEM_PRIVATE_USER);
     roleService.addRoleDirectory(privateWorkspaceRole, createdGroup.getId(), DirectoryProfile.Type.GROUP.toString(), orgCode);
 
+    Role sharedWorkspaceRole = roleRepository.findOne(Role.PREDEFINED_ROLE_SYSTEM_SHARED_USER);
+    roleService.addRoleDirectory(sharedWorkspaceRole, createdGroup.getId(), DirectoryProfile.Type.GROUP.toString(), orgCode);
+
     return createdGroup;
   }
 
