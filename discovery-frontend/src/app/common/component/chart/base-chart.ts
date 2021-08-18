@@ -174,6 +174,9 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
   // 위젯에서 draw할경우 추가정보
   protected widgetDrawParam: any;
 
+  // current widget Id
+  protected widgetId: string;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -247,6 +250,10 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
     // 데이터가 아예 없는경우 (차트 초기 로딩같은..)
     if (!result || !result.data) {
       return;
+    }
+
+    if(result['config'] && result['config']['context']){
+      this.widgetId = result['config']['context']['discovery.widget.id'];
     }
 
     // 데이터 타입이  Object일 경우 => 맵 차트
@@ -730,16 +737,19 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
     this.subscriptions.push(windowResizeSubscribe);
 
     this.subscriptions.push(
-      this.broadCaster.on<any>('CHANGE_DIMENSION_COLOR').subscribe((data: {changedMapping: object}) => {
+      this.broadCaster.on<any>('CHANGE_DIMENSION_COLOR').subscribe((data: {widgetId: string, changedMapping: object}) => {
 
-        const changedMapping = data.changedMapping;
-        if(changedMapping){
-          this.uiOption.color['mapping'] = changedMapping;
-          this.uiOption.color['mappingArray'] = Object.keys( changedMapping ).map( key => {
-            return {alias: key, color: changedMapping[key]};
-          });
-          this.draw(false);
+        if(this.widgetId === data.widgetId){
+          const changedMapping = data.changedMapping;
+          if(changedMapping){
+            this.uiOption.color['mapping'] = changedMapping;
+            this.uiOption.color['mappingArray'] = Object.keys( changedMapping ).map( key => {
+              return {alias: key, color: changedMapping[key]};
+            });
+            this.draw(false);
+          }
         }
+
       })
     );
   }
