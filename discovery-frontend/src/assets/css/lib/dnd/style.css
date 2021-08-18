@@ -22,3 +22,30 @@
   opacity:0.7;
   border: 1px dashed #000;
 }
+
+/************************************************************************************************************
+   워크북 내 대시보드 목록 정렬 관련 스타일 지정
+***********************************************************************************************************/
+li.gu-mirror {padding-top:15px;}
+li.gu-mirror a {display:block; position:relative; padding:0 11px 0 37px;}
+li.gu-mirror a span.ddp-icon-number {display:inline-block; position:absolute; top:0; left:20px; color:#90969f; font-size:13px;}
+li.gu-mirror a span.ddp-wrap-image {display:block; position:relative; width:100%; height:156px; margin-bottom:5px; border:1px solid #e7e7ea;}
+li.gu-mirror a span.ddp-wrap-image img {width:100%; height:100%; position:relative; z-index:1;}
+
+li.gu-mirror a span.ddp-wrap-image:after {display:inline-block; position:absolute; top:50%; left:50%; margin:-14px 0 0 -17px; width:34px; height:28px; background:url(../../../images/img_board_default2.png) no-repeat; content:'';}
+
+li.gu-mirror a span.ddp-data-name {display:block; position:relative; width:100%; padding-bottom:10px; padding-left:23px; color:#90969f; font-size:13px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; word-wrap:normal; box-sizing:border-box;}
+li.gu-mirror a span.ddp-data-name em[class*="ddp-icon-eyes2"] {position:absolute; top:2px; left:0;}
+li.gu-mirror a span.ddp-data-name em.ddp-icon-eyes2 {background-position:-17px top;}
+li.gu-mirror a .ddp-btn-control {display:none;}
+
+li.gu-mirror a span.ddp-ui-number {float:left; width:42px; height:100%; text-align:center; color:#90969f; font-size:14px;}
+li.gu-mirror a .ddp-ui-name {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  word-wrap: normal;
+  box-sizing: border-box;
+}
