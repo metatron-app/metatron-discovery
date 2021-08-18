@@ -453,7 +453,9 @@ export class PieChartComponent extends BaseChart<UIPieChart> implements OnInit, 
       }
 
       this.chartOption.legend.data = legendData;
-      this.chartOption.legend.color = ChartColorList[this.uiOption.color['schema']];
+      if(this.isNullOrUndefined(this.chartOption.legend.color)){
+        this.chartOption.legend.color = ChartColorList[this.uiOption.color['schema']];
+      }
     }
 
     ////////////////////////////////////////////////////////

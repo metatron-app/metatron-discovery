@@ -210,11 +210,18 @@ export class ColorOptionConverter {
       if (_.isUndefined(name)) name = params[paramType];
 
       legendData = _.uniq(legendData);
-
       let colorIdx = _.indexOf(legendData, name);
       colorIdx = colorIdx >= codes['length'] ? colorIdx % codes['length'] : colorIdx;
       return codes[colorIdx];
     });
+
+    // // 기존 스타일이 존재 하지 않을 경우 기본스타일 생성 후 적용
+    // if (_.isUndefined(option.visualMap)) option.visualMap = OptionGenerator.VisualMap.continuousVisualMap();
+    //
+    // delete option.visualMap.itemHeight;
+    // // 색상 리스트 적용
+    // option.visualMap.color = codes;
+    // option.visualMap.type = VisualMapType.PIECEWISE;
 
     _.each(series, (obj) => {
 
@@ -246,6 +253,12 @@ export class ColorOptionConverter {
         };
       }
     });
+
+    if(!_.isUndefined(option.legend)){
+      option.legend.color = codes;
+    }
+
+    console.log('dimension option:' ,option);
 
     return option;
   }
@@ -329,7 +342,6 @@ export class ColorOptionConverter {
         option.visualMap.dimension = _.eq(option.xAxis[0].type, AxisType.VALUE) || _.eq(option.xAxis[0].type, AxisType.LOG) ? VisualMapDimension.X : VisualMapDimension.Y;
       }
     }
-
     return option;
   }
 
