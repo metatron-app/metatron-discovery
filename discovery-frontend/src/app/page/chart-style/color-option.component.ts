@@ -99,7 +99,9 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
       this.minValue = FormatOptionConverter.getDecimalValue(minValue, tmpValFormat.decimal, tmpValFormat.useThousandsSep);
       this.maxValue = FormatOptionConverter.getDecimalValue(tmpInfo['maxValue'], tmpValFormat.decimal, tmpValFormat.useThousandsSep);
     }
-
+    if(resultData && resultData['config'] && resultData['config']['context']){
+      this.widgetId = resultData['config']['context']['discovery.widget.id'];
+    }
   }
 
   @Input('uiOption')
@@ -252,6 +254,9 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
       name: this.translateService.instant('msg.page.chart.color.measure.new.range.type.gradient'),
       value: ColorCustomMode.GRADIENT
     }];
+
+  // current result widget Id
+  public widgetId: string;
 
   // min / max
   public minValue: string;
@@ -594,7 +599,9 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     const colorObj: UIChartColorBySeries = this.uiOption.color as UIChartColorBySeries;
     // color setting show / hide 값 반대로 설정
     colorObj.settingUseFl = !colorObj.settingUseFl;
-    this.getCandidatesOfDimension();
+    if(ChartColorType.DIMENSION == this.uiOption.color.type ){
+      this.getCandidatesOfDimension();
+    }
 
     // if( !colorObj.settingUseFl ) {
     //   const colorList = ChartColorList[colorObj.schema];
@@ -740,7 +747,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
           changedMapping[item['alias']] = item['color'];
         });
 
-        this.broadCaster.broadcast('CHANGE_DIMENSION_COLOR', {changedMapping: changedMapping});
+        this.broadCaster.broadcast('CHANGE_DIMENSION_COLOR', {widgetId: this.widgetId, changedMapping: changedMapping});
       }
     }
   }
