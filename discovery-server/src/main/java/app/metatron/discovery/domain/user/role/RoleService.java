@@ -23,10 +23,12 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+import app.metatron.discovery.common.CommonLocalVariable;
 import app.metatron.discovery.domain.CollectionPatch;
 import app.metatron.discovery.domain.user.CachedUserService;
 import app.metatron.discovery.domain.user.DirectoryProfile;
 import app.metatron.discovery.domain.user.group.GroupRepository;
+import app.metatron.discovery.domain.user.org.Organization;
 import app.metatron.discovery.domain.workspace.Workspace;
 
 @Component
@@ -121,7 +123,13 @@ public class RoleService {
       switch (patch.getOp()) {
         case ADD:
           DirectoryProfile profile = userService.findProfileByDirectoryType(directoryId, type);
-          role.addDirectory(new RoleDirectory(role, profile));
+
+          CommonLocalVariable.TenantAuthority tenantAuthority = CommonLocalVariable.getLocalVariable().getTenantAuthority();
+          String orgCode = StringUtils.defaultIfEmpty(tenantAuthority.getOrgCode(), Organization.DEFAULT_ORGANIZATION_CODE);
+
+          RoleDirectory newRoleDirectory = new RoleDirectory(role, profile);
+          newRoleDirectory.setOrgCode(orgCode);
+          role.addDirectory(newRoleDirectory);
           break;
         case REMOVE:
           RoleDirectory removeDirectory = roleDirectoryRepository.findByRoleAndTypeAndDirectoryId(role, type, directoryId);
@@ -131,6 +139,26 @@ public class RoleService {
           break;
       }
     }
+
+    roleRepository.save(role);
+  }
+
+  public void addRoleDirectory(Role role, String directoryId, String directoryType, String orgCode) {
+
+    // 값 검증 (별도 메소드 처리 필요)
+    if(StringUtils.isEmpty(directoryId) || StringUtils.isEmpty(directoryType)) {
+      return;
+    }
+    DirectoryProfile.Type type = DirectoryProfile.Type.valueOf(directoryType);
+    if(type == null) {
+      return;
+    }
+
+    DirectoryProfile profile = userService.findProfileByDirectoryType(directoryId, type);
+
+    RoleDirectory newRoleDirectory = new RoleDirectory(role, profile);
+    newRoleDirectory.setOrgCode(orgCode);
+    role.addDirectory(newRoleDirectory);
 
     roleRepository.save(role);
   }

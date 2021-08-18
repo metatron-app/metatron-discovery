@@ -211,4 +211,38 @@
         </update>
     </changeSet>
 
+    <!-- add request org code column to user table -->
+    <changeSet author="sohncw" id="1629157797938-0">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="users" columnName="user_request_org" />
+            </not>
+        </preConditions>
+        <addColumn tableName="users">
+            <column name="user_request_org" type="${varchar.type}(255)" />
+            <column name="orgCode_MOD" type="${boolean.type}" />
+        </addColumn>
+    </changeSet>
+
+    <changeSet author="sohncw" id="1629157797938-1">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="users_AUD" columnName="user_request_org" />
+            </not>
+        </preConditions>
+        <addColumn tableName="users_AUD">
+            <column name="user_request_org" type="${varchar.type}(255)" />
+        </addColumn>
+    </changeSet>
+
+    <changeSet author="sohncw" id="1629157797938-2">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="users_AUD" columnName="requestOrgCodes_MOD" />
+            </not>
+        </preConditions>
+        <addColumn tableName="users_AUD">
+            <column name="requestOrgCodes_MOD" type="${boolean.type}" />
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

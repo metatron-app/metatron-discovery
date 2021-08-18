@@ -461,6 +461,96 @@ public class AuthenticationController {
     }
   }
 
+  @RequestMapping(value = "/oauth/client/join")
+  public ModelAndView oauthJoin(HttpServletRequest request) {
+    ModelAndView mav = new ModelAndView("oauth/join");
+    try {
+      String clientId = request.getParameter("client_id");
+      ClientDetails clientDetails = jdbcClientDetailsService.loadClientByClientId(clientId);
+
+      if (clientDetails.getRegisteredRedirectUri() == null
+              || clientDetails.getRegisteredRedirectUri().isEmpty()) {
+        LOGGER.error("client_id({}) redirectUri is empty",  clientId);
+        throw new BadRequestException("redirectUri is empty");
+      }
+
+      String clientSecret = clientDetails.getClientSecret();
+      String token = clientId+":"+clientSecret;
+      String basicHeader = new String(Base64.encode(token.getBytes("UTF-8")), "UTF-8");
+      Map additionalInformation = clientDetails.getAdditionalInformation();
+      String clientName = String.valueOf(additionalInformation.getOrDefault("clientName", "metatron Discovery"));
+      String faviconPath = String.valueOf(additionalInformation.getOrDefault("faviconPath", ""));
+      String logoFilePath = String.valueOf(additionalInformation.getOrDefault("logoFilePath", ""));
+      String logoDesc = String.valueOf(additionalInformation.getOrDefault("logoDesc", ""));
+      String backgroundFilePath = String.valueOf(additionalInformation.getOrDefault("backgroundFilePath", ""));
+      String smallLogoFilePath = String.valueOf(additionalInformation.getOrDefault("smallLogoFilePath", ""));
+      String smallLogoDesc = String.valueOf(additionalInformation.getOrDefault("smallLogoDesc", ""));
+      String copyrightHtml
+              = String.valueOf(additionalInformation.getOrDefault("copyrightHtml", "<span>Copyright © SK Telecom Co., Ltd. All rights reserved.</span>"));
+      LOGGER.info("Login ClientId {}, basicHeader {}", clientId, basicHeader);
+      LOGGER.debug("additionalInformation {}",
+              GlobalObjectMapper.writeValueAsString(additionalInformation));
+      mav.addObject("basicHeader", "Basic "+basicHeader);
+      mav.addObject("clientName", clientName);
+      mav.addObject("faviconPath", faviconPath);
+      mav.addObject("logoFilePath", logoFilePath);
+      mav.addObject("logoDesc", logoDesc);
+      mav.addObject("backgroundFilePath", backgroundFilePath);
+      mav.addObject("smallLogoFilePath", smallLogoFilePath);
+      mav.addObject("smallLogoDesc", smallLogoDesc);
+      mav.addObject("copyrightHtml", copyrightHtml);
+    } catch (Exception e) {
+      throw new MetatronException(e);
+    }
+
+    return mav;
+  }
+
+  @RequestMapping(value = "/oauth/client/reset-password")
+  public ModelAndView oauthResetPassword(HttpServletRequest request) {
+    ModelAndView mav = new ModelAndView("oauth/reset-password");
+    try {
+      String clientId = request.getParameter("client_id");
+      ClientDetails clientDetails = jdbcClientDetailsService.loadClientByClientId(clientId);
+
+      if (clientDetails.getRegisteredRedirectUri() == null
+              || clientDetails.getRegisteredRedirectUri().isEmpty()) {
+        LOGGER.error("client_id({}) redirectUri is empty",  clientId);
+        throw new BadRequestException("redirectUri is empty");
+      }
+
+      String clientSecret = clientDetails.getClientSecret();
+      String token = clientId+":"+clientSecret;
+      String basicHeader = new String(Base64.encode(token.getBytes("UTF-8")), "UTF-8");
+      Map additionalInformation = clientDetails.getAdditionalInformation();
+      String clientName = String.valueOf(additionalInformation.getOrDefault("clientName", "metatron Discovery"));
+      String faviconPath = String.valueOf(additionalInformation.getOrDefault("faviconPath", ""));
+      String logoFilePath = String.valueOf(additionalInformation.getOrDefault("logoFilePath", ""));
+      String logoDesc = String.valueOf(additionalInformation.getOrDefault("logoDesc", ""));
+      String backgroundFilePath = String.valueOf(additionalInformation.getOrDefault("backgroundFilePath", ""));
+      String smallLogoFilePath = String.valueOf(additionalInformation.getOrDefault("smallLogoFilePath", ""));
+      String smallLogoDesc = String.valueOf(additionalInformation.getOrDefault("smallLogoDesc", ""));
+      String copyrightHtml
+              = String.valueOf(additionalInformation.getOrDefault("copyrightHtml", "<span>Copyright © SK Telecom Co., Ltd. All rights reserved.</span>"));
+      LOGGER.info("Login ClientId {}, basicHeader {}", clientId, basicHeader);
+      LOGGER.debug("additionalInformation {}",
+              GlobalObjectMapper.writeValueAsString(additionalInformation));
+      mav.addObject("basicHeader", "Basic "+basicHeader);
+      mav.addObject("clientName", clientName);
+      mav.addObject("faviconPath", faviconPath);
+      mav.addObject("logoFilePath", logoFilePath);
+      mav.addObject("logoDesc", logoDesc);
+      mav.addObject("backgroundFilePath", backgroundFilePath);
+      mav.addObject("smallLogoFilePath", smallLogoFilePath);
+      mav.addObject("smallLogoDesc", smallLogoDesc);
+      mav.addObject("copyrightHtml", copyrightHtml);
+    } catch (Exception e) {
+      throw new MetatronException(e);
+    }
+
+    return mav;
+  }
+
   private void makeAdditionalInformation(OauthClientInformation oauthClientInformation, Map additionalInformation) {
     if (StringUtils.isNotEmpty(oauthClientInformation.getClientName())) {
       additionalInformation.put("clientName", oauthClientInformation.getClientName());

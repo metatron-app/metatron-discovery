@@ -121,6 +121,10 @@ export class UserService extends AbstractService {
     return this.postWithoutToken(this.API_URL + 'users/password/validate', params);
   }
 
+  public validateOrganization(orgCode: string): Promise<any> {
+    return this.postWithoutToken(this.API_URL + `organizations/code/${orgCode}/validate`, null);
+  } // func - validateOrganization
+
   // 비밀번호 reset API
   public resetPassword(email: string): Promise<any> {
     return this.postWithoutToken(this.URL_USER + '/password/reset', {email});

@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 
 import app.metatron.discovery.common.CommonLocalVariable;
+import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.Mailer;
 import app.metatron.discovery.common.StatLogger;
 import app.metatron.discovery.common.entity.SearchParamValidator;
@@ -74,6 +75,7 @@ import app.metatron.discovery.util.AuthUtils;
 
 import static app.metatron.discovery.domain.user.UserService.DuplicatedTarget.EMAIL;
 import static app.metatron.discovery.domain.user.UserService.DuplicatedTarget.USERNAME;
+import static app.metatron.discovery.domain.user.org.Organization.DEFAULT_ORGANIZATION_CODE;
 
 /**
  *
@@ -330,6 +332,17 @@ public class UserController {
     //password expr check
     userService.validateUserPassword(user.getUsername(), user);
 
+    // check user org code if exist
+    if(user.getOrgCodes() != null && user.getOrgCodes().size() > 0) {
+      for(String orgCode : user.getOrgCodes()){
+        if(!orgService.checkDuplicatedCode(orgCode)){
+          throw new UserException(UserErrorCodes.ORGANIZATION_NOT_VALID, "Not valid Org Code : " + orgCode);
+        }
+      }
+
+      user.setRequestOrgCodes(GlobalObjectMapper.writeValueAsString(user.getOrgCodes()));
+    }
+
     if (StringUtils.isBlank(user.getFullName())) {
       user.setFullName(user.getUsername());
     }
@@ -346,10 +359,6 @@ public class UserController {
     user.setStatus(User.Status.REQUESTED);
 
     userRepository.save(user);
-
-    // Add Organization
-    String orgCode = CommonLocalVariable.getLocalVariable().getTenantAuthority().getOrgCode();
-    orgService.addMembers(Lists.newArrayList(orgCode), user.getUsername(), user.getFullName(), DirectoryProfile.Type.USER);
 
     mailer.sendSignUpRequestMail(user, false);
 
@@ -642,8 +651,20 @@ public class UserController {
 
     user.setStatus(User.Status.ACTIVATED);
 
+    // Add Organization
+    List<String> orgCodes = null;
+    if(StringUtils.isNotEmpty(user.getRequestOrgCodes())){
+      orgCodes = GlobalObjectMapper.readListValue(user.getRequestOrgCodes(), String.class);
+    }
+    if(orgCodes == null || orgCodes.size() < 1) {
+      orgCodes = Lists.newArrayList(DEFAULT_ORGANIZATION_CODE);
+    }
+    for(String orgCode : orgCodes){
+      orgService.addMembers(Lists.newArrayList(orgCode), user.getUsername(), user.getFullName(), DirectoryProfile.Type.USER);
+    }
+
     // 기본 그룹에 포함
-    Group defaultGroup = groupService.getDefaultGroup();
+    Group defaultGroup = groupService.getDefaultGroup(orgCodes.get(0));
     if (defaultGroup == null) {
       LOGGER.warn("Default group not found.");
     } else {

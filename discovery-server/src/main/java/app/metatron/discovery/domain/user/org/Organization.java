@@ -110,6 +110,12 @@ public class Organization extends AbstractHistoryEntity implements MetatronDomai
     member.setOrganization(this);
     members.add(member);
 
+    if(userCount == null)
+      userCount = 0;
+
+    if(groupCount == null)
+      groupCount = 0;
+
     if (member.getType() == DirectoryProfile.Type.USER) {
       userCount++;
     } else {
