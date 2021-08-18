@@ -86,7 +86,8 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
     {name: '£ (GBP)', value: 'GBP'},
     {name: '¥ (JPY)', value: 'JPY'},
     {name: '€ (EUR)', value: 'EUR'},
-    {name: '¥ (CNY)', value: 'CNY'}
+    {name: '¥ (CNY)', value: 'CNY'},
+    {name: '₽ (RUB)', value: 'RUB'}
   ];
 
   // 선택된 기호

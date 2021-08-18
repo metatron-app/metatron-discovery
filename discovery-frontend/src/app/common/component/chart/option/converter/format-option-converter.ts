@@ -346,6 +346,9 @@ export class FormatOptionConverter {
         case String(UIFormatCurrencyType.EUR) :
           value = '€ ' + value;
           break;
+        case String(UIFormatCurrencyType.RUB) :
+          value = '₽ ' + value;
+          break;
       }
     }
 
