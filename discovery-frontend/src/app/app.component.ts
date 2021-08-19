@@ -28,6 +28,7 @@ import {EventBroadcaster} from '@common/event/event.broadcaster';
 import {UserSetting} from '@common/value/user.setting.value';
 import {CommonUtil} from '@common/util/common.util';
 import {FormatOptionConverter} from '@common/component/chart/option/converter/format-option-converter';
+import {environment} from '@environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -46,6 +47,13 @@ export class AppComponent implements AfterContentChecked {
               private broadCaster: EventBroadcaster,
               private router: Router,
               protected injector: Injector) {
+
+    if(environment.production) {
+      console.log = () => {};
+      console.warn = () => {};
+      // tslint:disable-next-line:no-console
+      console.info = () => {};
+    }
 
     this.changeDetect = injector.get(ChangeDetectorRef);
 
