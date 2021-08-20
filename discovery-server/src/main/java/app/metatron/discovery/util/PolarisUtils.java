@@ -682,7 +682,7 @@ public class PolarisUtils {
 
     try {
       output = new BufferedWriter(new FileWriter(csvFilename));
-      is = new FileInputStream(fileName);
+      is = new BufferedInputStream(new FileInputStream(fileName));
 
       Workbook wb = WorkbookFactory.create(is);
 
