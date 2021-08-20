@@ -1,0 +1,82 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-wrap-layout-popup" *ngIf="isShowPopup">
+  <div class="ddp-ui-layout-popup">
+    <div class="ddp-box-popup3">
+      <a href="javascript:" class="ddp-btn-close" (click)="createCancel()"></a>
+      <!-- title -->
+      <div class="ddp-pop-title">{{'msg.organization.create' | translate}}</div>
+      <!-- //title -->
+      <!-- detail -->
+      <div class="ddp-box-detail">
+        <!-- error 시 ddp-type-error 추가 -->
+        <div class="ddp-ui-input-form" [class.ddp-type-error]="isValidName === false">
+          <label class="ddp-label-type">{{'msg.groups.ui.create.name' | translate}}</label>
+          <div class="ddp-input-check">
+            <input type="text" class="ddp-input-type" placeholder="{{'msg.groups.ui.create.ph.name' | translate}}"
+                   [(ngModel)]="orgName"
+                   (keyup)="isValidName = undefined"
+                   (blur)="nameValidation()">
+            <em class="ddp-icon-ok" *ngIf="isValidName"></em>
+            <em class="ddp-icon-error"></em>
+          </div>
+          <!-- error 메시지 -->
+          <span class="ddp-ui-error">{{nameValidMsg}}</span>
+          <!-- //error 메시지 -->
+        </div>
+        <!-- error 시 ddp-type-error 추가 -->
+        <div class="ddp-ui-input-form" [class.ddp-type-error]="isValidCode === false">
+          <label class="ddp-label-type">{{'msg.organization.ui.detail.info.code' | translate}}</label>
+          <div class="ddp-input-check">
+            <input type="text" class="ddp-input-type"
+                   placeholder="{{'msg.organization.ui.create.ph.code' | translate}}"
+                   [(ngModel)]="orgCode"
+                   (keyup)="isValidCode = undefined"
+                   (blur)="codeValidation()">
+            <em class="ddp-icon-ok" *ngIf="isValidCode"></em>
+            <em class="ddp-icon-error"></em>
+          </div>
+          <!-- error 메시지 -->
+          <span class="ddp-ui-error">{{codeValidMsg}}</span>
+          <!-- //error 메시지 -->
+        </div>
+        <!-- error 시 ddp-type-error 추가 -->
+        <div class="ddp-ui-input-form" [class.ddp-type-error]="isValidDesc === false">
+          <label class="ddp-label-type">{{'msg.organization.ui.detail.info.desc' | translate}}</label>
+          <div class="ddp-input-check">
+            <input type="text" class="ddp-input-type"
+                   placeholder="{{'msg.organization.ui.create.ph.desc' | translate}}"
+                   [(ngModel)]="orgDesc"
+                   (keyup)="isValidDesc = undefined"
+                   (blur)="descValidation()">
+            <em class="ddp-icon-ok" *ngIf="isValidDesc"></em>
+            <em class="ddp-icon-error"></em>
+          </div>
+          <!-- error 메시지 -->
+          <span class="ddp-ui-error">{{descValidMsg}}</span>
+          <!-- //error 메시지 -->
+        </div>
+      </div>
+      <!-- detail -->
+      <!-- button -->
+      <div class="ddp-ui-buttons">
+        <a href="javascript:" class="ddp-btn-type-popup" (click)="createCancel()">{{'msg.comm.btn.cancl' | translate}}</a>
+        <!-- disabled 시 ddp-disabled 추가 -->
+        <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="createDone()">{{'msg.comm.btn.done' | translate}}</a>
+      </div>
+      <!-- //button -->
+    </div>
+  </div>
+</div>

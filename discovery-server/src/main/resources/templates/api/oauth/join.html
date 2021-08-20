@@ -1,0 +1,490 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org" th:with="lang=${#locale.language}" th:lang="${lang}">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, target-densitydpi=medium-dpi"/>
+    <meta name="format-detection" content="telephone=no"/>
+    <meta http-equiv="Expires" content="-1"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Cache-Control" content="No-Cache"/>
+    <title th:text="${clientName}"></title>
+    <link rel="icon" type="image/x-icon" th:href="${faviconPath}">
+    <link href="/resources/mobile.css" rel="stylesheet"/>
+    <script src="/resources/jquery.min.js"></script>
+    <script src="/resources/moment.min.js"></script>
+</head>
+<!-- login -->
+<body>
+<div class="ddp-wrap-popup type-page">
+    <em class="ddp-bg-popup"></em>
+    <div class="ddp-ui-popup-in">
+        <!-- popup -->
+        <div class="ddp-ui-popup ddp-box-user-popup">
+            <span class="ddp-ui-pop-title" th:text="#{message.app.oauth.join.title}"></span>
+
+            <!-- contents -->
+            <div class="ddp-ui-user-contet">
+                <!-- User Name 입력 -->
+                <div id="formInputName" class="ddp-ui-input-form">
+                    <label class="ddp-label-type" th:text="#{message.app.oauth.join.name}"></label>
+                    <div class="ddp-input-check">
+                        <input th:placeholder="#{message.app.oauth.join.name.ph}"
+                               id="inputName" type="text" class="ddp-input-type">
+                        <em class="sys-form-icon"></em>
+                    </div>
+                    <!-- error 메시지 -->
+                    <span id="msgInputName" class="ddp-ui-error"></span>
+                    <!-- //error 메시지 -->
+                </div>
+                <!-- // User Name 입력 -->
+
+                <!-- Full Name 입력 -->
+                <div class="ddp-ui-input-form">
+                    <label class="ddp-label-type">
+                        <span th:text="#{message.app.oauth.join.fullname}"></span>
+                        <!-- tooltip -->
+                        <div class="ddp-ui-tooltip">
+                            <em class="ddp-icon-question"></em>
+                            <div class="ddp-ui-tooltip-info">
+                                <em class="ddp-icon-view-left"></em>
+                                <span th:text="#{message.app.oauth.join.name.description}"></span>
+                            </div>
+                        </div>
+                        <!-- //tooltip -->
+                    </label>
+                    <div class="ddp-input-check">
+                        <input id="inputFullName" th:placeholder="#{message.app.oauth.join.fullname.ph}"
+                               type="text" class="ddp-input-type" maxlength="50">
+                    </div>
+                    <!-- error 메시지 -->
+                    <!-- //error 메시지 -->
+                </div>
+                <!-- // Full Name 입력 -->
+
+                <!-- E-Mail 입력 -->
+                <div id="formInputEmail" class="ddp-ui-input-form">
+                    <label class="ddp-label-type">
+                        <span th:text="#{message.app.oauth.join.email}"></span>
+                        <!-- tooltip -->
+                        <div class="ddp-ui-tooltip">
+                            <em class="ddp-icon-question"></em>
+                            <div class="ddp-ui-tooltip-info">
+                                <em class="ddp-icon-view-left"></em>
+                                <span th:text="#{message.app.oauth.join.email.description}"></span>
+                            </div>
+                        </div>
+                        <!-- //tooltip -->
+                    </label>
+                    <div class="ddp-input-check">
+                        <input th:placeholder="#{message.app.oauth.join.email.ph}"
+                               id="inputEmail" type="text" class="ddp-input-type">
+                        <em class="sys-form-icon"></em>
+                    </div>
+                    <!-- error 메시지 -->
+                    <span id="msgInputEmail" class="ddp-ui-error"></span>
+                    <!-- //error 메시지 -->
+                </div>
+                <!-- // E-Mail 입력 -->
+
+                <!-- Password 입력 -->
+                <div class="ddp-wrap-overflow ddp-clear">
+                    <div class="ddp-ui-fleft ">
+                        <!-- error 일때 ddp-type-error 추가 -->
+                        <div id="formInputPassword" class="ddp-ui-input-form">
+                            <label class="ddp-label-type">
+                                <span th:text="#{message.app.oauth.join.passwd}"></span>
+                                <!-- tooltip -->
+                                <div class="ddp-ui-tooltip">
+                                    <em class="ddp-icon-question"></em>
+                                    <div class="ddp-ui-tooltip-info">
+                                        <em class="ddp-icon-view-left"></em>
+                                        <span th:text="#{message.app.oauth.join.passwd.description}"></span>
+                                    </div>
+                                </div>
+                                <!-- //tooltip -->
+                            </label>
+
+                            <div class="ddp-input-check">
+                                <input th:placeholder="#{message.app.oauth.join.passwd.ph}"
+                                       id="inputPassword" type="password" class="ddp-input-type" >
+                                <em class="sys-form-icon"></em>
+                            </div>
+                            <!-- error 메시지 -->
+                            <span id="msgInputPassword" class="ddp-ui-error"></span>
+                            <!-- //error 메시지 -->
+                        </div>
+
+                    </div>
+                    <div class="ddp-ui-fright">
+                        <!-- error 일때 ddp-type-error 추가 -->
+                        <div id="formInputConfirmPassword" class="ddp-ui-input-form">
+                            <label class="ddp-label-type" th:text="#{message.app.oauth.join.confirm-passwd}"></label>
+
+                            <div class="ddp-input-check">
+                                <input th:placeholder="#{message.app.oauth.join.confirm-passwd.ph}"
+                                       id="inputConfirmPassword" type="password" class="ddp-input-type" >
+                                <em class="sys-form-icon"></em>
+                            </div>
+                            <!-- error 메시지 -->
+                            <span id="msgInputConfirmPassword" class="ddp-ui-error"></span>
+                            <!-- //error 메시지 -->
+                        </div>
+                    </div>
+                </div>
+                <!-- // Password 입력 -->
+
+                <!-- 조직 입력 -->
+                <div id="formInputOrg" class="ddp-ui-input-form" >
+                    <label class="ddp-label-type">
+                        <span th:text="#{message.app.oauth.join.org}"></span>
+                        <!-- tooltip -->
+                        <div class="ddp-ui-tooltip">
+                            <em class="ddp-icon-question"></em>
+                            <div class="ddp-ui-tooltip-info">
+                                <em class="ddp-icon-view-left"></em>
+                                <span th:text="#{message.app.oauth.join.org.description}"></span>
+                            </div>
+                        </div>
+                        <!-- //tooltip -->
+                    </label>
+                    <div class="ddp-input-check">
+                        <input th:placeholder="#{message.app.oauth.join.org.ph}"
+                               id="inputOrg" type="text" class="ddp-input-type">
+                        <em class="sys-form-icon"></em>
+                    </div>
+                    <!-- error 메시지 -->
+                    <span id="msgInputOrg" class="ddp-ui-error" ></span>
+                    <!-- //error 메시지 -->
+                </div>
+                <!-- // 조직 입력 -->
+            </div>
+            <!-- //contents -->
+            <!-- buttons -->
+            <div class="ddp-ui-buttons2">
+                <a id="btnJoin" href="javascript:" class="ddp-btn-type-popup ddp-bg-black"
+                   th:text="#{message.app.oauth.join.btn.join}"></a>
+            </div>
+            <!-- //buttons -->
+        </div>
+        <!-- //popup -->
+    </div>
+</div>
+<script type="text/javascript" th:inline="javascript">
+    /* <![CDATA[ */
+    $(document).ready(function () {
+        // Name
+        const $formInputName = $('#formInputName');
+        const $inputName = $('#inputName');
+        const $msgInputName = $('#msgInputName');
+        // Full Name
+        const $inputFullName = $('#inputFullName');
+        // E-mail
+        const $formInputEmail = $('#formInputEmail');
+        const $inputEmail = $('#inputEmail');
+        const $msgInputEmail = $('#msgInputEmail');
+        // Organization
+        const $formInputOrg = $('#formInputOrg');
+        const $inputOrg = $('#inputOrg');
+        const $msgInputOrg = $('#msgInputOrg');
+        // Password
+        const $formInputPassword = $('#formInputPassword');
+        const $inputPassword = $('#inputPassword');
+        const $msgInputPassword = $('#msgInputPassword');
+        // Confirm Password
+        const $formInputConfirmPassword = $('#formInputConfirmPassword');
+        const $inputConfirmPassword = $('#inputConfirmPassword');
+        const $msgInputConfirmPassword = $('#msgInputConfirmPassword');
+
+        function setStatusInputForm($elm, type) {
+            if ('OK' === type) {
+                $elm.removeClass('ddp-type-error').addClass('ddp-type-ok');
+                $elm.find('.sys-form-icon').removeClass('ddp-icon-error').addClass('ddp-icon-ok');
+            } else if ('ERROR' === type) {
+                $elm.removeClass('ddp-type-ok').addClass('ddp-type-error');
+                $elm.find('.sys-form-icon').removeClass('ddp-icon-ok').addClass('ddp-icon-error');
+            } else if ('CLEAR' === type) {
+                $elm.removeClass('ddp-type-ok ddp-type-error');
+                $elm.find('.sys-form-icon').removeClass('ddp-type-ok ddp-type-error');
+            }
+        }   // func - setStatusInputForm
+
+        function validation(type) {
+
+            const idReg = /(^[0-9].*(?=[0-9a-zA-Z\.]{2,19}$)(?=.*\d?)(?=.*[a-zA-Z])(?=.*[\.]?).*$)|(^[a-zA-Z].*(?=[0-9a-zA-Z\.]{2,19}$)(?=.*\d?)(?=.*[a-zA-Z]?)(?=.*[\.]?).*$)/;
+            const passwordReg = /^.*(?=^.{10,20}$)(?=.*\d)(?=.*[a-zA-Z])(?=.*[!@#$%^*()\-_=+\\\|\[\]{};:\'",.<>\/?`~]).*$/g;
+            const emailReg = /^(\'.*\'|[A-Za-z0-9_-]([A-Za-z0-9_-]|[\+\.])*)@(\[\d{1,3}(\.\d{1,3}){3}]|[A-Za-z0-9][A-Za-z0-9_-]*(\.[A-Za-z0-9][A-Za-z0-9_-]*)+)$/;
+
+            const pwErrMsgs = {
+                UR0001: '[(#{message.app.oauth.UR0001})]',
+                UR0002: '[(#{message.app.oauth.UR0002})]',
+                UR0003: '[(#{message.app.oauth.UR0003})]',
+                UR0004: '[(#{message.app.oauth.UR0004})]',
+                UR0005: '[(#{message.app.oauth.UR0005})]',
+                UR0006: '[(#{message.app.oauth.UR0006})]',
+                UR0007: '[(#{message.app.oauth.UR0007})]',
+                UR0008: '[(#{message.app.oauth.UR0008})]'
+            };
+
+            if( 'org' === type ) {
+                let text = $inputOrg.val();
+                if (text.length === 0) {
+                    return;
+                }
+                // 이메일 중복체크 API
+                $.ajax({
+                    type: 'post',
+                    url: '/api/organizations/code/' + text + '/validate',
+                    accept: "application/json",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        if (result && result.valid === true) {
+                            $msgInputOrg.text('');
+                            setStatusInputForm($formInputOrg, 'OK');
+                        } else {
+                            $msgInputOrg.text('[(#{message.app.oauth.invalid_org})]');
+                            setStatusInputForm($formInputOrg, 'ERROR');
+                        }
+                    },
+                    error: function () {
+                        $msgInputOrg.text('[(#{message.app.oauth.invalid_org})]');
+                        setStatusInputForm($msgInputOrg, 'ERROR');
+                    }
+                });
+            }
+            else if ('username' === type) {
+                let text = $inputName.val();
+                if (text.length === 0) {
+                    return;
+                }
+                // 1. 아이디는 영문, 숫자 조합으로 3자에서 20자 이내로 한글은 사용할 수 없습니다
+                if (!idReg.test(text) || text.length < 3 || text.length > 20) {
+                    $msgInputName.text('[(#{message.app.oauth.valid_id})]');
+                    setStatusInputForm($formInputName, 'ERROR');
+                    return;
+                }
+
+                // 2. 아이디 중복체크 API
+                $.ajax({
+                    type: 'get',
+                    url: '/api/users/username/' + text + '/duplicated',
+                    headers: {Authorization: /*[[${basicHeader}]]*/},
+                    success: function (result) {
+                        if (result.duplicated === true) {
+                            $msgInputName.text('[(#{message.app.oauth.use_id})]');
+                            setStatusInputForm($formInputName, 'ERROR');
+                        } else {
+                            $msgInputName.text('');
+                            setStatusInputForm($formInputName, 'OK');
+                        }
+                    },
+                    error: function () {
+                        $msgInputName.text('[(#{message.app.oauth.valid_id})]');
+                        setStatusInputForm($formInputName, 'ERROR');
+                    }
+                });
+            }
+            // Email validation
+            else if ('email' === type) {
+                let text = $inputEmail.val();
+                if (text.length === 0) {
+                    return;
+                }
+                if (text.match(emailReg) == null) { // 이메일 형식에 맞는지 확인
+                    $msgInputEmail.text('[(#{message.app.oauth.valid_email})]');
+                    setStatusInputForm($formInputEmail, 'ERROR');
+                    return;
+                }
+
+                // 이메일 중복체크 API
+                $.ajax({
+                    type: 'get',
+                    url: '/api/users/email/' + text + '/duplicated',
+                    headers: {Authorization: /*[[${basicHeader}]]*/},
+                    success: function (result) {
+                        if (result.duplicated === true) {
+                            $msgInputEmail.text('[(#{message.app.oauth.use_email})]');
+                            setStatusInputForm($formInputEmail, 'ERROR');
+                        } else {
+                            $msgInputEmail.text('');
+                            setStatusInputForm($formInputEmail, 'OK');
+                        }
+                    },
+                    error: function () {
+                        $msgInputEmail.text('[(#{message.app.oauth.valid_email})]');
+                        setStatusInputForm($formInputEmail, 'ERROR');
+                    }
+                });
+            }
+            // password confirm validation
+            else if ('password' === type) {
+                let text = $inputPassword.val();
+                if (text.length === 0) {
+                    return;
+                }
+                $.ajax({
+                    type: 'post',
+                    url: '/api/users/password/validate',
+                    accept: "application/json",
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({
+                        username: $inputName.val(),
+                        password: text
+                    }),
+                    dataType: "json",
+                    success: function () {
+                        $msgInputPassword.text('');
+                        setStatusInputForm($formInputPassword, 'OK');
+                    },
+                    error: function (error) {
+                        if (error.code) {
+                            $msgInputPassword.text(pwErrMsgs[error.code]);
+                        } else {
+                            $msgInputPassword.text('[(#{message.app.oauth.valid_password2})]');
+                        }
+                        setStatusInputForm($formInputPassword, 'ERROR');
+                    }
+                });
+                if ('' !== $inputConfirmPassword.val()) {
+                    validation('confirmPassword');
+                }
+            }
+            else if ('confirmPassword' === type) {
+                let text = $inputConfirmPassword.val();
+                if (text.length === 0) {
+                    return;
+                }
+                // check if password and confirmpassword is same
+                let pw = $inputPassword.val();
+                if (pw && text && 0 !== pw.length && 0 !== text.length) {
+                    if (pw !== text) {
+                        setStatusInputForm($formInputConfirmPassword, 'ERROR');
+                        $msgInputConfirmPassword.text('[(#{message.app.oauth.nomatch_password})]');
+                    } else {
+                        $msgInputConfirmPassword.text('');
+                        setStatusInputForm($formInputConfirmPassword, 'OK');
+                    }
+                }
+            }
+        } // function - validation
+
+        $inputName.bind(
+            {
+                'blur': function () {
+                    validation('username');
+                },
+                'keydown': function () {
+                    setStatusInputForm($formInputName, 'CLEAR');
+                }
+            }
+        );
+        $inputEmail.bind(
+            {
+                'blur': function () {
+                    validation('email');
+                },
+                'keydown': function () {
+                    setStatusInputForm($formInputEmail, 'CLEAR');
+                }
+            }
+        );
+        $inputOrg.bind(
+            {
+                'blur': function () {
+                    validation('org');
+                },
+                'keydown': function () {
+                    setStatusInputForm($formInputOrg, 'CLEAR');
+                }
+            }
+        );
+        $inputPassword.bind(
+            {
+                'blur': function () {
+                    validation('password');
+                },
+                'keydown': function () {
+                    setStatusInputForm($formInputPassword, 'CLEAR');
+                }
+            }
+        );
+        $inputConfirmPassword.bind(
+            {
+                'blur': function () {
+                    validation('confirmPassword');
+                },
+                'keydown': function () {
+                    setStatusInputForm($formInputConfirmPassword, 'CLEAR');
+                }
+            }
+        );
+        $('#btnJoin').bind( 'click', function() {
+            // required fields
+            if( '' === $inputName.val().trim() || 1 > $inputName.val().length ) {
+                setStatusInputForm($formInputName, 'ERROR');
+                $msgInputName.text('[(#{message.app.oauth.empty_input})]');
+            }
+            if( '' === $inputEmail.val().trim() || 1 > $inputEmail.val().length ) {
+                setStatusInputForm($formInputEmail, 'ERROR');
+                $msgInputEmail.text('[(#{message.app.oauth.empty_input})]');
+            }
+            if( '' === $inputPassword.val().trim() || 1 > $inputPassword.val().length ) {
+                setStatusInputForm($formInputPassword, 'ERROR');
+                $msgInputPassword.text('[(#{message.app.oauth.empty_input})]');
+            }
+            if( '' === $inputConfirmPassword.val().trim() || 1 > $inputConfirmPassword.val().length ) {
+                setStatusInputForm($formInputConfirmPassword, 'ERROR');
+                $msgInputConfirmPassword.text('[(#{message.app.oauth.empty_input})]');
+            }
+
+            const requestData = {
+                fullName: $inputFullName.val(),
+                email: $inputEmail.val(),
+                username: $inputName.val(),
+                password: $inputPassword.val(),
+                confirmPassword: $inputConfirmPassword.val()
+            };
+            ( '' !== $inputOrg.val() ) && ( requestData.orgCodes = [$inputOrg.val()] );
+
+            if (0 === $('.ddp-type-error').length) {
+                $.ajax({
+                    type: 'post',
+                    url: '/api/users/signup',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(requestData),
+                    success: function () {
+                        alert(
+                            '[(#{message.app.oauth.join.title})]' + '\n' +
+                            '[(#{message.app.oauth.join.cmplt.description})]' + '\n' +
+                            '[(#{message.app.oauth.join.cmplt.description2})]'
+                        );
+                        history.back();
+                    },
+                    error: function (error) {
+                        alert('[(#{message.app.oauth.join.fail})]');
+                    }
+                });
+            }
+        });
+    });
+    /* ]]> */
+</script>
+</body>
+</html>

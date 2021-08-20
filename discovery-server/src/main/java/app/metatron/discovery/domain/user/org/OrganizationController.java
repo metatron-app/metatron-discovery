@@ -14,17 +14,9 @@
 
 package app.metatron.discovery.domain.user.org;
 
-import app.metatron.discovery.common.entity.SearchParamValidator;
-import app.metatron.discovery.common.exception.BadRequestException;
-import app.metatron.discovery.common.exception.MetatronException;
-import app.metatron.discovery.config.ApiResourceConfig;
-import app.metatron.discovery.domain.CollectionPatch;
-import app.metatron.discovery.domain.user.DirectoryProfile;
-import app.metatron.discovery.domain.user.UserProperties;
-import app.metatron.discovery.util.EnumUtils;
-import app.metatron.discovery.util.ProjectionUtils;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,11 +26,28 @@ import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+
+import app.metatron.discovery.common.entity.SearchParamValidator;
+import app.metatron.discovery.common.exception.BadRequestException;
+import app.metatron.discovery.common.exception.MetatronException;
+import app.metatron.discovery.config.ApiResourceConfig;
+import app.metatron.discovery.domain.CollectionPatch;
+import app.metatron.discovery.domain.user.DirectoryProfile;
+import app.metatron.discovery.domain.user.UserProperties;
+import app.metatron.discovery.domain.user.group.Group;
+import app.metatron.discovery.domain.user.group.GroupService;
+import app.metatron.discovery.util.EnumUtils;
+import app.metatron.discovery.util.ProjectionUtils;
 
 /**
  * API Resource of Organization
@@ -58,6 +67,9 @@ public class OrganizationController {
 
   @Autowired
   ProjectionFactory projectionFactory;
+
+  @Autowired
+  GroupService groupService;
 
   OrganizationProjections orgProjections = new OrganizationProjections();
 
@@ -127,6 +139,9 @@ public class OrganizationController {
 
     Organization createdOrg = orgService.create(organization);
 
+    //create default group
+    Group createdGroup = groupService.createDefaultGroup("GENERAL-USER-" + organization.getName(), createdOrg.getCode());
+
     return ResponseEntity.created(URI.create("")).body(
             ProjectionUtils.toResource(projectionFactory, orgProjections.getProjectionByName("default"), createdOrg)
     );
@@ -145,7 +160,7 @@ public class OrganizationController {
 
     organization.setCode(orgCode);
 
-    if (orgService.checkDuplicatedName(organization.getName())) {
+    if (null != organization.getName() && orgService.checkDuplicatedName(organization.getName())) {
       throw new BadRequestException("Duplicated organization name : " + organization.getName());
     }
 
@@ -271,4 +286,18 @@ public class OrganizationController {
 
   }
 
+  @RequestMapping(path = "/organizations/code/{value}/validate", method = RequestMethod.POST)
+  public ResponseEntity<?> validateOrgCode(@PathVariable("value") String orgCode) {
+
+    Preconditions.checkArgument(StringUtils.isNotBlank(orgCode), "Organization code to check validation required");
+
+    Map<String, Boolean> duplicated = Maps.newHashMap();
+    if (orgService.checkDuplicatedCode(orgCode)) {
+      duplicated.put("valid", true);
+    } else {
+      duplicated.put("valid", false);
+    }
+
+    return ResponseEntity.ok(duplicated);
+  }
 }

@@ -20,12 +20,10 @@ import { RouterModule } from '@angular/router';
 import { UserManagementMembersComponent } from './component/members/user-management-members.component';
 import { UserManagementGroupsComponent } from './component/group/user-management-groups.component';
 import { CommonModule } from '@common/common.module';
-import { MembersService } from './service/members.service';
 import { UserManagementApprovalComponent } from './component/approval/user-management-approval.component';
 import { UserManagementComponent } from './user-management.component';
 import { CreateUserManagementGroupsComponent } from './component/group/create-group/create-user-management-groups.component';
 import { UpdateUserManagementGroupsComponent } from './component/group/update-group/update-user-management-groups.component';
-import { GroupsService } from './service/groups.service';
 import { CreateUserManagementMembersComponent } from './component/members/create-member/create-user-management-members.component';
 import { DetailUserManagementMembersComponent } from './component/members/detail-member/detail-user-management-members.component';
 import { DetailUserManagementGroupsComponent } from './component/group/detail-group/detail-user-management-groups.component';
@@ -41,11 +39,11 @@ import { UserManagementAccessComponent } from './component/access/user-managemen
   imports: [
     CommonModule,
     RouterModule.forChild([
-      { path: '', component: UserManagementComponent },
-      { path: ':tabId', component: UserManagementComponent },
-      { path: 'members/:userId', component: DetailUserManagementMembersComponent},
-      { path: 'groups/:groupId', component: DetailUserManagementGroupsComponent},
-      { path: 'permission/:roleId', component: DetailUserManagementPermissionComponent},
+      {path: '', component: UserManagementComponent},
+      {path: ':tabId', component: UserManagementComponent},
+      {path: 'members/:userId', component: DetailUserManagementMembersComponent},
+      {path: 'groups/:groupId', component: DetailUserManagementGroupsComponent},
+      {path: 'permission/:roleId', component: DetailUserManagementPermissionComponent},
     ]),
     ChangeWorksspaceOwnerModalModule
   ],
@@ -68,8 +66,6 @@ import { UserManagementAccessComponent } from './component/access/user-managemen
     UserManagementAccessComponent
   ],
   providers: [
-    MembersService,
-    GroupsService
   ]
 })
 export class UserManagementModule {

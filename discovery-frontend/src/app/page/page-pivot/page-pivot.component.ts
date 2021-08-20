@@ -41,6 +41,7 @@ import * as _ from 'lodash';
 import {ClickOutsideDirective} from 'ng-click-outside';
 import {PageWidget, PageWidgetConfiguration} from '@domain/dashboard/widget/page-widget';
 import {
+  AxisLabelType,
   BarMarkType,
   ChartType,
   EventType,
@@ -1344,6 +1345,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     // 보조축
     const secondaryAxis: UIChartAxis = _.cloneDeep(this.uiOption.yAxis);
     secondaryAxis.name = this.editingField.alias;
+    secondaryAxis.mode = AxisLabelType.SUBCOLUMN;
     this.uiOption.secondaryAxis = secondaryAxis;
 
     // 이벤트 발생

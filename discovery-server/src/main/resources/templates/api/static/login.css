@@ -94,79 +94,87 @@ button,button:active,button:focus,input,input:active,input:focus,textarea,textar
 .popup_common .layout-popup .popup-container .buttons .btn-action{font-weight:400px;background-color:#293a63;display:inline-block;padding:0 20px;border:1px solid transparent;line-height:38px;text-align:center;font-size:16px;color:#fff;font-weight:700;-webkit-border-radius:3px;-moz-border-radius:3px;-ms-border-radius:3px;border-radius:3px}
 .popup_common .layout-popup .popup-container .buttons .btn-action:hover{background-color:#7575ea}
 @media (max-width:500px){
-body{overflow:hidden}
-.ddp-ui-header{display:none}
-.ddp-ui-desc{display:none!important}
-.login-container .login-box{top:14%;height:80%;display:flex;flex:1 0 0;flex-direction:column;align-items:center}
-.login-container .login-box .ddp-box-login .ddp-ui-logo{text-align:center;padding-bottom:50px}
-.login-container .login-box .ddp-box-login .ddp-ui-logo .logo-box{display:block;width:100%;height:auto}
-.login-container .login-box .ddp-box-login .ddp-ui-logo .logo-box span{display:block;width:100%;text-align:center}
-.login-container .login-box .ddp-box-login .ddp-ui-logo .logo-box span img{width:70%;height:auto}
-.login-container{background-image:none!important;overflow-x:hidden}
-.login-container .ddp-blur2{display:none}
-.login-container .ddp-ui-login{width:100%;height:100%;padding:0;background-color:rgba(255,255,255,.7);z-index:1;box-sizing:border-box;display:block;margin:0;left:0}
-.login-container .login-box .ddp-box-login{width:90%;margin:0 auto}
-.ddp-form-input label{display:none!important}
-.ddp-ui-input-form .ddp-input-check{border:1px solid #e6e6e6}
-.ddp-form-login .ddp-form-input{position:relative;width:100%;box-sizing:border-box;overflow:hidden;padding-right:0;margin-bottom:.6em}
-.ddp-ui-input-form .ddp-input-check.is-typing{border:1px solid #272a51;border-radius:2px}
-.ddp-form-login .ddp-form-input span.ddp-input-type input{width:100%;padding:8px 0;border:none;background-color:transparent;color:#272950;font-size:15px;margin:7px 5px 7px 15px}
-.ddp-ui-input-form.ddp-type-error .ddp-input-check{border:1px solid #ff2a1b}
-.ddp-ui-input-form.ddp-type-error .ddp-input-check .ddp-icon-error{display:none}
-.ddp-ui-error{display:none!important}
-.ddp-ui-login-buttons{padding-bottom:15px;margin-top:26px}
-.mobile.ddp-ui-error{display:block!important;color:#ff364e;font-size:.857em;line-height:1.4em}
-.ddp-ui-login-buttons a.ddp-btn{line-height:50px}
-.ddp-copyright{width:100%;bottom:21px;left:0;flex-shrink:0;font-size:.857em;line-height:1.2;text-align:center;position:fixed}
-.ddp-copyright b{display:none!important}
-.ddp-copyright ul{display:block;width:100%}
-.ddp-copyright .guide{display:block;padding-bottom:10px;color:#111}
-.ddp-copyright .guide>strong{padding-left:4px}
-.anchor-list{display:none!important}
-.ddp-copyright span{font-size:.857em;letter-spacing:-.08px;text-align:center;display:inline-block}
-.popup_password_reset .layout-popup .popup-container{display:inline-block;position:fixed;left:0;right:0;bottom:0;top:0;width:100%;padding:0;background-color:#fff;-webkit-box-shadow:none;-moz-box-shadow:none;box-shadow:none}
-.popup_password_reset .layout-popup .popup-container .btn-close{display:none}
-.popup_password_reset .layout-popup .popup-container .txt-title{margin-bottom:5px}
-.popup_password_reset .layout-popup .popup-container .txt-title:before{display:none}
-.popup_password_reset .m-txt{display:block}
-.popup_password_reset .login-comment{max-width:270px;font-family:NotoSansKR;font-size:.82em;font-weight:400;font-stretch:normal;font-style:normal;line-height:normal;letter-spacing:normal;color:#666;display:block;padding:8px 2em 10px 1.6em;text-align:left;line-height:1.53em}
-.popup_password_reset .login-comment.is-error{color:#ff364e;font-weight:500}
-.popup_password_reset .layout-popup .popup-container ul{font-size:0;line-height:0;list-style:none;margin-top:5px}
-.popup_password_reset .layout-popup .popup-container li.input-box{margin:7px 0}
-.popup_password_reset .layout-popup .popup-container li.input-box:nth-child(2){margin-top:1.8em}
-.popup_password_reset .layout-popup .popup-container li.input-box .component-input{display:block;position:relative;width:calc(100% - 2.5em);text-align:left;margin:0 auto;border:1px solid #e6e6e6;height:50px}
-.popup_password_reset .layout-popup .popup-container li.input-box .component-input.is-m-focus{border:1px solid #272950}
-.popup_password_reset .layout-popup .popup-container li.input-box .component-input.is-error{border:1px solid #ff364e}
-.popup_password_reset .layout-popup .popup-container li.input-box .component-input .box-input{position:relative;border-bottom:0}
-.popup_password_reset .layout-popup .popup-container li.input-box .component-input .box-input .input-text{display:inline-block;box-sizing:border-box;width:100%;height:50px;line-height:50px;padding:0 1.4em;border:0;font-size:1.2em;color:#1f2942;-webkit-border-radius:2px;-moz-border-radius:2px;-ms-border-radius:2px;border-radius:2px}
-.popup_password_reset .layout-popup .popup-container li.input-box .component-input.is-error .box-input:after,.popup_password_reset .layout-popup .popup-container li.input-box .component-input.is-pass .box-input:after{background-image:none}
-.popup_password_reset .layout-popup .popup-container li.input-box .component-input.is-error .txt-error{display:none!important}
-.popup_password_reset .layout-popup .popup-container li.input-box .label-txt-pc{display:none}
-.popup_password_reset .layout-popup .popup-container .txt-title{position:relative;font-size:22px;color:#131b30;text-align:left;padding:65px 1em 10px 1em}
-.popup_password_reset .layout-popup .popup-container .buttons{text-align:left;margin:5px 0 5px}
-.popup_password_reset .layout-popup .popup-container .buttons .btn-basic{display:none}
-.popup_password_reset .layout-popup .popup-container .buttons .btn-action{background-color:#272950;display:block;padding:0 23px;height:50px;border:1px solid transparent;line-height:50px;text-align:center;font-size:14px;color:#fff;font-weight:700;-webkit-border-radius:3px;-moz-border-radius:3px;-ms-border-radius:3px;border-radius:3px;width:calc(100% - 2.5em);margin:0 auto}
-.popup_password_reset .layout-popup .popup-container .buttons .btn-action:hover{background-color:#7575ea;text-decoration:none}
-.popup_password_reset .layout-popup .popup-container .guide{font-size:12px;position:fixed;bottom:1.5em;width:100%;text-align:center}
-.popup_password_reset .layout-popup .popup-container ul.m-comment{list-style-type:square;font-size:1.2em;line-height:1.2em;list-style:disc;margin-top:15px}
-.popup_password_reset .layout-popup .popup-container ul.m-comment li{font-size:.68em;line-height:2.1em;list-style:disc;text-align:left;padding-left:1.6em;font-size:.7em;font-weight:400;font-stretch:normal;font-style:normal;letter-spacing:normal;color:#666}
-.popup_password_reset .layout-popup .popup-container ul.m-comment li:before{content:"•";display:inline-block;vertical-align:middle;padding:0 5px 0 0}
-.popup_common .layout-popup .popup-container .btn-close{display:none}
-.popup_common .layout-popup .popup-container{display:inline-block;position:relative;width:calc(100% - 2.7em);padding:4em 0 4em}
-.popup_common .layout-popup .popup-container .txt-title{color:#111;font-size:18px}
-.popup_common .layout-popup .popup-container .txt-comment{font-size:12px;color:#111;text-align:center;font-weight:400}
-.popup_common .layout-popup .popup-container .buttons{text-align:center;margin:3.3em 0 0}
-.popup_common .layout-popup .popup-container .buttons .btn-action{background-color:#272950;min-width:8em}
-.popup_common .layout-popup .popup-container .buttons .btn-action:hover{background-color:#7575ea;text-decoration:none}
-@keyframes lds-wedges{
-0%{transform:rotate(0)}
-100%{transform:rotate(360deg)}
+    body{overflow:hidden}
+    .ddp-ui-header{display:none}
+    .ddp-ui-desc{display:none!important}
+    .login-container .login-box{top:14%;height:80%;display:flex;flex:1 0 0;flex-direction:column;align-items:center}
+    .login-container .login-box .ddp-box-login .ddp-ui-logo{text-align:center;padding-bottom:50px}
+    .login-container .login-box .ddp-box-login .ddp-ui-logo .logo-box{display:block;width:100%;height:auto}
+    .login-container .login-box .ddp-box-login .ddp-ui-logo .logo-box span{display:block;width:100%;text-align:center}
+    .login-container .login-box .ddp-box-login .ddp-ui-logo .logo-box span img{width:70%;height:auto}
+    .login-container{background-image:none!important;overflow-x:hidden}
+    .login-container .ddp-blur2{display:none}
+    .login-container .ddp-ui-login{width:100%;height:100%;padding:0;background-color:rgba(255,255,255,.7);z-index:1;box-sizing:border-box;display:block;margin:0;left:0}
+    .login-container .login-box .ddp-box-login{width:90%;margin:0 auto}
+    .ddp-form-input label{display:none!important}
+    .ddp-ui-input-form .ddp-input-check{border:1px solid #e6e6e6}
+    .ddp-form-login .ddp-form-input{position:relative;width:100%;box-sizing:border-box;overflow:hidden;padding-right:0;margin-bottom:.6em}
+    .ddp-ui-input-form .ddp-input-check.is-typing{border:1px solid #272a51;border-radius:2px}
+    .ddp-form-login .ddp-form-input span.ddp-input-type input{width:100%;padding:8px 0;border:none;background-color:transparent;color:#272950;font-size:15px;margin:7px 5px 7px 15px}
+    .ddp-ui-input-form.ddp-type-error .ddp-input-check{border:1px solid #ff2a1b}
+    .ddp-ui-input-form.ddp-type-error .ddp-input-check .ddp-icon-error{display:none}
+    .ddp-ui-error{display:none!important}
+    .ddp-ui-login-buttons{padding-bottom:15px;margin-top:26px}
+    .mobile.ddp-ui-error{display:block!important;color:#ff364e;font-size:.857em;line-height:1.4em}
+    .ddp-ui-login-buttons a.ddp-btn{line-height:50px}
+    .ddp-copyright{width:100%;bottom:21px;left:0;flex-shrink:0;font-size:.857em;line-height:1.2;text-align:center;position:fixed}
+    .ddp-copyright b{display:none!important}
+    .ddp-copyright ul{display:block;width:100%}
+    .ddp-copyright .guide{display:block;padding-bottom:10px;color:#111}
+    .ddp-copyright .guide>strong{padding-left:4px}
+    .anchor-list{display:none!important}
+    .ddp-copyright span{font-size:.857em;letter-spacing:-.08px;text-align:center;display:inline-block}
+    .popup_password_reset .layout-popup .popup-container{display:inline-block;position:fixed;left:0;right:0;bottom:0;top:0;width:100%;padding:0;background-color:#fff;-webkit-box-shadow:none;-moz-box-shadow:none;box-shadow:none}
+    .popup_password_reset .layout-popup .popup-container .btn-close{display:none}
+    .popup_password_reset .layout-popup .popup-container .txt-title{margin-bottom:5px}
+    .popup_password_reset .layout-popup .popup-container .txt-title:before{display:none}
+    .popup_password_reset .m-txt{display:block}
+    .popup_password_reset .login-comment{max-width:270px;font-family:NotoSansKR;font-size:.82em;font-weight:400;font-stretch:normal;font-style:normal;line-height:normal;letter-spacing:normal;color:#666;display:block;padding:8px 2em 10px 1.6em;text-align:left;line-height:1.53em}
+    .popup_password_reset .login-comment.is-error{color:#ff364e;font-weight:500}
+    .popup_password_reset .layout-popup .popup-container ul{font-size:0;line-height:0;list-style:none;margin-top:5px}
+    .popup_password_reset .layout-popup .popup-container li.input-box{margin:7px 0}
+    .popup_password_reset .layout-popup .popup-container li.input-box:nth-child(2){margin-top:1.8em}
+    .popup_password_reset .layout-popup .popup-container li.input-box .component-input{display:block;position:relative;width:calc(100% - 2.5em);text-align:left;margin:0 auto;border:1px solid #e6e6e6;height:50px}
+    .popup_password_reset .layout-popup .popup-container li.input-box .component-input.is-m-focus{border:1px solid #272950}
+    .popup_password_reset .layout-popup .popup-container li.input-box .component-input.is-error{border:1px solid #ff364e}
+    .popup_password_reset .layout-popup .popup-container li.input-box .component-input .box-input{position:relative;border-bottom:0}
+    .popup_password_reset .layout-popup .popup-container li.input-box .component-input .box-input .input-text{display:inline-block;box-sizing:border-box;width:100%;height:50px;line-height:50px;padding:0 1.4em;border:0;font-size:1.2em;color:#1f2942;-webkit-border-radius:2px;-moz-border-radius:2px;-ms-border-radius:2px;border-radius:2px}
+    .popup_password_reset .layout-popup .popup-container li.input-box .component-input.is-error .box-input:after,.popup_password_reset .layout-popup .popup-container li.input-box .component-input.is-pass .box-input:after{background-image:none}
+    .popup_password_reset .layout-popup .popup-container li.input-box .component-input.is-error .txt-error{display:none!important}
+    .popup_password_reset .layout-popup .popup-container li.input-box .label-txt-pc{display:none}
+    .popup_password_reset .layout-popup .popup-container .txt-title{position:relative;font-size:22px;color:#131b30;text-align:left;padding:65px 1em 10px 1em}
+    .popup_password_reset .layout-popup .popup-container .buttons{text-align:left;margin:5px 0 5px}
+    .popup_password_reset .layout-popup .popup-container .buttons .btn-basic{display:none}
+    .popup_password_reset .layout-popup .popup-container .buttons .btn-action{background-color:#272950;display:block;padding:0 23px;height:50px;border:1px solid transparent;line-height:50px;text-align:center;font-size:14px;color:#fff;font-weight:700;-webkit-border-radius:3px;-moz-border-radius:3px;-ms-border-radius:3px;border-radius:3px;width:calc(100% - 2.5em);margin:0 auto}
+    .popup_password_reset .layout-popup .popup-container .buttons .btn-action:hover{background-color:#7575ea;text-decoration:none}
+    .popup_password_reset .layout-popup .popup-container .guide{font-size:12px;position:fixed;bottom:1.5em;width:100%;text-align:center}
+    .popup_password_reset .layout-popup .popup-container ul.m-comment{list-style-type:square;font-size:1.2em;line-height:1.2em;list-style:disc;margin-top:15px}
+    .popup_password_reset .layout-popup .popup-container ul.m-comment li{font-size:.68em;line-height:2.1em;list-style:disc;text-align:left;padding-left:1.6em;font-size:.7em;font-weight:400;font-stretch:normal;font-style:normal;letter-spacing:normal;color:#666}
+    .popup_password_reset .layout-popup .popup-container ul.m-comment li:before{content:"•";display:inline-block;vertical-align:middle;padding:0 5px 0 0}
+    .popup_common .layout-popup .popup-container .btn-close{display:none}
+    .popup_common .layout-popup .popup-container{display:inline-block;position:relative;width:calc(100% - 2.7em);padding:4em 0 4em}
+    .popup_common .layout-popup .popup-container .txt-title{color:#111;font-size:18px}
+    .popup_common .layout-popup .popup-container .txt-comment{font-size:12px;color:#111;text-align:center;font-weight:400}
+    .popup_common .layout-popup .popup-container .buttons{text-align:center;margin:3.3em 0 0}
+    .popup_common .layout-popup .popup-container .buttons .btn-action{background-color:#272950;min-width:8em}
+    .popup_common .layout-popup .popup-container .buttons .btn-action:hover{background-color:#7575ea;text-decoration:none}
+
+    @keyframes lds-wedges{
+        0%{transform:rotate(0)}
+        100%{transform:rotate(360deg)}
+    }
+    @-webkit-keyframes lds-wedges{
+        0%{transform:rotate(0)}
+        100%{transform:rotate(360deg)}
+    }
 }
-@-webkit-keyframes lds-wedges{
-0%{transform:rotate(0)}
-100%{transform:rotate(360deg)}
-}
-}
+
+.ddp-form-login a.ddp-link-search {color:#272950; font-size:13px; font-weight: 300;}
+.ddp-form-login a.ddp-link-sign  {position:relative; margin-left:12px; padding-left:12px; color:#272950; font-size:13px;font-weight: 300;}
+.ddp-form-login a.ddp-link-sign:before {display:inline-block; height:13px;  position:absolute; top:50%; left:0; margin-top:-7px; border-left:1px solid #585879; content:'';}
+.ddp-form-login a.ddp-link-search:hover {text-decoration: underline;}
+.ddp-form-login a.ddp-link-sign:hover  {text-decoration: underline;}
+
 @font-face{font-family:SpoqaHanSans;src:url(fonts/SpoqaHanSans-Bold.eot);src:url(fonts/SpoqaHanSans-Bold.eot?#iefix) format("embedded-opentype"),url(fonts/SpoqaHanSans-Bold.woff) format("woff"),url(fonts/SpoqaHanSans-Bold.ttf) format("truetype");font-weight:400;font-style:normal}
 @font-face{font-family:SpoqaHanSans;src:url(fonts/SpoqaHanSans-Regular.eot);src:url(fonts/SpoqaHanSans-Regular.eot?#iefix) format("embedded-opentype"),url(fonts/SpoqaHanSans-Regular.woff) format("woff"),url(fonts/SpoqaHanSans-Regular.ttf) format("truetype");font-weight:400;font-style:normal}
 @font-face{font-family:SpoqaHanSans;src:url(fonts/SpoqaHanSans-Light.eot);src:url(fonts/SpoqaHanSans-Light.eot?#iefix) format("embedded-opentype"),url(fonts/SpoqaHanSans-Light.woff) format("woff"),url(fonts/SpoqaHanSans-Light.ttf) format("truetype");font-weight:300;font-style:normal}

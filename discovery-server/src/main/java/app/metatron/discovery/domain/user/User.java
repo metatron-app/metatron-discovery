@@ -112,6 +112,9 @@ public class User extends AbstractHistoryEntity implements UserDetails, Metatron
   @Column(name = "user_fail_cnt")
   private Integer failCnt;
 
+  @Column(name = "user_request_org")
+  private String requestOrgCodes;
+
   @Transient
   @JsonProperty
   private List<String> orgCodes;
@@ -259,6 +262,14 @@ public class User extends AbstractHistoryEntity implements UserDetails, Metatron
 
   public void setImageUrl(String imageUrl) {
     this.imageUrl = imageUrl;
+  }
+
+  public String getRequestOrgCodes() {
+    return requestOrgCodes;
+  }
+
+  public void setRequestOrgCodes(String requestOrgCodes) {
+    this.requestOrgCodes = requestOrgCodes;
   }
 
   public List<String> getOrgCodes() {

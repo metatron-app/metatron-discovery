@@ -97,7 +97,9 @@ public class Organization extends AbstractHistoryEntity implements MetatronDomai
   }
 
   public void update(Organization organization) {
-    this.name = organization.getName();
+    if(null != organization.getName()){
+      this.name = organization.getName();
+    }
     this.description = organization.getDescription();
   }
 
@@ -107,6 +109,12 @@ public class Organization extends AbstractHistoryEntity implements MetatronDomai
     }
     member.setOrganization(this);
     members.add(member);
+
+    if(userCount == null)
+      userCount = 0;
+
+    if(groupCount == null)
+      groupCount = 0;
 
     if (member.getType() == DirectoryProfile.Type.USER) {
       userCount++;

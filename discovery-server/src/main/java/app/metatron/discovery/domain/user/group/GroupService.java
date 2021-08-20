@@ -43,7 +43,9 @@ import app.metatron.discovery.domain.user.org.OrganizationMember;
 import app.metatron.discovery.domain.user.org.OrganizationMemberRepository;
 import app.metatron.discovery.domain.user.org.OrganizationPredicate;
 import app.metatron.discovery.domain.user.org.OrganizationService;
+import app.metatron.discovery.domain.user.role.Role;
 import app.metatron.discovery.domain.user.role.RoleRepository;
+import app.metatron.discovery.domain.user.role.RoleService;
 import app.metatron.discovery.domain.workspace.WorkspaceMemberRepository;
 
 @Component
@@ -74,6 +76,9 @@ public class GroupService {
   RoleRepository roleRepository;
 
   @Autowired
+  RoleService roleService;
+
+  @Autowired
   ImageRepository imageRepository;
 
   @Autowired
@@ -88,7 +93,7 @@ public class GroupService {
    * @param group
    * @return
    */
-  public Group create(Group group) {
+  public Group create(Group group, String orgCode) {
 
     if (checkDuplicatedName(group.getName())) {
       throw new BadRequestException("Duplicated group name : " + group.getName());
@@ -100,7 +105,10 @@ public class GroupService {
     contextService.saveContextFromDomain(group);
 
     // Add Organization
-    String orgCode = CommonLocalVariable.getLocalVariable().getTenantAuthority().getOrgCode();
+    if(StringUtils.isEmpty(orgCode)) {
+      CommonLocalVariable.TenantAuthority tenantAuthority = CommonLocalVariable.getLocalVariable().getTenantAuthority();
+      orgCode = StringUtils.defaultIfEmpty(tenantAuthority.getOrgCode(), Organization.DEFAULT_ORGANIZATION_CODE);
+    }
     orgService.addMembers(Lists.newArrayList(orgCode), result.getId(), result.getName(), DirectoryProfile.Type.GROUP);
 
     return result;
@@ -201,6 +209,12 @@ public class GroupService {
   public Group getDefaultGroup() {
     // getting default group in tenant
     String orgCode = StringUtils.defaultString(CommonLocalVariable.getLocalVariable().getTenantAuthority().getOrgCode(), Organization.DEFAULT_ORGANIZATION_CODE);
+    return getDefaultGroup(orgCode);
+  }
+
+  @Transactional(readOnly = true)
+  public Group getDefaultGroup(String orgCode) {
+    // getting default group in tenant
     List<OrganizationMember> organizationMembers
         = (List) orgMemberRepository.findAll(OrganizationPredicate.searchOrgMemberList(orgCode, null, DirectoryProfile.Type.GROUP));
 
@@ -257,6 +271,24 @@ public class GroupService {
     Iterable<Group> groups = groupRepository.findJoinedGroups(username);
 
     return Lists.newArrayList(groups);
+  }
+
+  @Transactional
+  public Group createDefaultGroup(String name, String orgCode){
+    //create group
+    Group defaultGroup = new Group(name);
+    defaultGroup.setDefaultGroup(true);
+    defaultGroup.setPredefined(true);
+    Group createdGroup = this.create(defaultGroup, orgCode);
+
+    //assign private workspace role to default group
+    Role privateWorkspaceRole = roleRepository.findOne(Role.PREDEFINED_ROLE_SYSTEM_PRIVATE_USER);
+    roleService.addRoleDirectory(privateWorkspaceRole, createdGroup.getId(), DirectoryProfile.Type.GROUP.toString(), orgCode);
+
+    Role sharedWorkspaceRole = roleRepository.findOne(Role.PREDEFINED_ROLE_SYSTEM_SHARED_USER);
+    roleService.addRoleDirectory(sharedWorkspaceRole, createdGroup.getId(), DirectoryProfile.Type.GROUP.toString(), orgCode);
+
+    return createdGroup;
   }
 
 }

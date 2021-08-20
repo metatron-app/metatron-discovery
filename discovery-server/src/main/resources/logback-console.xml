@@ -57,7 +57,7 @@
 
   <logger name="org.infinispan" level="info"/>
 
-  <logger name="org.jgroups" level="info"/>
+<!--  <logger name="org.jgroups" level="info"/>-->
 
   <logger name="app.metatron.discovery" level="debug"/>
 

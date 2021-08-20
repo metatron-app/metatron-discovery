@@ -30,6 +30,7 @@ export class User extends AbstractHistoryEntity {
   public statusMessage: string;
   public imageUrl: string;
 
+  public orgCodes?: string[];
 
   // TODO Role -> Group 으로 변경해야되는지 확인 필요
   public groups: Group[];

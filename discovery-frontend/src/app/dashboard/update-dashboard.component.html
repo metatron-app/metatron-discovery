@@ -411,7 +411,6 @@
         <datasource-panel
           [dashboard]="dashboard"
           [chartFilters]="chartFilters"
-          (changeFilter)="changeFilter($event)"
           (onFilterClick)="selectedRightTab = rightTab.FILTER"
           (onUpdateFilter)="addFilter($event)"
           (onDeleteFilter)="deleteFilter($event)"

@@ -16,23 +16,25 @@ package app.metatron.discovery.spec.druid.ingestion.tuning;
 
 import com.google.common.collect.Maps;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.commons.collections4.MapUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.PropertyAccessorFactory;
 
-import java.beans.FeatureDescriptor;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import app.metatron.discovery.domain.datasource.DataSourceErrorCodes;
 import app.metatron.discovery.domain.datasource.DataSourceException;
 import app.metatron.discovery.spec.druid.ingestion.index.IndexSpec;
 
 public abstract class AbstractTuningConfig implements TuningConfig {
+
+  private static Logger LOGGER = LoggerFactory.getLogger(AbstractTuningConfig.class);
 
   Integer maxRowsInMemory;
 
@@ -50,6 +52,7 @@ public abstract class AbstractTuningConfig implements TuningConfig {
     ObjectMapper mapper = new ObjectMapper();
 
     mapper.configure(MapperFeature.USE_BASE_TYPE_AS_DEFAULT_IMPL, true);
+    mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     String configJson;
     try {
@@ -83,7 +86,13 @@ public abstract class AbstractTuningConfig implements TuningConfig {
     BeanWrapper sourceWrap = PropertyAccessorFactory.forBeanPropertyAccess(source);
     BeanWrapper targetWrap = PropertyAccessorFactory.forBeanPropertyAccess(target);
 
-    props.forEach(p -> targetWrap.setPropertyValue(p, sourceWrap.getPropertyValue(p)));
+    props.forEach(p -> {
+      try {
+        targetWrap.setPropertyValue(p, sourceWrap.getPropertyValue(p));
+      } catch (Exception e) {
+        LOGGER.warn("Unknown property : {}", p);
+      }
+    });
 
   }
 

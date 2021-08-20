@@ -24,6 +24,7 @@ import {CommonUtil} from '@common/util/common.util';
 import {Group} from '@domain/user/group';
 import {ChangeWorkspaceOwnerModalComponent} from '../change-workspace-owner-modal/change-workspace-owner-modal.component';
 import {Location} from '@angular/common';
+import {StringUtil} from '@common/util/string.util';
 
 @Component({
   selector: 'app-member-detail',
@@ -53,6 +54,14 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  public isShowPopupChangePw: boolean = false;
+  public inputPw: string = '';
+  public inputConfirmPw: string = '';
+  public isInvalidPw: boolean = undefined;
+  public isInvalidConfirmPw: boolean = undefined;
+  public invalidPwMsg: string = '';
+  public invalidConfirmPwMsg: string = '';
 
   // 사용자 데이터
   public userData: User = new User();
@@ -93,8 +102,8 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
 
   // 생성자
   constructor(
-    private activatedRoute: ActivatedRoute,
     private _location: Location,
+    private activatedRoute: ActivatedRoute,
     protected element: ElementRef,
     protected injector: Injector) {
     super(element, injector);
@@ -271,6 +280,45 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
   }
 
   /**
+   * 비밀번호 변경 클릭
+   */
+  public onClickOpenPopupChangePw(): void {
+    this.inputPw = '';
+    this.inputConfirmPw = '';
+    this.isShowPopupChangePw = true;
+  } // func - onClickOpenPopupChangePw
+
+  /**
+   * 비밀번호 변경 클릭
+   */
+  public onClickChangePassword(): void {
+    if( this.isInvalidPw || this.isInvalidConfirmPw || '' === this.inputPw || '' === this.inputConfirmPw ) {
+      return;
+    }
+    this.isShowPopupChangePw = false;
+    // loading show
+    this.loadingShow();
+    // 사용자의 그룹 변경
+    this.membersService.updateUser(
+      this.userData.id,
+      { username: this.userData.username, password : this.inputPw, confirmPassword: this.inputConfirmPw }
+    )
+      .then(() => {
+        // success alert
+        Alert.success(this.translateService.instant('msg.comm.alert.save.success'));
+        // 로딩 hide
+        this.loadingHide();
+        this.isShowPopupChangePw = false;
+      })
+      .catch(() => {
+        // error alert
+        Alert.error(this.translateService.instant('msg.comm.alert.save.fail'));
+        // 로딩 hide
+        this.loadingHide();
+      });
+  } // func - onClickChangePassword
+
+  /**
    * 비밀번호 초기화 클릭
    */
   public onClickResetPassword(): void {
@@ -339,6 +387,61 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
     this.router.navigate(['/admin/user/groups', groupId]).then();
   }
 
+
+  /** Hide error when key down */
+  public changePwHideError(type: 'password' | 'confirmPassword') {
+    if( 'password' === type ) {
+      this.invalidPwMsg = '';
+      this.isInvalidPw = undefined;
+    } else if( 'confirmPassword' === type ) {
+      this.invalidConfirmPwMsg = '';
+      this.isInvalidConfirmPw = undefined;
+    }
+  }
+
+  /** Validation */
+  public changePwValidation(type: 'password' | 'confirmPassword') {
+    if ('password' === type) {
+      const text = this.inputPw;
+      if (text.length === 0) {
+        return;
+      }
+      this.isInvalidPw = false;
+      this.membersService.validatePassword({ username : this.userData.username, password : text })
+        .then(() => {
+          this.isInvalidPw = false;
+        }).catch((error) => {
+          this.loadingHide();
+          this.isInvalidPw = true;
+        if (StringUtil.isNotEmpty(error.code)) {
+          this.invalidPwMsg
+            = this.translateService.instant('login.ui.fail.' + error.code);
+        } else {
+          this.invalidPwMsg
+            = this.translateService.instant('LOGIN_JOIN_VALID_PASSWORD2');
+        }
+        return;
+      });
+      if (StringUtil.isNotEmpty(this.inputConfirmPw)) {
+        this.changePwValidation('confirmPassword');
+      }
+    } else if ('confirmPassword' === type) {
+      const text = this.inputConfirmPw;
+      if (text.length === 0) {
+        return;
+      }
+      // check if password and confirmpassword is same
+      if (this.inputPw && this.inputConfirmPw && 0 !== this.inputPw.length && 0 !== this.inputConfirmPw.length) {
+        if (this.inputPw !== this.inputConfirmPw) {
+          this.isInvalidConfirmPw = true;
+          this.invalidConfirmPwMsg = this.translateService.instant('LOGIN_JOIN_NOMATCH_PASSWORD');
+          return;
+        } else {
+          this.isInvalidConfirmPw = false;
+        }
+      }
+    }
+  } // function - validation
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
