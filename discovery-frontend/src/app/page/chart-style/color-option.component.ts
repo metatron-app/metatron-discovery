@@ -161,12 +161,14 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     if (ChartColorType.DIMENSION === this.uiOption.color.type
       && uiOption.color['targetField']){
 
-      // 현재 사용자 색상 설정하려는 pivot type이 dimension 인지
+      // 현재 사용자 색상 설정하려는 pivot type이 dimension 이 아니거나
+      // OR 차트 타입이 scatter, bar, pie, wordcloud 가 아니면
       const item = this.uiOption.fielDimensionList.find(
         (item) => item.name === this.uiOption.color['targetField']);
-      this.isCannotChangeColorType = this.isNullOrUndefined(item) ? false : item.type != ChartColorType.DIMENSION;
+      this.isCannotChangeColorType = this.isNullOrUndefined(item) ? false :
+        item.type != ChartColorType.DIMENSION || ([ChartType.SCATTER, ChartType.BAR, ChartType.PIE, ChartType.WORDCLOUD].indexOf(this.uiOption.type) == -1);
 
-      // 아닐 경우 사용자 색상설정 불가능
+      // 사용자 색상설정 불가능
       if(!this.isCannotChangeColorType){
         this.getCandidatesOfDimension();
       }
