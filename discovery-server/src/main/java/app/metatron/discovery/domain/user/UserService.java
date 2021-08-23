@@ -14,17 +14,8 @@
 
 package app.metatron.discovery.domain.user;
 
-import app.metatron.discovery.domain.activities.ActivityStream;
-import app.metatron.discovery.domain.activities.ActivityStreamService;
-import app.metatron.discovery.domain.images.Image;
-import app.metatron.discovery.domain.images.ImageRepository;
-import app.metatron.discovery.domain.revision.MetatronRevisionEntity;
-import app.metatron.discovery.domain.user.group.Group;
-import app.metatron.discovery.domain.user.group.GroupMember;
-import app.metatron.discovery.domain.user.group.GroupMemberRepository;
-import app.metatron.discovery.domain.user.group.GroupRepository;
-import app.metatron.discovery.domain.user.role.RoleRepository;
-import app.metatron.discovery.util.PolarisUtils;
+import com.google.common.collect.Lists;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.envers.AuditReader;
@@ -39,9 +30,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,6 +37,29 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.transaction.Transactional;
+
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.common.Mailer;
+import app.metatron.discovery.domain.activities.ActivityStream;
+import app.metatron.discovery.domain.activities.ActivityStreamService;
+import app.metatron.discovery.domain.images.Image;
+import app.metatron.discovery.domain.images.ImageRepository;
+import app.metatron.discovery.domain.revision.MetatronRevisionEntity;
+import app.metatron.discovery.domain.user.group.Group;
+import app.metatron.discovery.domain.user.group.GroupMember;
+import app.metatron.discovery.domain.user.group.GroupMemberRepository;
+import app.metatron.discovery.domain.user.group.GroupRepository;
+import app.metatron.discovery.domain.user.group.GroupService;
+import app.metatron.discovery.domain.user.org.OrganizationService;
+import app.metatron.discovery.domain.user.role.RoleRepository;
+import app.metatron.discovery.domain.workspace.WorkspaceService;
+import app.metatron.discovery.util.PolarisUtils;
+
+import static app.metatron.discovery.domain.user.org.Organization.DEFAULT_ORGANIZATION_CODE;
 
 @Component
 public class UserService {
@@ -81,6 +92,18 @@ public class UserService {
 
   @Autowired
   PasswordEncoder passwordEncoder;
+
+  @Autowired
+  OrganizationService organizationService;
+
+  @Autowired
+  GroupService groupService;
+
+  @Autowired
+  WorkspaceService workspaceService;
+
+  @Autowired
+  Mailer mailer;
 
   public boolean checkDuplicated(DuplicatedTarget target, String value) {
     Long count = 0L;
@@ -338,6 +361,36 @@ public class UserService {
         userRepository.saveAndFlush(user);
       }
     }
+  }
+
+  public void approveSignupRequest(User user) {
+
+    user.setStatus(User.Status.ACTIVATED);
+
+    // Add Organization
+    List<String> orgCodes = null;
+    if(StringUtils.isNotEmpty(user.getRequestOrgCodes())){
+      orgCodes = GlobalObjectMapper.readListValue(user.getRequestOrgCodes(), String.class);
+    }
+    if(orgCodes == null || orgCodes.size() < 1) {
+      orgCodes = Lists.newArrayList(DEFAULT_ORGANIZATION_CODE);
+    }
+    for(String orgCode : orgCodes){
+      organizationService.addMembers(Lists.newArrayList(orgCode), user.getUsername(), user.getFullName(), DirectoryProfile.Type.USER);
+    }
+
+    // 기본 그룹에 포함
+    Group defaultGroup = groupService.getDefaultGroup(orgCodes.get(0));
+    if (defaultGroup == null) {
+      LOGGER.warn("Default group not found.");
+    } else {
+      defaultGroup.addGroupMember(new GroupMember(user.getUsername(), user.getFullName()));
+    }
+
+    // 워크스페이스 생성(등록된 워크스페이스가 없을 경우 생성)
+    workspaceService.createWorkspaceByUserCreation(user, false);
+
+    mailer.sendSignUpApprovedMail(user, false, null);
   }
 
 }
