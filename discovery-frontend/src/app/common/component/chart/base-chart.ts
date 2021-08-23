@@ -1599,7 +1599,9 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
             const legendIdx = this.uiOption.color['mappingArray'].findIndex(item => {
               return item['alias'] == legend;
             });
-            this.chartOption.legend.color[index] = this.uiOption.color['mappingArray'][legendIdx]['color'];
+            if(-1 !== legendIdx){
+              this.chartOption.legend.color[index] = this.uiOption.color['mappingArray'][legendIdx]['color'];
+            }
           });
         }
 
