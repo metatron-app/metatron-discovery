@@ -92,6 +92,7 @@ import app.metatron.discovery.domain.datasource.ingestion.RealtimeIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.SingleIngestionInfo;
+import app.metatron.discovery.domain.datasource.validation.DuplicatedFieldValidation;
 import app.metatron.discovery.domain.mdm.Metadata;
 import app.metatron.discovery.domain.mdm.MetadataColumn;
 import app.metatron.discovery.domain.workbook.DashBoard;
@@ -249,6 +250,7 @@ public class DataSource extends AbstractTenantEntity implements MetatronDomain<S
   @JoinColumn(name = "ds_id", referencedColumnName = "id")
   @OrderBy("seq ASC")
   @BatchSize(size = 50)
+  @DuplicatedFieldValidation
   List<Field> fields;
 
   @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})

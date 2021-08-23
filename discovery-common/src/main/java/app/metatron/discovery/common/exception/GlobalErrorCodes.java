@@ -24,6 +24,7 @@ public enum GlobalErrorCodes implements ErrorCodes {
   AUTH_ERROR_CODE("GB0005"),                // status 401
   INVALID_USERNAME_PASSWORD_CODE("GB0006"), // status 400
   INVALID_TOKEN_CODE("GB0007"),             // status 401
+  VALIDATION_FAIL_CODE("GB0008"),           // status 400
 
   DEFAULT_GLOBAL_ERROR("error.global.default");
 

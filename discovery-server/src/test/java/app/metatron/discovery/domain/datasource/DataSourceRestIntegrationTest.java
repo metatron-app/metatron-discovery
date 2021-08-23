@@ -2224,7 +2224,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
       .patch("/api/datasources/{id}/ingestion", dataSourceId)
     .then()
       .log().all()
-      .statusCode(HttpStatus.SC_NO_CONTENT);
+      .statusCode(HttpStatus.SC_OK);
     // @formatter:on
 
   }

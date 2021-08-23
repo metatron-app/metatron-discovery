@@ -40,6 +40,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import java.io.IOException;
 
+import javax.validation.ConstraintViolationException;
+
 @RestControllerAdvice(basePackages = {"app.metatron.discovery", "org.springframework.security"})
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -52,7 +54,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   private boolean printStackTrace;
 
   /**
-   * 연결의 Client로 부터 종료 되었을 경우 처리 (내부적으로 진행하고 있는 Connection 에 대한 처리)
+   * Handled when the connection is terminated by the client
+   * (of the connection in progress internally)
    */
   @ExceptionHandler(IOException.class)
   @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
@@ -148,6 +151,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   @ExceptionHandler({Exception.class, RuntimeException.class})
   public ResponseEntity<Object> handleAll(Exception ex, WebRequest request) {
     return handleMetatronException(new UnknownServerException(ex), request);
+  }
+
+  @ExceptionHandler(value = ConstraintViolationException.class) // 유효성 검사 실패 시 발생하는 예외를 처리
+  protected ResponseEntity<Object> handleValicationException(ConstraintViolationException ex, WebRequest request) {
+
+    StringBuilder message = new StringBuilder();
+
+    ex.getConstraintViolations().forEach(msg -> message.append(msg.getMessage()).append(" "));
+
+    return handleMetatronException(new ValidationException(message.toString(), ex), request);
   }
 
 }

@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.datasource;
 
+import app.metatron.discovery.common.exception.ValidationException;
 import app.metatron.discovery.domain.datasource.data.SqlQueryRequest;
 import app.metatron.discovery.domain.datasource.ingestion.*;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -70,12 +71,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.stream.Collectors;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
 import javax.ws.rs.QueryParam;
 
 import app.metatron.discovery.common.CommonLocalVariable;
@@ -546,9 +551,21 @@ public class DataSourceController {
 
     if(CollectionUtils.isNotEmpty(updateRequest.getPatchFields())) {
       dataSource.patchFields(updateRequest.getPatchFields());
+
+      // todo: if somebody knows to validate when adding the object into the list, please fix this block.
+      Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+
+      Set<ConstraintViolation<DataSource>> validate = validator.validate(dataSource);
+
+      if (validate.size() > 0) {
+        StringBuilder message = new StringBuilder();
+        validate.forEach(msg -> message.append(msg.getMessage()));
+        throw new ValidationException(message.toString());
+      }
+
     }
 
-    // 실시간인 케이스만 먼저 개발
+    // todo: Only support realtime case now
     if (dataSource.getIngestionInfo() instanceof RealtimeIngestionInfo) {
 
       IngestionInfo ingestionInfo = dataSource.getIngestionInfo();
@@ -585,7 +602,7 @@ public class DataSourceController {
 
     metadataService.updateFromDataSource(dataSource, true);
 
-    return ResponseEntity.noContent().build();
+    return ResponseEntity.ok(dataSource);
 
   }
 
