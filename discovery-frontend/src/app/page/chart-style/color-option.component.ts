@@ -653,6 +653,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
    * 컬러팔렛트의 색상을 선택시
    */
   public colorPaletteSelected(colorCode: string, item?: any) {
+
     // color by series일때
     if (this.uiOption.color.type === ChartColorType.SERIES) {
       // 선택된 필드의 index 가져오기
@@ -731,7 +732,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
 
       const color = ChartColorList[(this.uiOption.color as UIChartColorBySeries).schema];
       // 선택된 필드의 index 가져오기
-      const index = (_.findIndex(this.dimensionMappingArray, {alias: item.alias})) % color.length;
+      const index = (_.findIndex( this.uiOption.color['mappingArray'], {alias: item.alias})) % color.length;
 
       // 해당 선택된 아이템이 있는 경우
       if(-1 !== index) {
@@ -742,12 +743,11 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
 
         let changedMapping = {};
         // mapping list에 변경된 값 설정
-        this.dimensionMappingArray[index]['color'] = colorCode;
+        this.uiOption.color['mappingArray'][index]['color'] = colorCode;
 
-        this.dimensionMappingArray.forEach(item => {
+        this.uiOption.color['mappingArray'].forEach(item => {
           changedMapping[item['alias']] = item['color'];
         });
-
         this.broadCaster.broadcast('CHANGE_DIMENSION_COLOR', {widgetId: this.widgetId, changedMapping: changedMapping});
       }
     }
@@ -1800,27 +1800,31 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
       name: this.uiOption.color['targetField']
     };
 
-
     // 차원값에 따른 candidate row data 부르기
     this.datasourceService.getCandidate(param).then((result) => {
 
       result = result.sort((a,b) => a.field.localeCompare(b.field));
+
       this.dimensionMappingArray = [];
       let index = 0;
-
+      let mapping = {};
       result.forEach((item) => {
-        let mapping = {};
+        // let mapping = {};
         // 해당 alias 값이 없을 때에만 기본 색상 설정
         if ((this.uiOption.color as UIChartColorBySeries).schema &&
           this.isNullOrUndefined((this.uiOption.color as UIChartColorBySeries).mapping[item.field])){
-          mapping['color'] = ChartColorList[(this.uiOption.color as UIChartColorBySeries).schema][index];
+          // mapping['color'] = ChartColorList[(this.uiOption.color as UIChartColorBySeries).schema][index];
+          mapping[item.field] = ChartColorList[(this.uiOption.color as UIChartColorBySeries).schema][index];
         } else {
-          mapping['color'] = (this.uiOption.color as UIChartColorBySeries).mapping[item.field];
+          // mapping['color'] = (this.uiOption.color as UIChartColorBySeries).mapping[item.field];
+          mapping[item.field] = (this.uiOption.color as UIChartColorBySeries).mapping[item.field];
         }
-        mapping['alias'] = item.field;
+        // mapping['alias'] = item.field;
         this.dimensionMappingArray.push(mapping);
         index = (++ index ) % ChartColorList[(this.uiOption.color as UIChartColorBySeries).schema].length;
       });
+
+      this.broadCaster.broadcast('CHANGE_DIMENSION_COLOR', {widgetId: this.widgetId, changedMapping: mapping});
     });
   }
 

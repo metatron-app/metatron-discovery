@@ -147,7 +147,7 @@
           <!-- dimension -->
           <div *ngIf="uiOption.color['settingUseFl']" class="ddp-list-sub2">
             <!-- color select --->
-            <div *ngFor="let item of dimensionMappingArray; let index = index" class="ddp-ui-color-select">
+            <div *ngFor="let item of uiOption.color['mappingArray']; let index = index" class="ddp-ui-color-select">
               <div class="ddp-txt-label">
                 <a href="javascript:" *ngIf="uiOption.color['settingUseFl']" (click)="resetUserColorSet(item, index)" class="ddp-btn-reset3"></a>
 
