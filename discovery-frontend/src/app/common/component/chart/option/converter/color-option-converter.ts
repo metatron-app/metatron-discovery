@@ -150,7 +150,7 @@ export class ColorOptionConverter {
     const color: UIChartColorBySeries = uiOption.color;
     let mappingColors = [];
 
-    if((Object.keys(color.mapping)).length != 0){
+    if(!_.isUndefined(color.mapping) && (Object.keys(color.mapping)).length != 0){
       (Object.keys(color.mapping).forEach(key => {
         mappingColors.push(color.mapping[key]);
       }))

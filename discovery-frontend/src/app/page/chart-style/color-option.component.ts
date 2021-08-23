@@ -102,6 +102,12 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     if(resultData && resultData['config'] && resultData['config']['context']){
       this.widgetId = resultData['config']['context']['discovery.widget.id'];
     }
+
+    // 데이터가 바뀌고 그래프가 재실행되면 사용자 색상 정의 off
+    if(this.uiOption && !this.isNullOrUndefined(this.uiOption.color)){
+      this.uiOption.color['settingUseFl'] = false;
+    }
+
   }
 
   @Input('uiOption')
@@ -165,8 +171,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
       // OR 차트 타입이 scatter, bar, pie, wordcloud 가 아니면
       const item = this.uiOption.fielDimensionList.find(
         (item) => item.name === this.uiOption.color['targetField']);
-      this.isCannotChangeColorType = this.isNullOrUndefined(item) ? false :
-        item.type != ChartColorType.DIMENSION || ([ChartType.SCATTER, ChartType.BAR, ChartType.PIE, ChartType.WORDCLOUD].indexOf(this.uiOption.type) == -1);
+      this.isCannotChangeColorType = this.isNullOrUndefined(item) ? false : item.type != ChartColorType.DIMENSION;
 
       // 사용자 색상설정 불가능
       if(!this.isCannotChangeColorType){
@@ -336,6 +341,9 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     return this.pivot && this.pivot.aggregations.filter( aggr => !!aggr.color );
   } // get - filteredPivotColors
 
+  public get isDimensionColorChangeType(): boolean {
+    return ([ChartType.SCATTER, ChartType.BAR, ChartType.PIE, ChartType.WORDCLOUD].indexOf(this.uiOption.type) !== -1);
+  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -602,7 +610,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     const colorObj: UIChartColorBySeries = this.uiOption.color as UIChartColorBySeries;
     // color setting show / hide 값 반대로 설정
     colorObj.settingUseFl = !colorObj.settingUseFl;
-    if(ChartColorType.DIMENSION == this.uiOption.color.type ){
+    if(colorObj.settingUseFl && ChartColorType.DIMENSION == this.uiOption.color.type ){
       this.getCandidatesOfDimension();
     }
 

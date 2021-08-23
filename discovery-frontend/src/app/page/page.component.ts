@@ -191,7 +191,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       // ui 초기화
       this.uiOption = OptionGenerator.initUiOption(this.uiOption);
-      if(ChartColorType.DIMENSION === this.uiOption.color.type){
+      if(!this.isNullOrUndefined(this.uiOption.color) && ChartColorType.DIMENSION === this.uiOption.color.type){
         this.uiOption.dataSource = this.dataSource;
       }
 
@@ -2633,7 +2633,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         item.field.pivot.splice(item.field.pivot.indexOf(deleteTargetType), 1);
 
         // 해당 index가 있는경우
-        if (-1 !== measureIndex && addTargetType) {
+        if (-1 !== measureIndex && addTargetType && this.measures[measureIndex].pivot) {
 
           // 교차선반을 타입으로 설정
           this.measures[measureIndex].pivot.push(addTargetType);
