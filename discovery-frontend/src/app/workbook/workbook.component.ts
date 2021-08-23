@@ -234,7 +234,6 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     // Init
     super.ngOnInit();
 
-
     // 로딩 표시
     this.loadingShow();
 

@@ -24,11 +24,10 @@ import {EventBroadcaster} from '@common/event/event.broadcaster';
 import {Filter} from '@domain/workbook/configurations/filter/filter';
 import {TimeUnit} from '@domain/workbook/configurations/field/timestamp-field';
 import {Dashboard} from '@domain/dashboard/dashboard';
-import {Field, IngestionHistory} from '@domain/datasource/datasource';
+import {IngestionHistory} from '@domain/datasource/datasource';
 import {InclusionFilter, InclusionSelectorType} from '@domain/workbook/configurations/filter/inclusion-filter';
 
 import {FilterUtil} from '../../util/filter.util';
-import {DatasourceService} from '../../../datasource/service/datasource.service';
 
 @Component({
   selector: 'selection-filter',
@@ -41,8 +40,6 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   // 차트 선택 목록 ( 최종 선택된 목록만 저장 ) - 프레젠테이션뷰에 필터 선택을 전달하기 위해 저장
   private _chartSelectionList: ChartSelectInfo[] = [];
-
-  private _fieldCandidateValues: { [key: string]: any[] } = {};
 
   private _dashboard: Dashboard;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -86,8 +83,7 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(private datasourceService: DatasourceService,
-              protected broadCaster: EventBroadcaster,
+  constructor(protected broadCaster: EventBroadcaster,
               protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
@@ -215,8 +211,20 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
     FilterUtil.getPanelContentsList(
       this.boardFilters,
       this._dashboard,
-      (filter: InclusionFilter, field: Field) => {
-        this._setInclusionFilter(filter, field);
+      (filter: InclusionFilter) => {
+        const valueList: string[] = filter.valueList;
+        if (valueList && 0 < valueList.length) {
+          if( 10 < valueList.length ) {
+            filter['panelContents']
+              = valueList.slice( 0, 10 ).join(' , ') + ' '
+              + this.translateService.instant('msg.board.filter.ui.more.cnt', {cnt: ( valueList.length - 10 )});
+          } else {
+            filter['panelContents'] = valueList.join(' , ');
+          }
+        } else {
+          filter['panelContents'] = '(' + this.translateService.instant('msg.comm.ui.list.all') + ')';
+        }
+        this.safelyDetectChanges();
       }
     );
 
@@ -714,30 +722,6 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
     }
   } // function - _removeFieldInChartSelections
 
-  private _setInclusionFilter(filter: InclusionFilter, field: Field) {
-
-    const setPanelContents = (candidateValues: any[]) => {
-      const valueList: string[] = filter.valueList;
-      if ((valueList && 0 < valueList.length && valueList.length !== candidateValues.length)) {
-        filter['panelContents'] = valueList.join(' , ');
-      } else {
-        filter['panelContents'] = '(' + this.translateService.instant('msg.comm.ui.list.all') + ')';
-      }
-      this.safelyDetectChanges();
-    };
-
-    if (this._fieldCandidateValues[field.dataSource + '_' + field.name]) {
-      setPanelContents(this._fieldCandidateValues[field.dataSource + '_' + field.name]);
-    } else {
-      // 필터 데이터 후보 조회
-      this.loadingShow();
-      this.datasourceService.getCandidateForFilter(filter, this._dashboard, [], field).then((result) => {
-        this._fieldCandidateValues[field.dataSource + '_' + field.name] = result;
-        setPanelContents(this._fieldCandidateValues[field.dataSource + '_' + field.name]);
-        this.loadingHide();
-      }).catch((error) => console.error(error));
-    }
-  } // function - _setInclusionFilter
 }
 
 class SelectionInfoData {
