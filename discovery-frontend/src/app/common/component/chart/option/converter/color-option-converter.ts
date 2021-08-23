@@ -258,8 +258,6 @@ export class ColorOptionConverter {
       option.legend.color = codes;
     }
 
-    console.log('dimension option:' ,option);
-
     return option;
   }
 

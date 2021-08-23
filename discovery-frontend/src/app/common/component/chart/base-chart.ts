@@ -737,8 +737,8 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
     this.subscriptions.push(windowResizeSubscribe);
 
     this.subscriptions.push(
-      this.broadCaster.on<any>('CHANGE_DIMENSION_COLOR').subscribe((data: {widgetId: string, changedMapping: object}) => {
-
+      this.broadCaster.on<any>('' +
+        'CHANGE_DIMENSION_COLOR').subscribe((data: {widgetId: string, changedMapping: object}) => {
         if(this.widgetId === data.widgetId){
           const changedMapping = data.changedMapping;
           if(changedMapping){
@@ -1575,7 +1575,7 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
             pivotType = _.eq(key, ChartPivotType.COLS) ? ChartPivotType.COLS : _.eq(key, ChartPivotType.ROWS) ? ChartPivotType.ROWS : ChartPivotType.AGGS;
           }
         });
-        // 한 선반에 2개이상 올라 갈경우("-"으로 필드값이 이어진 경우는 필드의 인덱스에 해당하는 값만 추출)
+        // 한 선반에 2개이상 올라 갈 경우("-"으로 필드값이 이어진 경우는 필드의 인덱스에 해당하는 값만 추출)
         if (this.fieldInfo[pivotType] && this.fieldInfo[pivotType].length > 1) {
           legendData = this.pivotInfo[pivotType].map((value) => {
             return !_.split(value, CHART_STRING_DELIMITER)[fieldIdx] ? value : _.split(value, CHART_STRING_DELIMITER)[fieldIdx];
@@ -1589,7 +1589,21 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
         this.chartOption.legend.data = legendData;
         if(this.isNullOrUndefined(this.chartOption.legend.color)){
           this.chartOption.legend.color = ChartColorList[this.uiOption.color['schema']];
-        }      }
+
+        }
+
+        // 사용자 색상 설정 리스트에 맞춰 범례 값 색 정의
+        if(!this.isNullOrUndefined(this.uiOption.color['mappingArray'])
+          && this.uiOption.color['mappingArray'].length > 0){
+          legendData.forEach((legend, index) => {
+            const legendIdx = this.uiOption.color['mappingArray'].findIndex(item => {
+              return item['alias'] == legend;
+            });
+            this.chartOption.legend.color[index] = this.uiOption.color['mappingArray'][legendIdx]['color'];
+          });
+        }
+
+      }
     }
 
     ////////////////////////////////////////////////////////
