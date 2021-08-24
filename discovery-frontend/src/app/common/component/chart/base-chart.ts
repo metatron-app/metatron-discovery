@@ -739,7 +739,7 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
     this.subscriptions.push(
       this.broadCaster.on<any>('' +
         'CHANGE_DIMENSION_COLOR').subscribe((data: {widgetId: string, changedMapping: object}) => {
-        if(this.widgetId === data.widgetId){
+        if(this.widgetId === data.widgetId && this.isPage){ // isPage: true 편집 화면일 경우에만 그래프가 바뀌도록
           const changedMapping = data.changedMapping;
           if(changedMapping){
             this.uiOption.color['mapping'] = changedMapping;

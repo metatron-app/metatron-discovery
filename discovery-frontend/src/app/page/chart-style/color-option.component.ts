@@ -516,7 +516,6 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
       }
     }) as UIOption);
 
-    console.log('schema update:', _.cloneDeep(this.uiOption));
     // update
     this.update();
   }
@@ -743,8 +742,9 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     } else if (this.uiOption.color.type === ChartColorType.DIMENSION){
 
       const color = ChartColorList[(this.uiOption.color as UIChartColorBySeries).schema];
+
       // 선택된 필드의 index 가져오기
-      const index = (_.findIndex( this.uiOption.color['mappingArray'], {alias: item.alias})) % color.length;
+      const index = (_.findIndex( this.uiOption.color['mappingArray'], {alias: item.alias}));
 
       // 해당 선택된 아이템이 있는 경우
       if(-1 !== index) {
@@ -760,6 +760,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
         this.uiOption.color['mappingArray'].forEach(item => {
           changedMapping[item['alias']] = item['color'];
         });
+
         this.broadCaster.broadcast('CHANGE_DIMENSION_COLOR', {widgetId: this.widgetId, changedMapping: changedMapping});
       }
     }
