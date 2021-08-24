@@ -1,0 +1,131 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-ui-contents-list">
+  <div class="ddp-wrap-option">
+    <div class="ddp-ui-option ddp-clear">
+
+    </div>
+    <!-- option -->
+    <div class="ddp-ui-option ddp-clear">
+      <!-- edit -->
+      <!-- edit -->
+      <component-period
+        [startDateDefault]="initialPeriodData?.startDate"
+        [endDateDefault]="initialPeriodData?.endDate"
+        [defaultType]="initialPeriodData?.type"
+        [title]="'msg.groups.th.create.date' | translate"
+        [roundSecond]="true"
+        (changeDate)="onChangeDate($event)"
+        [returnFormat]="'YYYY-MM-DDTHH:mm:ss.sssZ'"
+      ></component-period>
+      <!-- //edit -->
+      <!-- //edit -->
+
+      <div class="ddp-ui-rightoption">
+        <a href="javascript:" (click)="initFilters()" class="ddp-link-reset"><em class="ddp-btn-reset3"></em>{{'msg.mem.btn.refresh' | translate}}</a>
+      </div>
+
+    </div>
+    <!-- //option -->
+
+    <!-- option -->
+    <div class="ddp-ui-option ddp-optiontype ddp-clear">
+      <!-- 검색 -->
+      <div class="ddp-form-search ddp-fleft">
+        <em class="ddp-icon-search"></em>
+        <input type="text" placeholder="{{'msg.organization.ui.search.description' | translate}}"
+               [(ngModel)]="searchKeyword"
+               (keypress)="onSearchText($event)"
+               (keyup.esc)="onSearchTextInit()">
+        <em (click)="onSearchTextInit()" class="ddp-btn-search-close" *ngIf="searchKeyword !== ''"></em>
+      </div>
+      <!-- //검색 -->
+      <!-- right -->
+      <div class="ddp-ui-rightoption">
+        <span class="ddp-data-total">{{'msg.log.ui.num.lists' | translate : { value : pageResult.totalElements} }}</span>
+        <!--<span class="ddp-data-total">{{'msg.log.ui.num.lists' | translate : { value : groupList.length} }}</span>-->
+        <a href="javascript:" class="ddp-btn-link" (click)="onClickCreateModal()" >
+          <em class="ddp-icon-link-add"></em>{{'msg.organization.create' | translate}}
+        </a>
+      </div>
+      <!-- //right -->
+    </div>
+    <!-- //option -->
+  </div>
+
+  <table class="ddp-table-form ddp-table-type3">
+    <colgroup>
+      <col width="15%">
+      <col width="15%">
+      <col width="*">
+      <col width="10%">
+      <col width="10%">
+      <col width="15%">
+      <col width="10%">
+    </colgroup>
+    <thead>
+    <tr>
+      <th>{{'msg.organization.th.name' | translate}}</th>
+      <th>{{'msg.organization.th.code' | translate}}</th>
+      <th>{{'msg.organization.th.desc' | translate}}</th>
+      <th>{{'msg.organization.th.cnt.member' | translate}}</th>
+      <th>{{'msg.organization.th.cnt.group' | translate}}</th>
+      <th>{{'msg.organization.th.create.date' | translate}}</th>
+      <th>  </th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let item of orgList;" (click)="showDetailOrganization(item)">
+      <td>
+        {{item.name}}
+      </td>
+      <td>
+        {{item.code}}
+      </td>
+      <td>
+        {{item.description}}
+      </td>
+      <td>
+        {{item.userCount}}
+      </td>
+      <td>
+        {{item.groupCount}}
+      </td>
+      <td>
+        {{item.createdTime | mdate:'YYYY-MM-DD HH:mm'}}
+      </td>
+      <td>
+        <a href="javascript:" class="ddp-link-delete" *ngIf="!isDefaultOrganization(item)"
+           (click)="onOpenDeleteOrganization(item.code)">
+          <em class="ddp-icon-delete"></em>
+          {{'msg.spaces.spaces.ui.delete' | translate}}
+        </a>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <!-- Pagination -->
+  <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
+  <!-- // Pagination -->
+
+</div>
+
+<!-- 공통 모달 -->
+<app-confirm-modal (confirm)="confirmEvent($event)"></app-confirm-modal>
+<!-- // 공통 모달 -->
+<!-- 조직 생성 팝업 -->
+<app-create-organization-list (createComplete)="reloadPage()"></app-create-organization-list>
+<!-- // 조직 생성 팝업 -->

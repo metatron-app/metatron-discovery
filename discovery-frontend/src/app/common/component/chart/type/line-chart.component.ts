@@ -234,8 +234,14 @@ export class LineChartComponent extends BaseChart<UILineChart> implements OnInit
         type: SeriesType.LINE,
         name: column.name,
         data: column.value.map((val, idx) => {
+          let strName = '';
+          if( Array.isArray(column.seriesName)) {
+            strName = column.seriesName[idx];
+          } else if( Array.isArray(column.categoryName) ) {
+            strName = column.categoryName[idx];
+          }
           return {
-            name: column.seriesName ? column.seriesName[idx] : '',
+            name: strName,
             value: val,
             selected: false,
             itemStyle: optGen.ItemStyle.opacity1()

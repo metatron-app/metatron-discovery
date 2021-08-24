@@ -125,7 +125,12 @@ export class YAxisOptionComponent extends FormatOptionComponent implements OnIni
 
       // label값 생성
       this.uiOption.secondaryAxis = _.cloneDeep(this.uiOption.yAxis);
+      this.uiOption.secondaryAxis.mode = AxisLabelType.SUBCOLUMN;
       this.uiOption.secondaryAxis.label = UI.AxisLabel.axisLabelForValue(ChartAxisLabelType.VALUE);
+    }
+
+    if( this.uiOption.secondaryAxis && this.uiOption.secondaryAxis.mode !== AxisLabelType.SUBCOLUMN ) {
+      this.uiOption.secondaryAxis.mode = AxisLabelType.SUBCOLUMN;
     }
 
     // Clone

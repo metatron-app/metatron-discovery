@@ -31,6 +31,8 @@ public class IndexSpec {
 
   Map<String, SecondaryIndexing> secondaryIndexing;
 
+  Boolean allowNullForNumbers;
+
   public IndexSpec() {
   }
 
@@ -75,6 +77,14 @@ public class IndexSpec {
 
   public void setSecondaryIndexing(Map<String, SecondaryIndexing> secondaryIndexing) {
     this.secondaryIndexing = secondaryIndexing;
+  }
+
+  public Boolean getAllowNullForNumbers() {
+    return allowNullForNumbers;
+  }
+
+  public void setAllowNullForNumbers(Boolean allowNullForNumbers) {
+    this.allowNullForNumbers = allowNullForNumbers;
   }
 
   public static class Bitmap {

@@ -203,7 +203,6 @@ export class SetMemberGroupComponent extends AbstractUserManagementComponent imp
       this._deleteSelectedMember(index);
     }
 
-
   }
 
   /**

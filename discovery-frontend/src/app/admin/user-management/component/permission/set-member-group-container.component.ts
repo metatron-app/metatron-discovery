@@ -231,6 +231,8 @@ export class SetMemberGroupContainerComponent extends AbstractUserManagementComp
             });
           });
 
+          console.log('?? cloneMembers');
+          console.log(this.cloneMembers);
           this._setMemberGroupComponent.init({allData : simplifiedList, defaultTab : this.defaultTab, selectedItems : this.cloneMembers, headers : this.getHeaders(), pageResult :this.pageResult});
         }
 
@@ -316,7 +318,6 @@ export class SetMemberGroupContainerComponent extends AbstractUserManagementComp
   }
 
   public checkEvent(data) {
-
     if (this.defaultTab === 0 ) {
       if (data.hasOwnProperty('index')) {
         this.cloneMembers.splice(data.index,1);
@@ -330,6 +331,7 @@ export class SetMemberGroupContainerComponent extends AbstractUserManagementComp
         this.cloneGroups.push(data.item);
       }
     }
+
   }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method

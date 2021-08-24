@@ -23,7 +23,6 @@ import { Alert } from '@common/util/alert.util';
 import { MomentDatePipe } from '@common/pipe/moment.date.pipe';
 import { Group } from '@domain/user/group';
 import { ActivatedRoute } from '@angular/router';
-import { isNullOrUndefined } from 'util';
 
 declare let moment: any;
 
@@ -111,13 +110,14 @@ export class UserManagementGroupsComponent extends AbstractUserManagementCompone
 
 
         const size = params['size'];
-        (isNullOrUndefined(size)) || (this.page.size = size);
+        (this.isNullOrUndefined(size)) || (this.page.size = size);
 
         const page = params['page'];
-        (isNullOrUndefined(page)) || (this.page.page = page);
+        (this.isNullOrUndefined(page)) || (this.page.page = page);
+        console.log('page: ' + page);
 
         const sort = params['sort'];
-        if (!isNullOrUndefined(sort)) {
+        if (!this.isNullOrUndefined(sort)) {
           const sortInfo = decodeURIComponent(sort).split(',');
           this.selectedContentSort.key = sortInfo[0];
           this.selectedContentSort.sort = sortInfo[1];
@@ -125,13 +125,13 @@ export class UserManagementGroupsComponent extends AbstractUserManagementCompone
 
         // 검색어
         const searchText = params['nameContains'];
-        (isNullOrUndefined(searchText)) || (this.searchKeyword = searchText);
+        (this.isNullOrUndefined(searchText)) || (this.searchKeyword = searchText);
 
         this.selectedDate = new PeriodData();
         this.selectedDate.type = 'ALL';
         const from = params['from'];
         const to = params['to'];
-        if (!isNullOrUndefined(from) && !isNullOrUndefined(to)) {
+        if (!this.isNullOrUndefined(from) && !this.isNullOrUndefined(to)) {
           this.selectedDate.startDate = from;
           this.selectedDate.endDate = to;
 
@@ -389,8 +389,8 @@ export class UserManagementGroupsComponent extends AbstractUserManagementCompone
 
         // 현재 페이지에 아이템이 없다면 전 페이지를 불러온다
         if (this.page.page > 0 &&
-          isNullOrUndefined(result['_embedded']) ||
-          (!isNullOrUndefined(result['_embedded']) && result['_embedded'].groups.length === 0))
+          this.isNullOrUndefined(result['_embedded']) ||
+          (this.isNullOrUndefined(result['_embedded']) && result['_embedded'].groups.length === 0))
         {
           this.page.page = result.page.number - 1;
           this._getGroupList();

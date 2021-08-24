@@ -14,18 +14,10 @@
 
 package app.metatron.discovery.spec.druid.ingestion.tuning;
 
-import app.metatron.discovery.spec.druid.ingestion.index.IndexSpec;
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.collections4.MapUtils;
-
-import java.util.Map;
-
 /**
  *
  */
-public class KafkaTuningConfig implements TuningConfig {
-
-  Integer maxRowsInMemory;
+public class KafkaTuningConfig extends AbstractTuningConfig {
 
   Integer maxOccupationInMemory;
 
@@ -34,8 +26,6 @@ public class KafkaTuningConfig implements TuningConfig {
   String intermediatePersistPeriod;
 
   Integer maxPendingPersists;
-
-  Boolean buildV9Directly;
 
   Boolean reportParseExceptions;
 
@@ -49,24 +39,7 @@ public class KafkaTuningConfig implements TuningConfig {
 
   String offsetFetchPeriod;
 
-  Boolean ignoreInvalidRows;
-
-  IndexSpec indexSpec;
-
   public KafkaTuningConfig() {
-  }
-
-  public void overrideConfig(Map<String, Object> tuningConfig) {
-
-    if (MapUtils.isNotEmpty(tuningConfig)) {
-      for (String key : tuningConfig.keySet()) {
-        try {
-          BeanUtils.setProperty(this, key, tuningConfig.get(key));
-        } catch (Exception e) {
-        }
-      }
-    }
-
   }
 
   public static KafkaTuningConfig defaultConfig() {
@@ -74,14 +47,6 @@ public class KafkaTuningConfig implements TuningConfig {
     config.setMaxRowsPerSegment(5000000);
 
     return config;
-  }
-
-  public Integer getMaxRowsInMemory() {
-    return maxRowsInMemory;
-  }
-
-  public void setMaxRowsInMemory(Integer maxRowsInMemory) {
-    this.maxRowsInMemory = maxRowsInMemory;
   }
 
   public Integer getMaxOccupationInMemory() {
@@ -114,14 +79,6 @@ public class KafkaTuningConfig implements TuningConfig {
 
   public void setMaxPendingPersists(Integer maxPendingPersists) {
     this.maxPendingPersists = maxPendingPersists;
-  }
-
-  public Boolean getBuildV9Directly() {
-    return buildV9Directly;
-  }
-
-  public void setBuildV9Directly(Boolean buildV9Directly) {
-    this.buildV9Directly = buildV9Directly;
   }
 
   public Boolean getReportParseExceptions() {
@@ -172,21 +129,4 @@ public class KafkaTuningConfig implements TuningConfig {
     this.offsetFetchPeriod = offsetFetchPeriod;
   }
 
-  public Boolean getIgnoreInvalidRows() {
-    return ignoreInvalidRows;
-  }
-
-  public void setIgnoreInvalidRows(Boolean ignoreInvalidRows) {
-    this.ignoreInvalidRows = ignoreInvalidRows;
-  }
-
-  @Override
-  public IndexSpec getIndexSpec() {
-    return indexSpec;
-  }
-
-  @Override
-  public void setIndexSpec(IndexSpec indexSpec) {
-    this.indexSpec = indexSpec;
-  }
 }

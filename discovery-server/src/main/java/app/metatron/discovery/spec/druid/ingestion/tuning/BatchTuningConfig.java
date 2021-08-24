@@ -14,18 +14,14 @@
 
 package app.metatron.discovery.spec.druid.ingestion.tuning;
 
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.collections4.MapUtils;
-
 import java.util.Map;
 
-import app.metatron.discovery.spec.druid.ingestion.index.IndexSpec;
 import app.metatron.discovery.spec.druid.ingestion.partition.PartitionSpec;
 
 /**
  *
  */
-public class BatchTuningConfig implements TuningConfig {
+public class BatchTuningConfig extends AbstractTuningConfig {
 
   String workingPath;
 
@@ -33,44 +29,21 @@ public class BatchTuningConfig implements TuningConfig {
 
   PartitionSpec partitionSpec;
 
-  Integer maxRowsInMemory;
-
   Boolean leaveIntermediate;
 
   Boolean cleanupOnFailure;
 
   Boolean overwriteFiles;
 
-  Boolean ignoreInvalidRows;
-
   Boolean useCombiner;
 
-  Boolean buildV9Directly;
-
   Integer numBackgroundPersistThreads;
-
-  IndexSpec indexSpec;
 
   public BatchTuningConfig() {
   }
 
   public BatchTuningConfig(Map<String, Object> tuningConfig) {
     overrideConfig(tuningConfig);
-  }
-
-  public void overrideConfig(Map<String, Object> tuningConfig) {
-
-    this.buildV9Directly = true;
-
-    if(MapUtils.isNotEmpty(tuningConfig)) {
-      for (String key : tuningConfig.keySet()) {
-        try {
-          BeanUtils.setProperty(this, key, tuningConfig.get(key));
-        } catch (Exception e) {
-        }
-      }
-    }
-
   }
 
   public String getWorkingPath() {
@@ -97,14 +70,6 @@ public class BatchTuningConfig implements TuningConfig {
     this.partitionSpec = partitionSpec;
   }
 
-  public Integer getMaxRowsInMemory() {
-    return maxRowsInMemory;
-  }
-
-  public void setMaxRowsInMemory(Integer maxRowsInMemory) {
-    this.maxRowsInMemory = maxRowsInMemory;
-  }
-
   public Boolean getLeaveIntermediate() {
     return leaveIntermediate;
   }
@@ -129,28 +94,12 @@ public class BatchTuningConfig implements TuningConfig {
     this.overwriteFiles = overwriteFiles;
   }
 
-  public Boolean getIgnoreInvalidRows() {
-    return ignoreInvalidRows;
-  }
-
-  public void setIgnoreInvalidRows(Boolean ignoreInvalidRows) {
-    this.ignoreInvalidRows = ignoreInvalidRows;
-  }
-
   public Boolean getUseCombiner() {
     return useCombiner;
   }
 
   public void setUseCombiner(Boolean useCombiner) {
     this.useCombiner = useCombiner;
-  }
-
-  public Boolean getBuildV9Directly() {
-    return buildV9Directly;
-  }
-
-  public void setBuildV9Directly(Boolean buildV9Directly) {
-    this.buildV9Directly = buildV9Directly;
   }
 
   public Integer getNumBackgroundPersistThreads() {
@@ -162,12 +111,10 @@ public class BatchTuningConfig implements TuningConfig {
   }
 
   @Override
-  public IndexSpec getIndexSpec() {
-    return indexSpec;
+  public void overrideConfig(Map<String, Object> tuningConfig) {
+    this.buildV9Directly = true;
+
+    super.overrideConfig(tuningConfig);
   }
 
-  @Override
-  public void setIndexSpec(IndexSpec indexSpec) {
-    this.indexSpec = indexSpec;
-  }
 }

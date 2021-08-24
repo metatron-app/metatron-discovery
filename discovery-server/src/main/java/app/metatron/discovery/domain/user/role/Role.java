@@ -73,6 +73,13 @@ public class Role extends AbstractHistoryEntity implements MetatronDomain<String
   public static String PREDEFINED_GROUP_SUPER = "SYSTEM_SUPERVISOR";
   public static String PREDEFINED_GROUP_USER = "SYSTEM_USER";
 
+  public static String PREDEFINED_ROLE_SYSTEM_ADMIN = "ROLE_SYSTEM_ADMIN";
+  public static String PREDEFINED_ROLE_SYSTEM_DATA_MANAGER = "ROLE_SYSTEM_DATA_MANAGER";
+  public static String PREDEFINED_ROLE_SYSTEM_WORKSPACE_MANAGER = "ROLE_SYSTEM_WORKSPACE_MANAGER";
+  public static String PREDEFINED_ROLE_SYSTEM_SHARED_USER = "ROLE_SYSTEM_SHARED_USER";
+  public static String PREDEFINED_ROLE_SYSTEM_PRIVATE_USER = "ROLE_SYSTEM_PRIVATE_USER";
+  public static String PREDEFINED_ROLE_SYSTEM_GUEST = "ROLE_SYSTEM_GUEST";
+
   @Id
   @GeneratedValue(generator = "uuid")
   @GenericGenerator(name = "uuid", strategy = "uuid2")

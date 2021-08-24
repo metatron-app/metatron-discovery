@@ -1,0 +1,52 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-layout-popuptype" >
+  <em class="ddp-bg-popup"></em>
+  <div class="ddp-ui-popup">
+    <!-- title -->
+    <div class="ddp-ui-popup-title">
+      <span class="ddp-txt-title-name">
+        {{'msg.organization.set.member' | translate}}
+      </span>
+      <div class="ddp-ui-pop-buttons">
+        <a href="javascript:" class="ddp-btn-pop" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+        <a href="javascript:" class="ddp-btn-pop ddp-bg-black" (click)="done()">{{'msg.comm.btn.done' | translate}}</a>
+      </div>
+      <!-- det -->
+    </div>
+    <!-- //title -->
+    <div class="ddp-ui-popup-contents">
+      <div class="ddp-wrap-share-set">
+        <!-- tab -->
+        <div class="ddp-wrap-tab">
+          <ul class="ddp-ui-tab ddp-clear">
+            <li [ngClass]="{'ddp-selected': defaultTab === 0 }" (click)="onTabClick(0)">
+              <a href="javascript:">{{'msg.approval.th.mem' | translate}} <span class="ddp-data-num">{{cloneMembers.length}}</span></a>
+            </li>
+            <li [ngClass]="{'ddp-selected': defaultTab === 1 }" (click)="onTabClick(1)">
+              <a href="javascript:">{{'msg.approval.th.group' | translate}} <span class="ddp-data-num">{{cloneGroups.length}}</span></a>
+            </li>
+          </ul>
+        </div>
+        <app-update-organization-list [defaultTab]="defaultTab"
+                              [searchPlaceholder]="searchPlaceholder"
+                              (getGroupsOutput)="getGroupList($event)"
+                              (getMembersOutput)="getMemberList($event)" (checkEvent)="checkEvent($event)">
+        </app-update-organization-list>
+      </div>
+    </div>
+
+  </div>
+</div>

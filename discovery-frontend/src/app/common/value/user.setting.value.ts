@@ -21,6 +21,8 @@ export class UserSetting {
       return Language.KO;
     } else if (lang === 'zh') {
       return Language.ZH;
+    } else if (lang === 'ru') {
+      return Language.RU;
     } else {
       return Language.EN;
     }
@@ -35,5 +37,6 @@ export enum Theme {
 export enum Language {
   KO = 'ko',
   EN = 'en',
-  ZH = 'zh'
+  ZH = 'zh',
+  RU = 'ru',
 }

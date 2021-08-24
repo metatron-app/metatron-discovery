@@ -1,0 +1,65 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>metatron Discovery</title>
+  <base href="/">
+
+  <!-- disable IE compatible view -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="src/favicon.ico?v=2" id="favicon">
+  <script
+    src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+    crossorigin="anonymous"></script>
+  <style>
+    input { margin-bottom : 5px; }
+  </style>
+  <script type="text/javascript">
+    jQuery(function() {
+      $( '#btnSubmit' ).on( 'click', function() {
+        console.log( '>>>>>>> btnSubmit' );
+        document.form1.action = $( '#inputTarget' ).val();
+        document.form1.target = "iframe1";
+        document.form1.submit();
+      });
+    });
+  </script>
+</head>
+<body>
+<form id="form1" name="form1" method="post" target="iframe1" action="">
+  target : <input id="inputTarget" type="text" name="target" value="http://localhost:8180/api/sso">
+  <br>
+  token : <input id="inputToken" type="text" name="token"
+                 value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsYXN0X2xvZ2luX3RpbWUiOjE2MjczODU4NjQwMDAsInVzZXJfbmFtZSI6ImFkbWluIiwibGFzdF9sb2dpbl9pcCI6IjA6MDowOjA6MDowOjA6MSIsInNjb3BlIjpbIndyaXRlIl0sImV4cCI6MTYyNzQyOTc0MSwib3JnX2NvZGVzIjpbIkRFRkFVTFRfT1JHIl0sImF1dGhvcml0aWVzIjpbIlBFUk1fU1lTVEVNX01BTkFHRV9EQVRBU09VUkNFIiwiUEVSTV9TWVNURU1fTUFOQUdFX1BSSVZBVEVfV09SS1NQQUNFIiwiUEVSTV9TWVNURU1fTUFOQUdFX1VTRVIiLCJQRVJNX1NZU1RFTV9NQU5BR0VfU1lTVEVNIiwiX19QRVJNSVNTSU9OX01BTkFHRVIiLCJfX0FETUlOIiwiUEVSTV9TWVNURU1fTUFOQUdFX1NIQVJFRF9XT1JLU1BBQ0UiLCJfX1NIQVJFRF9VU0VSIiwiUEVSTV9TWVNURU1fVklFV19XT1JLU1BBQ0UiLCJfX0RBVEFfTUFOQUdFUiIsIlBFUk1fU1lTVEVNX01BTkFHRV9NRVRBREFUQSIsIlBFUk1fU1lTVEVNX01BTkFHRV9XT1JLU1BBQ0UiLCJfX1BSSVZBVEVfVVNFUiJdLCJqdGkiOiIzM2YwMmRkZi0zYzAwLTQzMzAtYTIxOC0yYjVkMjkyZTVmNjQiLCJjbGllbnRfaWQiOiJwb2xhcmlzX2NsaWVudCJ9.82Ogl0A6G3AopeFBZtsYh9zan2Bg_0DDl28qPGI1Cvc">
+  <br>
+  type : <input id="inputType" type="text" name="type" value="bearer">
+  <br>
+  refreshToken : <input id="inputRefreshToken" type="text" name="refreshToken"
+                 value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsYXN0X2xvZ2luX3RpbWUiOjE2MjczODU4NjQwMDAsInVzZXJfbmFtZSI6ImFkbWluIiwibGFzdF9sb2dpbl9pcCI6IjA6MDowOjA6MDowOjA6MSIsInNjb3BlIjpbIndyaXRlIl0sImF0aSI6IjMzZjAyZGRmLTNjMDAtNDMzMC1hMjE4LTJiNWQyOTJlNWY2NCIsImV4cCI6MTYyOTk3ODU0MSwib3JnX2NvZGVzIjpbIkRFRkFVTFRfT1JHIl0sImF1dGhvcml0aWVzIjpbIlBFUk1fU1lTVEVNX01BTkFHRV9EQVRBU09VUkNFIiwiUEVSTV9TWVNURU1fTUFOQUdFX1BSSVZBVEVfV09SS1NQQUNFIiwiUEVSTV9TWVNURU1fTUFOQUdFX1VTRVIiLCJQRVJNX1NZU1RFTV9NQU5BR0VfU1lTVEVNIiwiX19QRVJNSVNTSU9OX01BTkFHRVIiLCJfX0FETUlOIiwiUEVSTV9TWVNURU1fTUFOQUdFX1NIQVJFRF9XT1JLU1BBQ0UiLCJfX1NIQVJFRF9VU0VSIiwiUEVSTV9TWVNURU1fVklFV19XT1JLU1BBQ0UiLCJfX0RBVEFfTUFOQUdFUiIsIlBFUk1fU1lTVEVNX01BTkFHRV9NRVRBREFUQSIsIlBFUk1fU1lTVEVNX01BTkFHRV9XT1JLU1BBQ0UiLCJfX1BSSVZBVEVfVVNFUiJdLCJqdGkiOiIyYzFiZjg1Yi02MGYwLTQ0NTItYTkwZS0zNThjNTllMjlmMDciLCJjbGllbnRfaWQiOiJwb2xhcmlzX2NsaWVudCJ9.P-nmgBxHScgzhl_Tf3-qp0vmrXvBvwMDudLdQ_n12Rs">
+  <br>
+  userId : <input id="inputUserId" type="text" name="userId" value="admin">
+  <br>
+  forwardUrl : <input id="inputForwardUrl" type="text" name="forwardUrl"
+                      value="http://localhost:8180/app/v2/embedded/dashboard/frag#938ce395-b1f8-45b5-9946-022497bc3fc3?selectionFilter=false&Category=Furniture">
+  <br>
+  <input id="btnSubmit" type="button" value="클릭시 정보 전송" >
+</form>
+<iframe id="iframe1" name="iframe1" style="width: 100%;height: 800px;"></iframe>
+</body>
+</html>

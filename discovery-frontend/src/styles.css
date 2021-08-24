@@ -34,3 +34,6 @@ input:-webkit-autofill {
   height: 17px;
   background-position: left -450px;
 }
+
+html.sys-embed-board,
+html.sys-embed-board body {min-width:600px !important; }

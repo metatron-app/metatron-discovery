@@ -143,6 +143,37 @@
         </div>
         <!-- // Password 입력 -->
 
+        <!-- 조직 입력 -->
+        <div [ngClass]="{'ddp-type-ok': '' !== inputOrgCode && joinValidation.org, 'ddp-type-error': false ===
+        joinValidation.org }" class="ddp-ui-input-form" >
+          <label class="ddp-label-type">{{'msg.login.join.org' | translate}}
+            <!-- tooltip -->
+            <div class="ddp-ui-tooltip">
+              <em class="ddp-icon-question"></em>
+              <div class="ddp-ui-tooltip-info">
+                <em class="ddp-icon-view-left"></em>
+                {{'msg.login.join.org.description' | translate}}
+              </div>
+            </div>
+            <!-- //tooltip -->
+
+          </label>
+          <div class="ddp-input-check">
+            <input [(ngModel)]="inputOrgCode"
+                   (keydown)="joinValidation.orgMessage? hideError('org') :null" (blur)="validation('org')"
+                   type="text" class="ddp-input-type" placeholder="{{'msg.login.join.org.ph' | translate}}" >
+            <em class="ddp-icon-ok" *ngIf="joinValidation.org"></em>
+            <em *ngIf="joinValidation.org == false"
+                (click)="inputOrgCode = '';joinValidation.org = undefined;" class="ddp-icon-error" ></em>
+          </div>
+          <!-- error 메시지 -->
+          <span class="ddp-ui-error" *ngIf="joinValidation.org == false">
+              <em class="ddp-icon-error"></em>{{ joinValidation.orgMessage }}
+          </span>
+          <!-- //error 메시지 -->
+        </div>
+        <!-- // 조직 입력 -->
+
         <!-- input form -->
         <!--<div class="ddp-ui-input-form">-->
           <!--<label class="ddp-label-type">{{'msg.login.join.contact' | translate}}-->

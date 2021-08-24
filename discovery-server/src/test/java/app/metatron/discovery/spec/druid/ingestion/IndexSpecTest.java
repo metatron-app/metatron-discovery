@@ -34,6 +34,7 @@ import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.datasource.ingestion.HiveIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.file.OrcFileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.file.ParquetFileFormat;
+import app.metatron.discovery.spec.druid.ingestion.index.IndexSpec;
 import app.metatron.discovery.util.PolarisUtils;
 
 import static app.metatron.discovery.domain.datasource.DataSource.ConnectionType.ENGINE;
@@ -169,4 +170,123 @@ public class IndexSpecTest {
     }
     assertTrue(thrown);
   }
+
+  @Test
+  public void BatchTuningConfigTest() {
+    IngestionSpecBuilder ingestionSpecBuilder = new IngestionSpecBuilder();
+    Map<String, Object> tuningProperties = Maps.newHashMap();
+    tuningProperties.put("workingPath", "data");
+    tuningProperties.put("ignoreInvalidRows", true);
+
+    IndexSpec indexSpec = new IndexSpec();
+    indexSpec.setAllowNullForNumbers(true);
+
+    tuningProperties.put("indexSpec", indexSpec);
+
+    IngestionSpec ingestionSpec = ingestionSpecBuilder.batchTuningConfig(tuningProperties).build();
+
+    String s = GlobalObjectMapper.writeValueAsString(ingestionSpec);
+
+    System.out.println(s);
+
+    DocumentContext jsonContext = JsonPath.parse(s);
+
+    assertThat(jsonContext.read("$['tuningConfig']['type']"), is("index"));
+    assertThat(jsonContext.read("$['tuningConfig']['workingPath']"), is("data"));
+    assertThat(jsonContext.read("$['tuningConfig']['indexSpec']['allowNullForNumbers']"), is(true));
+
+  }
+
+  @Test
+  public void HdfsTuningConfigTest() {
+    IngestionSpecBuilder ingestionSpecBuilder = new IngestionSpecBuilder();
+
+    Map<String, Object> tuningProperties = Maps.newHashMap();
+    tuningProperties.put("ignoreInvalidRows", true);
+
+    IndexSpec indexSpec = new IndexSpec();
+    indexSpec.setAllowNullForNumbers(true);
+
+    tuningProperties.put("indexSpec", indexSpec);
+
+    Map<String, Object> jobProperties = Maps.newHashMap();
+    jobProperties.put("abc", "def");
+    jobProperties.put("mapreduce.map.memory.mb", 1024);
+
+    IngestionSpec ingestionSpec = ingestionSpecBuilder.hdfsTuningConfig(tuningProperties, jobProperties).build();
+
+    String s = GlobalObjectMapper.writeValueAsString(ingestionSpec);
+
+    System.out.println(s);
+
+    DocumentContext jsonContext = JsonPath.parse(s);
+
+    assertThat(jsonContext.read("$['tuningConfig']['type']"), is("hadoop"));
+    assertThat(jsonContext.read("$['tuningConfig']['ignoreInvalidRows']"), is(true));
+    assertThat(jsonContext.read("$['tuningConfig']['indexSpec']['allowNullForNumbers']"), is(true));
+    assertThat(jsonContext.read("$['tuningConfig']['jobProperties']['mapreduce.map.memory.mb']"), is("1024"));
+
+  }
+
+  @Test
+  public void HiveTuningConfigTest() {
+    IngestionSpecBuilder ingestionSpecBuilder = new IngestionSpecBuilder();
+
+    Map<String, Object> tuningProperties = Maps.newHashMap();
+    tuningProperties.put("ignoreInvalidRows", true);
+
+    IndexSpec indexSpec = new IndexSpec();
+    indexSpec.setAllowNullForNumbers(true);
+
+    tuningProperties.put("indexSpec", indexSpec);
+    tuningProperties.put("mapSplitSize", "512MB");
+
+    Map<String, Object> jobProperties = Maps.newHashMap();
+    jobProperties.put("abc", "def");
+    jobProperties.put("mapreduce.map.memory.mb", 1024);
+
+    IngestionSpec ingestionSpec = ingestionSpecBuilder.hiveTuningConfig(tuningProperties, jobProperties).build();
+
+    String s = GlobalObjectMapper.writeValueAsString(ingestionSpec);
+
+    System.out.println(s);
+
+    DocumentContext jsonContext = JsonPath.parse(s);
+
+    assertThat(jsonContext.read("$['tuningConfig']['type']"), is("hadoop"));
+    assertThat(jsonContext.read("$['tuningConfig']['ignoreInvalidRows']"), is(true));
+    assertThat(jsonContext.read("$['tuningConfig']['indexSpec']['allowNullForNumbers']"), is(true));
+    assertThat(jsonContext.read("$['tuningConfig']['jobProperties']['mapreduce.map.memory.mb']"), is("1024"));
+
+  }
+
+  @Test
+  public void KafkaTuningConfigTest() {
+    KafkaRealTimeIndexBuilder ingestionSpecBuilder = new KafkaRealTimeIndexBuilder();
+
+    Map<String, Object> tuningProperties = Maps.newHashMap();
+    tuningProperties.put("ignoreInvalidRows", true);
+
+    IndexSpec indexSpec = new IndexSpec();
+    indexSpec.setAllowNullForNumbers(true);
+
+    tuningProperties.put("indexSpec", indexSpec);
+
+    Map<String, Object> jobProperties = Maps.newHashMap();
+    jobProperties.put("abc", "def");
+
+    KafkaRealTimeIndex realTimeIndex = ingestionSpecBuilder.tuningConfig(tuningProperties).build();
+
+    String s = GlobalObjectMapper.writeValueAsString(realTimeIndex);
+
+    System.out.println(s);
+
+    DocumentContext jsonContext = JsonPath.parse(s);
+
+    assertThat(jsonContext.read("$['tuningConfig']['type']"), is("kafka"));
+    assertThat(jsonContext.read("$['tuningConfig']['ignoreInvalidRows']"), is(true));
+    assertThat(jsonContext.read("$['tuningConfig']['indexSpec']['allowNullForNumbers']"), is(true));
+
+  }
+
 }

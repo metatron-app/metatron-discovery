@@ -66,6 +66,8 @@ import {FilterSelectBoxComponent} from './component/select/filter-select-box.com
 import {ConfirmRefModalComponent} from './component/modal/confirm/confirm-ref.component';
 import {MetadataTypeBoxTagComponent} from '../explore-data/explore-data/component/metadata-type-box-tag.component';
 import {LoaderInterceptor} from './interceptor/loader-interceptor';
+import {MembersService} from "../admin/user-management/service/members.service";
+import {GroupsService} from "../admin/user-management/service/groups.service";
 
 export function socketProvider() {
   return new SockJS(CommonConstant.API_CONSTANT.URL + '/stomp');
@@ -188,7 +190,9 @@ const stompConfig: StompConfig = {
     {
       provide: StompConfig,
       useValue: stompConfig
-    }
+    },
+    MembersService,
+    GroupsService
   ]
 })
 export class CommonModule {

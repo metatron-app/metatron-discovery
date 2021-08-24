@@ -14,14 +14,6 @@
 
 package app.metatron.discovery.spec.druid.ingestion.tuning;
 
-import com.google.common.collect.Maps;
-
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.collections4.MapUtils;
-
-import java.util.Map;
-
-import app.metatron.discovery.spec.druid.ingestion.index.IndexSpec;
 import app.metatron.discovery.spec.druid.ingestion.partition.HashBasedPartition;
 import app.metatron.discovery.spec.druid.ingestion.partition.PartitionSpec;
 import app.metatron.discovery.spec.druid.ingestion.partition.SizedPartition;
@@ -29,17 +21,13 @@ import app.metatron.discovery.spec.druid.ingestion.partition.SizedPartition;
 /**
  * Created by kyungtaak on 2017. 3. 20..
  */
-public class HadoopTuningConfig implements TuningConfig {
+public class HadoopTuningConfig extends AbstractTuningConfig {
 
   String ingestionMode;
 
   Boolean useCombiner;
 
   Boolean combineText;
-
-  Boolean buildV9Directly;
-
-  Long maxRowsInMemory;
 
   Long maxOccupationInMemory;
 
@@ -55,43 +43,13 @@ public class HadoopTuningConfig implements TuningConfig {
 
   Boolean overwriteFiles;
 
-  Boolean ignoreInvalidRows;
-
   Boolean assumeTimeSorted;
 
   PartitionSpec partitionsSpec;
 
-  IndexSpec indexSpec;
-
-  Map<String, String> jobProperties;
-
   public HadoopTuningConfig() {
   }
 
-  public void overrideConfig(Map<String, Object> tuningConfig, Map<String, Object> jobProperties) {
-
-    if(MapUtils.isNotEmpty(tuningConfig)) {
-      for (String key : tuningConfig.keySet()) {
-        try {
-          BeanUtils.setProperty(this, key, tuningConfig.get(key));
-        } catch (Exception e) {
-        }
-      }
-    }
-
-    if (MapUtils.isNotEmpty(jobProperties)) {
-      for (String key : jobProperties.keySet()) {
-        addJobProperty(key, String.valueOf(jobProperties.get(key)));
-      }
-    }
-
-  }
-
-
-  /**
-   *
-   * @return
-   */
   public static HadoopTuningConfig hiveDefaultConfig() {
 
     HadoopTuningConfig config = new HadoopTuningConfig();
@@ -99,7 +57,7 @@ public class HadoopTuningConfig implements TuningConfig {
     config.setIngestionMode("REDUCE_MERGE");
     config.setUseCombiner(false);
     config.setBuildV9Directly(true);
-    config.setMaxRowsInMemory(3000000L);
+    config.setMaxRowsInMemory(3000000);
     config.setMaxOccupationInMemory(1024000000L);
     config.setMaxShardLength(256000000L);
     config.setIgnoreInvalidRows(true);
@@ -117,10 +75,6 @@ public class HadoopTuningConfig implements TuningConfig {
     return config;
   }
 
-  /**
-   *
-   * @return
-   */
   public static HadoopTuningConfig hdfsDefaultConfig() {
 
     HadoopTuningConfig config = new HadoopTuningConfig();
@@ -130,7 +84,7 @@ public class HadoopTuningConfig implements TuningConfig {
     config.setCombineText(false);
     config.setBuildV9Directly(true);
     config.setNumBackgroundPersistThreads(0);
-    config.setMaxRowsInMemory(75000L);
+    config.setMaxRowsInMemory(75000);
     config.setMaxOccupationInMemory(-1L);
     config.setMaxShardLength(-2147483648L);
     config.setLeaveIntermediate(false);
@@ -150,22 +104,6 @@ public class HadoopTuningConfig implements TuningConfig {
     return config;
   }
 
-  public void addJobProperty(String key, String value) {
-    if (jobProperties == null) {
-      jobProperties = Maps.newHashMap();
-    }
-
-    this.jobProperties.put(key, value);
-  }
-
-  public void addJobProperty(Map<String, String> jobProperties) {
-    if (jobProperties == null) {
-      jobProperties = Maps.newHashMap();
-    }
-
-    this.jobProperties.putAll(jobProperties);
-  }
-
   public String getIngestionMode() {
     return ingestionMode;
   }
@@ -180,30 +118,6 @@ public class HadoopTuningConfig implements TuningConfig {
 
   public void setUseCombiner(Boolean useCombiner) {
     this.useCombiner = useCombiner;
-  }
-
-  public Map<String, String> getJobProperties() {
-    return jobProperties;
-  }
-
-  public void setJobProperties(Map<String, String> jobProperties) {
-    this.jobProperties = jobProperties;
-  }
-
-  public Boolean getBuildV9Directly() {
-    return buildV9Directly;
-  }
-
-  public void setBuildV9Directly(Boolean buildV9Directly) {
-    this.buildV9Directly = buildV9Directly;
-  }
-
-  public Long getMaxRowsInMemory() {
-    return maxRowsInMemory;
-  }
-
-  public void setMaxRowsInMemory(Long maxRowsInMemory) {
-    this.maxRowsInMemory = maxRowsInMemory;
   }
 
   public Long getMaxOccupationInMemory() {
@@ -270,14 +184,6 @@ public class HadoopTuningConfig implements TuningConfig {
     this.overwriteFiles = overwriteFiles;
   }
 
-  public Boolean getIgnoreInvalidRows() {
-    return ignoreInvalidRows;
-  }
-
-  public void setIgnoreInvalidRows(Boolean ignoreInvalidRows) {
-    this.ignoreInvalidRows = ignoreInvalidRows;
-  }
-
   public Boolean getAssumeTimeSorted() {
     return assumeTimeSorted;
   }
@@ -294,13 +200,4 @@ public class HadoopTuningConfig implements TuningConfig {
     this.partitionsSpec = partitionsSpec;
   }
 
-  @Override
-  public IndexSpec getIndexSpec() {
-    return indexSpec;
-  }
-
-  @Override
-  public void setIndexSpec(IndexSpec indexSpec) {
-    this.indexSpec = indexSpec;
-  }
 }

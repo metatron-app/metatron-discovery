@@ -2496,7 +2496,6 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
 
   /**
    * Chart Select(Click) Event Listener
-   *
    */
   public addChartSelectEventListener(): void {
     this.chart.off('click');
