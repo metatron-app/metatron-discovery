@@ -496,8 +496,10 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
       this.selectedDefaultColor = color;
     }
 
-    // color by series일때 사용자 색상지정(mapping) 설정
-    this.setUserCodes(color);
+    if(!this.uiOption.color['settingUseFl']){
+      // color by series일때 사용자 색상지정(mapping) 설정
+      this.setUserCodes(color);
+    }
 
     // 해당 컬러색상으로 uiOption에 설정
     this.uiOption = (_.extend({}, this.uiOption, {
@@ -509,8 +511,8 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
         colorTarget: this.uiOption.color['colorTarget'],
         settingUseFl: (this.uiOption.color as UIChartColorBySeries).settingUseFl,
         showFl: this.uiOption.color['showFl'], // 라인차트일때 dimension show / hide 설정
-        mapping: (this.uiOption.color as UIChartColorBySeries).mapping,
-        mappingArray: (this.uiOption.color as UIChartColorBySeries).mappingArray
+        mapping: this.uiOption.color['settingUseFl'] ? (this.uiOption.color as UIChartColorBySeries).mapping : {}, // 사용자 색상이 켜졌을 때는 스키마 설정 disable
+        mappingArray: this.uiOption.color['settingUseFl'] ? (this.uiOption.color as UIChartColorBySeries).mappingArray : []
       }
     }) as UIOption);
 

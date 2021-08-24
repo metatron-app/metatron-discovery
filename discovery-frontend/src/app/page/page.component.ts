@@ -676,7 +676,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * @param {string} sText
    * @param {string} targetText
    * @returns {boolean}
-   */ㅌㄱ
+   */
   public isContainSearchText(sText: string, targetText: string) {
     // ngIf로 하면 dragular값이 초기화 되기 때문에 display none으로 처리
     if (StringUtil.isEmpty(sText)) return true;
