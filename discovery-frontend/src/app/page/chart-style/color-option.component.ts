@@ -642,8 +642,8 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     const colorList = ChartColorList[(this.uiOption.color as UIChartColorBySeries).schema];
 
     // 기존 컬러 리스트로 초기화
-    (this.uiOption.color as UIChartColorBySeries).mapping[item.alias] = colorList[index];
-    (this.uiOption.color as UIChartColorBySeries).mappingArray[index]['color'] = colorList[index];
+    (this.uiOption.color as UIChartColorBySeries).mapping[item.alias] = colorList[index % colorList.length];
+    (this.uiOption.color as UIChartColorBySeries).mappingArray[index]['color'] = colorList[index % colorList.length];
 
     // userCodes값 설정에서 제거
     this.uiOption = (_.extend({}, this.uiOption, {
