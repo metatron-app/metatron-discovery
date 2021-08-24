@@ -111,7 +111,7 @@
             <!-- color select --->
             <div *ngFor="let item of uiOption.color['mappingArray']; let index = index" class="ddp-ui-color-select">
               <div class="ddp-txt-label">
-                <a href="javascript:" *ngIf="uiOption.color['settingUseFl']" (click)="resetUserColorSet(item, index)" class="ddp-btn-reset3"></a>
+                <a href="javascript:" *ngIf="uiOption.color['settingUseFl']" (click)="resetUserColorSet(item, index)" class="ddp-btn-reset3" style="z-index: 100"></a>
                 <div class="ddp-ui-txt">
                   <!-- 사용자가 바꾼 color : ddp-user 추가 -->
                   <div class="ddp-box-color">
