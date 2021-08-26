@@ -485,6 +485,9 @@ public class AuthenticationController {
       String backgroundFilePath = String.valueOf(additionalInformation.getOrDefault("backgroundFilePath", ""));
       String smallLogoFilePath = String.valueOf(additionalInformation.getOrDefault("smallLogoFilePath", ""));
       String smallLogoDesc = String.valueOf(additionalInformation.getOrDefault("smallLogoDesc", ""));
+      boolean isTermsRequired = Boolean.valueOf(String.valueOf(additionalInformation.getOrDefault("isTermsRequired", "false")));
+      String termsHTML = String.valueOf(additionalInformation.getOrDefault("termsHTML", ""));
+      boolean passApprove = Boolean.valueOf(String.valueOf(additionalInformation.getOrDefault("passApprove", "false")));
       String copyrightHtml
               = String.valueOf(additionalInformation.getOrDefault("copyrightHtml", "<span>Copyright © SK Telecom Co., Ltd. All rights reserved.</span>"));
       LOGGER.info("Login ClientId {}, basicHeader {}", clientId, basicHeader);
@@ -499,6 +502,9 @@ public class AuthenticationController {
       mav.addObject("smallLogoFilePath", smallLogoFilePath);
       mav.addObject("smallLogoDesc", smallLogoDesc);
       mav.addObject("copyrightHtml", copyrightHtml);
+      mav.addObject("isTermsRequired", isTermsRequired);
+      mav.addObject("termsHTML", termsHTML);
+      mav.addObject("passApprove", passApprove);
     } catch (Exception e) {
       throw new MetatronException(e);
     }
