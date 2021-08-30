@@ -151,7 +151,7 @@
                 <!-- // Password 입력 -->
 
                 <!-- 조직 입력 -->
-                <div id="formInputOrg" class="ddp-ui-input-form" >
+                <div id="formInputOrg" class="ddp-ui-input-form" style="position:unset">
                     <label class="ddp-label-type">
                         <span th:text="#{message.app.oauth.join.org}"></span>
                         <!-- tooltip -->
@@ -177,10 +177,10 @@
 
                 <!-- 약관 동의 -->
                 <div class="ddp-ui-input-form" th:value="${isTermsRequired}" id="isTermsRequired" >
-                    <label class="ddp-label-type">[개인정보 수집 및 이용에 대한 동의 (필수동의)]
+                    <label class="ddp-label-type" th:text="#{message.app.oauth.join.terms}">
                     </label>
                     <div th:utext="${termsHTML}"></div>
-<!--                    <div class="ddp-input-check" style="padding-right: 0 !important;">-->
+<!--                   <div class="ddp-input-check" style="padding-right: 0 !important;">-->
 <!--                        <table class="privacy-terms-table">-->
 <!--                            <tr>-->
 <!--                                <td class="privacy-terms-content" colspan="3">-->
@@ -214,7 +214,7 @@
                         <label class="ddp-label-checkbox" style="float: right">
                             <input type="checkbox" id="inputPrivacyTerms">
                             <i class="ddp-icon-checkbox"></i>
-                            <span class="ddp-txt-checkbox" style="vertical-align: top">개인정보 수집 이용에 동의합니다.</span>
+                            <span class="ddp-txt-checkbox" style="vertical-align: top" th:text="#{message.app.oauth.join.terms.checkbox}"></span>
                         </label>
                         <!-- error 메시지 -->
                         <span class="ddp-ui-error" id="msgInputPrivacyTerms"
@@ -540,7 +540,7 @@
             }
             if(!$inputPrivacyTerms.is(":checked")) {
                 setStatusInputForm($formInputPrivacyTerms, 'ERROR');
-                $msgInputPrivacyTerms.text('약관에 동의해주세요');
+                $msgInputPrivacyTerms.text('[(#{message.app.oauth.join.terms.unchecked})]');
             }
 
             const requestData = {
