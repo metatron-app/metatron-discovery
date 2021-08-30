@@ -46,11 +46,19 @@ interface JoinValidation {
   telMessage: string;
   org: boolean;
   orgMessage: string;
+  // privacyTerms: boolean;
 }
 
 @Component({
   selector: 'app-join',
   templateUrl: './join.component.html',
+  styles: [
+  //   '.privacy-terms-table{border: 1px solid #ddd; border-collapse: collapse} ' +
+  // '.privacy-terms-table tr{} ' +
+  // '.privacy-terms-table td{padding: 5px; border: 1px solid #ddd;}' +
+  // '.privacy-terms-content{height:70px; vertical-align:top;}' +
+  // '.privacy-terms-content2{height:30px; text-align:center;}'
+  ]
 })
 export class JoinComponent extends AbstractComponent implements OnInit, OnDestroy {
 
@@ -154,6 +162,7 @@ export class JoinComponent extends AbstractComponent implements OnInit, OnDestro
         this.joinComplete.emit({code: 'FAIL', msg: err.details ? err.details : ''});
       });
 
+
       // 프로필 사진이 있으면 업로드부터
       // if (this.profileImageFile.nativeElement.value
       //   != null && this.profileImageFile.nativeElement.value !== '') {
@@ -246,11 +255,12 @@ export class JoinComponent extends AbstractComponent implements OnInit, OnDestro
   public checkRequiredFields() {
 
     // required fields
-    const list = ['username', 'email', 'password', 'confirmPassword'];
+    const list = ['username', 'email', 'password', 'confirmPassword' ,'privacyTerms'];
 
     list.forEach((item) => {
       // check if required fields are empty
-      if (isUndefined(this.user[item]) || this.user[item].trim() === '' || this.user[item].length < 1) {
+      if (isUndefined(this.user[item]) || !this.user[item] ||
+        String(this.user[item]).trim() === '' || this.user[item].length < 1) {
         this.joinValidation[item] = false;
         this.joinValidation[item + 'Message']
           = this.translateService.instant('LOGIN_JOIN_EMPTY_INPUT');
@@ -412,6 +422,16 @@ export class JoinComponent extends AbstractComponent implements OnInit, OnDestro
 
   } // function - validation
 
+
+  // public setPrivacyTerms(){
+  //   this.user.privacyTerms =
+  //     this.isNullOrUndefined(this.user.privacyTerms) ? true : !this.user.privacyTerms;
+  //
+  //   if(this.user.privacyTerms) this.joinValidation.privacyTerms = true;
+  //
+  // } // function - setPrivacyTerms
+
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     | Private Methods
     |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -453,7 +473,8 @@ export class JoinComponent extends AbstractComponent implements OnInit, OnDestro
       tel: true,
       telMessage: '',
       org: null,
-      orgMessage: ''
+      orgMessage: '',
+      // privacyTerms: null
     };
 
   }
