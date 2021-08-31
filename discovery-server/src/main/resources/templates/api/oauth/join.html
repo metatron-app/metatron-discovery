@@ -270,7 +270,7 @@
         // Pass Approve
         const $inputPassApprove = $('#inputPassApprove');
 
-
+        // isTermsRequired 값에 따라 약관 내용 표시
         if($("#isTermsRequired").attr("value") === 'true')
         {
             $("#isTermsRequired").css('display','block');
@@ -278,6 +278,8 @@
         else
         {
             $("#isTermsRequired").css('display','none');
+            // 약관이 없을 경우 개인정보 동의 자동 체크
+            $("#inputPrivacyTerms").attr('checked', true);
         }
 
 
@@ -554,17 +556,19 @@
             ( '' !== $inputOrg.val() ) && ( requestData.orgCodes = [$inputOrg.val()] );
 
             if (0 === $('.ddp-type-error').length) {
+
+                let alertMsg = '[(#{message.app.oauth.join.title})]' + '\n' ;
+                alertMsg += ($inputPassApprove.val()=='true') ? '[(#{message.app.oauth.join.cmplt.description.passApprove})]'
+                    : '[(#{message.app.oauth.join.cmplt.description})]' + '\n' +
+                    '[(#{message.app.oauth.join.cmplt.description2})]' ;
+
                 $.ajax({
                     type: 'post',
                     url: '/api/users/signup',
                     contentType: "application/json; charset=utf-8",
                     data: JSON.stringify(requestData),
                     success: function () {
-                        alert(
-                            '[(#{message.app.oauth.join.title})]' + '\n' +
-                            '[(#{message.app.oauth.join.cmplt.description})]' + '\n' +
-                            '[(#{message.app.oauth.join.cmplt.description2})]'
-                        );
+                        alert(alertMsg);
                         history.back();
                     },
                     error: function (error) {
