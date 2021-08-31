@@ -566,6 +566,7 @@
                       [dashboards]="dashboards"
                       (changeMode)="changeMode($event, true)"
                       (updateComplete)="updateCompleteDashboard($event)"
+                      (updateCompleteChart)="updateCompleteDashboard($event, true)"
                       (createDashboard)="createDashboard()"
                       (selectedDashboard)="loadAndSelectDashboard($event)">
 </app-update-dashboard>
