@@ -42,7 +42,8 @@ export class TimeRelativeFilter extends TimeFilter {
       tense: this.tense,
       relTimeUnit: this.relTimeUnit,
       value: this.value,
-      baseType: this.baseType
+      baseType: this.baseType,
+      latestTime: this.latestTime
     });
   } // function - toServerSpec
 }

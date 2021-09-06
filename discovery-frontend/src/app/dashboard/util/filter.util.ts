@@ -458,7 +458,7 @@ export class FilterUtil {
         keyMap = [];
         break;
       case 'time_relative' :
-        keyMap = ['relTimeUnit', 'tense', 'value', 'timeUnit', 'byTimeUnit', 'discontinuous', 'timeZone', 'baseType'];
+        keyMap = ['relTimeUnit', 'tense', 'value', 'timeUnit', 'byTimeUnit', 'discontinuous', 'timeZone', 'baseType', 'latestTime'];
         break;
       case 'time_range' :
       case 'time_single' :
@@ -771,7 +771,7 @@ export class FilterUtil {
     // 날짜 설정
 
     const baseTime = timeRelativeFilter.baseType == 'TODAY' ? moment() : moment(timeRelativeFilter.latestTime);
-    const objDate = baseTime
+    const objDate = _.cloneDeep(baseTime);
     let strPreview: string = '';
     switch (timeRelativeFilter.tense) {
       case TimeRelativeTense.PREVIOUS :
