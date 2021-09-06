@@ -13,15 +13,19 @@
  */
 
 import {
+  AfterViewInit,
+  Component,
   ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnChanges,
   OnDestroy,
   OnInit,
-  Injector,
-  Component,
-  Input,
-  SimpleChanges,
+  Output,
   SimpleChange,
-  EventEmitter, Output, ViewChild, AfterViewInit, OnChanges
+  SimpleChanges,
+  ViewChild
 } from '@angular/core';
 import {EventBroadcaster} from '@common/event/event.broadcaster';
 
@@ -325,6 +329,21 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
     // 값 변경 전달
     this.changeEvent.emit(this.targetFilter);
   } // function - setFilterValue
+
+
+  /**
+   * baseType 값 string 변환
+   * @param baseType
+   */
+  public baseTypeToString(baseType: TimeRelativeBaseType){
+    if (baseType == TimeRelativeBaseType.TODAY){
+      return 'Today'
+    } else if (baseType == TimeRelativeBaseType.LATEST_TIME){
+      return 'Latest Time'
+    }
+    return '';
+  }
+
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method

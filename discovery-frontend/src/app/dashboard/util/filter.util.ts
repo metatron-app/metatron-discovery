@@ -769,7 +769,6 @@ export class FilterUtil {
     }
 
     // 날짜 설정
-
     const baseTime = timeRelativeFilter.baseType == 'TODAY' ? moment() : moment(timeRelativeFilter.latestTime);
     const objDate = _.cloneDeep(baseTime);
     let strPreview: string = '';

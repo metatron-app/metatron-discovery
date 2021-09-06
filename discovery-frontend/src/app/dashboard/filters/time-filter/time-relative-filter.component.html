@@ -28,13 +28,13 @@
                (clickOutside)="isShowBaseComboOpts = false"
                [ngClass]="{'ddp-selected' : isShowBaseComboOpts}" class="ddp-type-selectbox"
                style="width:100%">
-            <span class="ddp-txt-selectbox">{{targetFilter.baseType}}</span>
+            <span class="ddp-txt-selectbox">{{baseTypeToString(targetFilter.baseType)}}</span>
             <ul class="ddp-list-selectbox ddp-selectdown ddp-pass">
               <li (click)="setBaseTime(timeRelativeBaseType.TODAY)">
-                <a href="javascript:"> Today </a>
+                <a href="javascript:"> {{baseTypeToString(timeRelativeBaseType.TODAY)}} </a>
               </li>
               <li (click)="setBaseTime(timeRelativeBaseType.LATEST_TIME)">
-                <a href="javascript:"> Latest Time </a>
+                <a href="javascript:">{{baseTypeToString(timeRelativeBaseType.LATEST_TIME)}}</a>
               </li>
             </ul>
           </div>
