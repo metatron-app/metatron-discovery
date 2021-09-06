@@ -797,7 +797,8 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
     this._webSocketReConnectCnt = this._webSocketReConnectCnt + 1;
     // 초기화 -> 연결 재 시도
     if (20 === this._webSocketReConnectCnt) {
-      Alert.error(this.translateService.instant(this.translateService.instant('msg.bench.alert.socket.link.fail.retry')));
+      //Alert.error(this.translateService.instant(this.translateService.instant('msg.bench.alert.socket.link.fail.retry')));
+      console.error(this.translateService.instant(this.translateService.instant('msg.bench.alert.socket.link.fail.retry')));
       (isReload) && (window.location.reload());
     }
 
