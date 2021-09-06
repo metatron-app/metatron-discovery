@@ -33,7 +33,7 @@ export class TimeRelativeFilter extends TimeFilter {
     super(field);
     this.type = 'time_relative';
     this.timeZone = moment.tz.guess();
-    this.baseType = TimeRelativeBaseType.TODAY
+    this.baseType = TimeRelativeBaseType.TODAY;
   }
 
   public toServerSpec() {

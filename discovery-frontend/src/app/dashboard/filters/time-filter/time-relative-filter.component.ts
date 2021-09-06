@@ -186,6 +186,9 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
         if (this.isNullOrUndefined(tempFilter.relTimeUnit)) {
           tempFilter.relTimeUnit = TimeUnit.WEEK;
         }
+        if (this.isNullOrUndefined(tempFilter.baseType)){
+          tempFilter.baseType = TimeRelativeBaseType.TODAY;
+        }
         this.selectedTimeUnitItem = this.timeUnitComboList.find(item => item.value === tempFilter.relTimeUnit);
       }
 
