@@ -27,6 +27,7 @@ import {EventBroadcaster} from '@common/event/event.broadcaster';
 
 import {TimeUnit} from '@domain/workbook/configurations/field/timestamp-field';
 import {
+  TimeRelativeBaseType,
   TimeRelativeFilter,
   TimeRelativeTense
 } from '@domain/workbook/configurations/filter/time-relative-filter';
@@ -89,6 +90,10 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
   public changeEvent: EventEmitter<TimeRelativeFilter> = new EventEmitter();
 
   public isShortLabel: boolean = false;
+
+  public get timeRelativeBaseType(): typeof TimeRelativeBaseType {
+    return TimeRelativeBaseType;
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -252,10 +257,10 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
     }
 
     // 날짜 설정
-    // console.log('targetFilter:', this.targetFilter);
-    const baseTime = this.targetFilter.baseTime == 'TODAY' ? moment() : moment(this.targetFilter.latestTime);
+    const baseTime = this.targetFilter.baseType == 'TODAY' ? moment() : moment(this.targetFilter.latestTime);
     const objDate = _.cloneDeep(baseTime);
     let strPreview: string;
+
     switch (this.targetFilter.tense) {
       case TimeRelativeTense.PREVIOUS :
         objDate.subtract(this.targetFilter.value, strManipulateKey);
@@ -279,8 +284,8 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
    * Relative 기준날 설정
    * @param baseTime
    */
-  public setBaseTime(baseTime: string){
-    this.targetFilter.baseTime = baseTime;
+  public setBaseTime(baseType: TimeRelativeBaseType){
+    this.targetFilter.baseType = baseType;
     // 값 변경 전달
     this.changeEvent.emit(this.targetFilter);
   }  // function - setBaseTime

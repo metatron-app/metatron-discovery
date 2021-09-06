@@ -770,7 +770,7 @@ export class FilterUtil {
 
     // 날짜 설정
 
-    const baseTime = timeRelativeFilter.baseTime == 'TODAY' ? moment() : moment(timeRelativeFilter.latestTime);
+    const baseTime = timeRelativeFilter.baseType == 'TODAY' ? moment() : moment(timeRelativeFilter.latestTime);
     const objDate = baseTime
     let strPreview: string = '';
     switch (timeRelativeFilter.tense) {
