@@ -40,6 +40,10 @@ public class TimeRelativeFilter extends TimeFilter {
 
   Integer value;
 
+  RelativeBaseType baseType;
+
+  String latestTime;
+
   public TimeRelativeFilter() {
     // Empty Constructor
   }
@@ -52,12 +56,16 @@ public class TimeRelativeFilter extends TimeFilter {
                             @JsonProperty("tense") String tense,
                             @JsonProperty("value") Integer value,
                             @JsonProperty("timeZone") String timeZone,
-                            @JsonProperty("locale") String locale) {
+                            @JsonProperty("locale") String locale,
+                            @JsonProperty("baseType") String baseType,
+                            @JsonProperty("latestTime") String latestTime) {
     super(field, ref, timeUnit, null, null, timeZone, locale);
 
     this.relTimeUnit = EnumUtils.getUpperCaseEnum(TimeFieldFormat.TimeUnit.class, relTimeUnit);
     this.tense = EnumUtils.getUpperCaseEnum(Tense.class, tense, Tense.CURRENT);
     this.value = (value == null || value < 1) ? 1 : value;
+    this.baseType =  EnumUtils.getUpperCaseEnum(RelativeBaseType.class, baseType);
+    this.latestTime = latestTime;
   }
 
   @Override
@@ -80,7 +88,9 @@ public class TimeRelativeFilter extends TimeFilter {
     if (tense == compareFilter.getTense()
         && value == compareFilter.getValue()
         && timeUnit == compareFilter.getTimeUnit()
-        && relTimeUnit == compareFilter.getTimeUnit()) {
+        && relTimeUnit == compareFilter.getTimeUnit()
+        && baseType == compareFilter.getBaseType()
+        && latestTime == compareFilter.getLatestTime() ) {
       return true;
     }
 
@@ -171,6 +181,10 @@ public class TimeRelativeFilter extends TimeFilter {
     return relTimeUnit;
   }
 
+  public RelativeBaseType getBaseType() { return baseType; }
+
+  public String getLatestTime() { return latestTime; }
+
   @Override
   public String toString() {
     return "TimeRelativeFilter{" +
@@ -181,5 +195,9 @@ public class TimeRelativeFilter extends TimeFilter {
 
   public enum Tense {
     PREVIOUS, CURRENT, NEXT
+  }
+
+  public enum RelativeBaseType {
+    TODAY, LATEST_TIME
   }
 }
