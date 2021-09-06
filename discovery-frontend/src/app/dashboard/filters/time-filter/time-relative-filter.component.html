@@ -21,12 +21,13 @@
   <div class="ddp-filter-type" style="padding-top:0;">
     <div class="ddp-btn-time" style="height:30px; padding-left:0;">
       <div class="ddp-form-multy" style="padding-left: 70px">
-        <span class="ddp-txt-label" >Base Date</span>
+        <span class="ddp-txt-label" >Base Type</span>
         <div class="ddp-box-multy ddp-clear ddp-form-time">
           <!-- Selectbox -->
           <div (click)="isShowBaseComboOpts = !isShowBaseComboOpts"
                (clickOutside)="isShowBaseComboOpts = false"
-               [ngClass]="{'ddp-selected' : isShowBaseComboOpts}" class="ddp-type-selectbox" >
+               [ngClass]="{'ddp-selected' : isShowBaseComboOpts}" class="ddp-type-selectbox"
+               style="width:100%">
             <span class="ddp-txt-selectbox">{{targetFilter.baseType}}</span>
             <ul class="ddp-list-selectbox ddp-selectdown ddp-pass">
               <li (click)="setBaseTime(timeRelativeBaseType.TODAY)">

@@ -173,17 +173,6 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
     const tempFilter: TimeRelativeFilter = filter;
 
     const cloneFilter = _.cloneDeep(filter);
-    // {
-    //   // 기본값 설정
-    //   (tempFilter.hasOwnProperty('value') && 0 < tempFilter.value) || (tempFilter.value = 1);
-    //   (tempFilter.tense) || (tempFilter.tense = TimeRelativeTense.PREVIOUS);
-    //   if (this.isNullOrUndefined(tempFilter.relTimeUnit)) {
-    //     tempFilter.relTimeUnit = TimeUnit.WEEK;
-    //   }
-    //   this.selectedTimeUnitItem = this.timeUnitComboList.find(item => item.value === tempFilter.relTimeUnit);
-    // }
-    // this.targetFilter = tempFilter;
-    // (isBroadcast) && (this.changeEvent.emit(this.targetFilter));
 
     this.datasourceService.getCandidateForFilter(cloneFilter, this.dashboard).then((result) => {
       {

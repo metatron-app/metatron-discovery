@@ -41,7 +41,8 @@ export class TimeRelativeFilter extends TimeFilter {
     return _.merge(spec, {
       tense: this.tense,
       relTimeUnit: this.relTimeUnit,
-      value: this.value
+      value: this.value,
+      baseType: this.baseType
     });
   } // function - toServerSpec
 }
