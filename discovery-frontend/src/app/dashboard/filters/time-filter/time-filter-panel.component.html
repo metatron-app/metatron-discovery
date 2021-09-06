@@ -210,7 +210,7 @@
       <!-- 상대적인 기간 선택 탭 영역 -->
       <div *ngIf="isRelativeType" class="ddp-ui-toggle-contents">
         <app-time-relative-filter
-          [mode]="'PANEL'" [filter]="filter"
+          [mode]="'PANEL'" [filter]="filter" [dashboard]="dashboard"
           (changeEvent)="changeFilterEvent($event)">
         </app-time-relative-filter>
       </div>

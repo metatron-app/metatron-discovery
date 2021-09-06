@@ -37,7 +37,7 @@
     <!-- // 전체 기간 선택 탭 영역 -->
     <!-- 상대적인 기간 선택 탭 영역 -->
     <div *ngIf="isRelativeType" class="ddp-ui-toggle-contents">
-      <app-time-relative-filter [filter]="targetFilter"></app-time-relative-filter>
+      <app-time-relative-filter [filter]="targetFilter" [dashboard]="dashboard" ></app-time-relative-filter>
     </div>
     <!-- // 상대적인 기간 선택 탭 영역 -->
     <!-- 특정 기간 선택 탭 영역 -->

@@ -25,11 +25,15 @@ export class TimeRelativeFilter extends TimeFilter {
   public relTimeUnit: TimeUnit;
   public value: number;
   public timeZone: string;
+  public baseTime: string;
+
+  public latestTime: Date;
 
   constructor(field: Field) {
     super(field);
     this.type = 'time_relative';
     this.timeZone = moment.tz.guess();
+    this.baseTime = TimeRelativeBaseTime.TODAY
   }
 
   public toServerSpec() {
@@ -49,4 +53,9 @@ export enum TimeRelativeTense {
   PREVIOUS = 'PREVIOUS',
   CURRENT = 'CURRENT',
   NEXT = 'NEXT'
+}
+
+export enum TimeRelativeBaseTime{
+  TODAY = 'TODAY',
+  LATEST_TIME = 'LATEST_TIME'
 }

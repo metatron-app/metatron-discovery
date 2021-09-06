@@ -769,18 +769,20 @@ export class FilterUtil {
     }
 
     // 날짜 설정
-    const objDate = moment();
+
+    const baseTime = timeRelativeFilter.baseTime == 'TODAY' ? moment() : moment(timeRelativeFilter.latestTime);
+    const objDate = baseTime
     let strPreview: string = '';
     switch (timeRelativeFilter.tense) {
       case TimeRelativeTense.PREVIOUS :
         objDate.subtract(timeRelativeFilter.value, strManipulateKey);
         strPreview = objDate.format(strFormat);
-        strPreview = strPreview + '/' + moment().format(strFormat);
+        strPreview = strPreview + '/' + moment(baseTime).format(strFormat);
         break;
       case TimeRelativeTense.NEXT :
         objDate.add(timeRelativeFilter.value, strManipulateKey);
         strPreview = objDate.format(strFormat);
-        strPreview = moment().format(strFormat) + '/' + strPreview;
+        strPreview = moment(baseTime).format(strFormat) + '/' + strPreview;
         break;
       default :
         strPreview = objDate.format(strFormat);

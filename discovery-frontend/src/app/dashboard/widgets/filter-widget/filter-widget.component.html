@@ -157,7 +157,7 @@
       <!-- Relative Time Filter -->
       <div *ngIf="isRelativeTypeTimeFilter" class="ddp-filter-view ddp-full">
         <app-time-relative-filter
-          [mode]="'WIDGET'" [filter]="filter"
+          [mode]="'WIDGET'" [filter]="filter" [dashboard]="widget.dashBoard"
           (changeEvent)="changeFilterEvent($event)">
         </app-time-relative-filter>
       </div>
