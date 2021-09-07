@@ -458,7 +458,7 @@ export class FilterUtil {
         keyMap = [];
         break;
       case 'time_relative' :
-        keyMap = ['relTimeUnit', 'tense', 'value', 'timeUnit', 'byTimeUnit', 'discontinuous', 'timeZone', 'baseType', 'latestTime'];
+        keyMap = ['relTimeUnit', 'tense', 'value', 'timeUnit', 'byTimeUnit', 'discontinuous', 'timeZone', 'baseType'];
         break;
       case 'time_range' :
       case 'time_single' :
@@ -644,6 +644,7 @@ export class FilterUtil {
     if (this.isTimeFilter(relativeFilter) && this.isTimeRelativeFilter(relativeFilter)) {
       let filter: TimeFilter = _.cloneDeep(relativeFilter) as TimeFilter;
       const relativeInterval = this.getIntervalFromRelative(filter);
+
       filter.clzField = DashboardUtil.getFieldByName(boardInfo, filter.dataSource, filter.field);
       filter = FilterUtil.getTimeRangeFilter(
         filter.clzField, filter.timeUnit, 'general',

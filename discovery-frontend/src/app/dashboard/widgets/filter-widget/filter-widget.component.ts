@@ -450,11 +450,18 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
   public setTimeRangeFilter() {
     const conf: FilterWidgetConfiguration = this.widget.configuration as FilterWidgetConfiguration;
     if (FilterUtil.isTimeFilter(conf.filter)) {
-      const filter: TimeFilter = FilterUtil.convertRelativeToInterval(conf.filter as TimeFilter, this.dashboard);
-      this.filter = filter;
-      this.widget.configuration.filter = filter;
-      this._setTimeFilterStatus(filter as TimeFilter);
-      this._broadcastChangeFilter(filter);
+      const cloneFilter = _.cloneDeep(conf.filter);
+      this.datasourceService.getCandidateForFilter(cloneFilter, this.dashboard).then((result) => {
+        if (FilterUtil.isTimeRelativeFilter(cloneFilter)){
+          conf.filter['latestTime'] = result['maxTime'];
+        }
+        const filter: TimeFilter = FilterUtil.convertRelativeToInterval(conf.filter as TimeFilter, this.dashboard);
+        this.filter = filter;
+        this.widget.configuration.filter = filter;
+        this._setTimeFilterStatus(filter as TimeFilter);
+        this._broadcastChangeFilter(filter);
+      });
+
     }
   } // function - setTimeRangeFilter
 
