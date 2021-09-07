@@ -37,7 +37,6 @@ import {
 } from '@domain/workbook/configurations/filter/time-relative-filter';
 
 import {AbstractFilterPopupComponent} from '../abstract-filter-popup.component';
-import {DatasourceService} from "../../../datasource/service/datasource.service";
 import {Dashboard} from "@domain/dashboard/dashboard";
 import _ from "lodash";
 
@@ -104,8 +103,7 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(private datasourceService: DatasourceService,
-              protected broadCaster: EventBroadcaster,
+  constructor(protected broadCaster: EventBroadcaster,
               protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
@@ -176,26 +174,27 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
   public setData(filter: TimeRelativeFilter, isBroadcast: boolean = false) {
     const tempFilter: TimeRelativeFilter = filter;
 
-    const cloneFilter = _.cloneDeep(filter);
-
-    this.datasourceService.getCandidateForFilter(cloneFilter, this.dashboard).then((result) => {
-      {
-        // 기본값 설정
-        (tempFilter.hasOwnProperty('value') && 0 < tempFilter.value) || (tempFilter.value = 1);
-        (tempFilter.tense) || (tempFilter.tense = TimeRelativeTense.PREVIOUS);
-        if (this.isNullOrUndefined(tempFilter.relTimeUnit)) {
-          tempFilter.relTimeUnit = TimeUnit.WEEK;
-        }
-        if (this.isNullOrUndefined(tempFilter.baseType)){
-          tempFilter.baseType = TimeRelativeBaseType.TODAY;
-        }
-        this.selectedTimeUnitItem = this.timeUnitComboList.find(item => item.value === tempFilter.relTimeUnit);
+    {
+      // 기본값 설정
+      (tempFilter.hasOwnProperty('value') && 0 < tempFilter.value) || (tempFilter.value = 1);
+      (tempFilter.tense) || (tempFilter.tense = TimeRelativeTense.PREVIOUS);
+      if (this.isNullOrUndefined(tempFilter.relTimeUnit)) {
+        tempFilter.relTimeUnit = TimeUnit.WEEK;
       }
+      // 이전에 baseType 없이 생성된 필터에 기본 값 정의
+      if (this.isNullOrUndefined(tempFilter.baseType)){
+        tempFilter.baseType = TimeRelativeBaseType.TODAY;
+      }
+      this.selectedTimeUnitItem = this.timeUnitComboList.find(item => item.value === tempFilter.relTimeUnit);
+    }
 
-      tempFilter.latestTime = result['maxTime'];
-      this.targetFilter = tempFilter;
+    const filterDs = this.dashboard.dataSources.find(ds => tempFilter.dataSource == ds.engineName);
+    tempFilter['latestTime'] = filterDs.summary.ingestionMaxTime;
 
-      (isBroadcast) && (this.changeEvent.emit(this.targetFilter));
+    this.targetFilter = tempFilter;
+
+    (isBroadcast) && (this.changeEvent.emit(this.targetFilter));
+    this.safelyDetectChanges();
 
       this.safelyDetectChanges();
     });

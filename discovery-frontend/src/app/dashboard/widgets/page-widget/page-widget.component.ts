@@ -76,6 +76,7 @@ import {WidgetService} from '../../service/widget.service';
 import {FilterUtil} from '../../util/filter.util';
 import {ChartLimitInfo, DashboardUtil} from '../../util/dashboard.util';
 import {AbstractWidgetComponent} from '../abstract-widget.component';
+import {TimeRelativeBaseType} from "@domain/workbook/configurations/filter/time-relative-filter";
 
 declare let $;
 declare let moment;
@@ -1750,12 +1751,18 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
     if( cloneQuery.filters ) {
       for (let idx = 0, nMax = cloneQuery.filters.length; idx < nMax; idx++) {
         let filter = cloneQuery.filters[idx];
+        // latest date 가 기준날일 경우 날짜 설정
+        if (filter.baseType != TimeRelativeBaseType.TODAY && this.isNullOrUndefined(filter.latestTime)){
+          const filterDs = this.widget.dashBoard.dataSources.find(ds => filter.dataSource == ds.engineName);
+          filter.latestTime = filterDs.summary.ingestionMaxTime;
+        }
         filter = FilterUtil.convertRelativeToInterval(filter, this.widget.dashBoard);
         cloneQuery.filters[idx] = FilterUtil.convertToServerSpec(filter);
       }
     }
 
-    // 값이 없는 측정값 필터 제거
+
+    // // 값이 없는 측정값 필터 제거
     cloneQuery.filters = cloneQuery.filters.filter(item => {
       return (item.type === 'include' && item['valueList'] && 0 < item['valueList'].length) ||
         (item.type === 'bound' && item['min'] != null) ||
