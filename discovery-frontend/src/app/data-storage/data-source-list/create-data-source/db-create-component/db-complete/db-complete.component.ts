@@ -522,7 +522,7 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
       rollup: this.getIngestionData.selectedRollUpType.value
     };
     // if database is TABLE
-    if (this.getDatabaseData.selectedTab === 'TABLE') {
+    if (this.getDatabaseData.selectedTab == 'TABLE') {
       ingestion['query'] = this.getDatabaseData.selectedTable;
       ingestion['database'] = this.getDatabaseData.selectedDatabase;
     } else {
@@ -531,23 +531,23 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
       ingestion['database'] = this.getDatabaseData.selectedDatabaseInQuery;
     }
     // if source type is LINK
-    if (this.getConnectionData.selectedIngestionType.value === 'LINK') {
+    if (this.getConnectionData.selectedIngestionType.value == 'LINK') {
       ingestion['type'] = 'link';
       ingestion['expired'] = this.getIngestionData.selectedExpirationTime.value;
     }
     // if ingestion type is batch
-    if (this.getIngestionData.selectedIngestionType.value === 'batch') {
+    if (this.getIngestionData.selectedIngestionType.value == 'batch') {
       // add period
       ingestion['period'] = this._getPeriodParams();
       // add row size
       ingestion['maxLimit'] = this.getIngestionBatchRow();
       // add data range
       ingestion['range'] = this.getIngestionData.selectedIngestionScopeType.value;
-    } else if (this.getIngestionData.selectedIngestionType.value === 'single') {
+    } else if (this.getIngestionData.selectedIngestionType.value == 'single') {
       // add scope type
       ingestion['scope'] = this.getIngestionData.selectedIngestionScopeType.value;
       // add row size
-      if (this.getIngestionData.selectedIngestionScopeType.value === 'ROW') {
+      if (this.getIngestionData.selectedIngestionScopeType.value == 'ROW') {
         ingestion['maxLimit'] = this.getIngestionOnceRow();
       }
     }
@@ -556,7 +556,7 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
       ingestion['connection'] = this._getConnectionParams();
     }
     // if authentication type is DIALOG, add connectionUsername and connectionPassword
-    if (this.getConnectionData.connection.authenticationType === AuthenticationType.DIALOG) {
+    if (this.getConnectionData.connection.authenticationType == AuthenticationType.DIALOG) {
       delete ingestion['connection'].username;
       delete ingestion['connection'].password;
       ingestion['connectionUsername'] = this.getConnectionData.connection.username;
@@ -567,7 +567,7 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
       ingestion['tuningOptions'] = this._toObject(this.getIngestionData.tuningConfig.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)));
     }
     // if not used current_time TIMESTAMP, set intervals
-    if (this.getSchemaData.selectedTimestampType !== DataStorageConstant.Datasource.TimestampType.CURRENT) {
+    if (this.getSchemaData.selectedTimestampType != DataStorageConstant.Datasource.TimestampType.CURRENT) {
       ingestion['intervals'] = [this._granularityService.getIntervalUsedParam(this.getIngestionData.startIntervalText, this.getIngestionData.selectedSegmentGranularity) + '/' + this._granularityService.getIntervalUsedParam(this.getIngestionData.endIntervalText, this.getIngestionData.selectedSegmentGranularity)];
     }
     return ingestion;
