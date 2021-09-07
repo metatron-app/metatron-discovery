@@ -461,6 +461,19 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
       this._setTimeFilterStatus(filter as TimeFilter);
       this._broadcastChangeFilter(filter);
 
+      // const cloneFilter = _.cloneDeep(conf.filter);
+      // this.datasourceService.getCandidateForFilter(cloneFilter, this.dashboard).then((result) => {
+      //   if (FilterUtil.isTimeRelativeFilter(cloneFilter)){
+      //     conf.filter['latestTime'] = result['maxTime'];
+      //   }
+      //   const filter: TimeFilter = FilterUtil.convertRelativeToInterval(conf.filter as TimeFilter, this.dashboard);
+      //   this.filter = filter;
+      //   this.widget.configuration.filter = filter;
+      //   // if(!this.isEditMode){
+      //   // }
+      //   this._setTimeFilterStatus(filter as TimeFilter);
+      //   this._broadcastChangeFilter(filter);
+      // });
     }
   } // function - setTimeRangeFilter
 
@@ -733,6 +746,15 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
     } else {
       this.filter = filter;
 
+      // this.datasourceService.getCandidateForFilter(filter, this.dashboard).then((result) => {
+      //   if (FilterUtil.isTimeFilter(filter)){
+      //     this.filter['latestTime'] = result['maxTime'];
+      //   }
+      //   this._setQueryParameterAsDefaultValue();
+      //   this._initialContainer();   // 컨테이너 초기화
+      //   this.processEnd();
+      // });
+
       this._setQueryParameterAsDefaultValue();
       this._initialContainer();   // 컨테이너 초기화
       this.processEnd();
@@ -915,6 +937,14 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
     this.isRangeTypeTimeFilter = FilterUtil.isTimeRangeFilter(timeFilter);
     this.isListTypeTimeFilter = FilterUtil.isTimeListFilter(timeFilter);
     this.isSingleTypeTimeFilter = FilterUtil.isTimeSingleFilter(timeFilter);
+
+    // if (this.isRelativeTypeTimeFilter) {
+    //   this.setTimeRangeFilter();
+    //   if(!this.isEditMode){
+    //     this.safelyDetectChanges();
+    //   }
+    // }
+
     if (!this.isEditMode && this.isRelativeTypeTimeFilter) {
       this.setTimeRangeFilter();
       this.safelyDetectChanges();

@@ -196,8 +196,29 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
     (isBroadcast) && (this.changeEvent.emit(this.targetFilter));
     this.safelyDetectChanges();
 
-      this.safelyDetectChanges();
-    });
+
+    //  const cloneFilter = _.cloneDeep(filter);
+    // this.datasourceService.getCandidateForFilter(cloneFilter, this.dashboard).then((result) => {
+    //   {
+    //     // 기본값 설정
+    //     (tempFilter.hasOwnProperty('value') && 0 < tempFilter.value) || (tempFilter.value = 1);
+    //     (tempFilter.tense) || (tempFilter.tense = TimeRelativeTense.PREVIOUS);
+    //     if (this.isNullOrUndefined(tempFilter.relTimeUnit)) {
+    //       tempFilter.relTimeUnit = TimeUnit.WEEK;
+    //     }
+    //     if (this.isNullOrUndefined(tempFilter.baseType)){
+    //       tempFilter.baseType = TimeRelativeBaseType.TODAY;
+    //     }
+    //     this.selectedTimeUnitItem = this.timeUnitComboList.find(item => item.value === tempFilter.relTimeUnit);
+    //   }
+    //
+    //   tempFilter.latestTime = result['maxTime'];
+    //   this.targetFilter = tempFilter;
+    //
+    //   (isBroadcast) && (this.changeEvent.emit(this.targetFilter));
+    //
+    //   this.safelyDetectChanges();
+    // });
   } // function - setData
 
   /**
