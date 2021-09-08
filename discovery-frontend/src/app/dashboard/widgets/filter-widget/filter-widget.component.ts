@@ -448,6 +448,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
    * TimeRangeFilter 설정
    */
   public setTimeRangeFilter() {
+
     const conf: FilterWidgetConfiguration = this.widget.configuration as FilterWidgetConfiguration;
     if (FilterUtil.isTimeFilter(conf.filter)) {
 
