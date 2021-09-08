@@ -78,9 +78,6 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit, OnDestr
 
   @Input() public beforeChangeValue: (arg) => void;
 
-  @Input() public isTimeRelativeFilter: boolean = false; // time relative filter 에 쓰이는지
-
-
   @Output('changeValue') public changeEvent: EventEmitter<number | string> = new EventEmitter();
 
   @Output('pressEnter') public pressEnterEvent: EventEmitter<boolean> = new EventEmitter();
@@ -156,11 +153,9 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit, OnDestr
 
     this._safelyDetectChanges();
 
-    if(!this.isTimeRelativeFilter){
-      this.autoFocus && setTimeout(() => {
-        inputNativeElm.focus();
-      }, 400);
-    }
+    this.autoFocus && setTimeout(() => {
+      inputNativeElm.focus();
+    }, 400);
 
   } // function - ngAfterViewInit
 
