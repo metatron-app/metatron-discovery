@@ -17,8 +17,37 @@
 <div *ngIf="targetFilter" class="ddp-filter-area"
      #filterArea
      [ngStyle]="{'overflow-y' : ('WIDGET' === mode) ? 'initial !important' : ''}">
+  <!-- 기준날 선택 -->
+  <div class="ddp-filter-type" style="padding-top:0;">
+    <div class="ddp-btn-time" style="height:30px; padding-left:0;">
+      <div class="ddp-form-multy" style="padding-left: 70px">
+        <span class="ddp-txt-label" >Base Type</span>
+        <div class="ddp-box-multy ddp-clear ddp-form-time">
+          <!-- Selectbox -->
+          <div (click)="isShowBaseComboOpts = !isShowBaseComboOpts"
+               (clickOutside)="isShowBaseComboOpts = false"
+               [ngClass]="{'ddp-selected' : isShowBaseComboOpts}" class="ddp-type-selectbox"
+               style="width:100%">
+            <span class="ddp-txt-selectbox">{{baseTypeToString(targetFilter.baseType)}}</span>
+            <ul class="ddp-list-selectbox ddp-selectdown ddp-pass">
+              <li (click)="setBaseTime(timeRelativeBaseType.TODAY)">
+                <a href="javascript:"> {{baseTypeToString(timeRelativeBaseType.TODAY)}} </a>
+              </li>
+              <li (click)="setBaseTime(timeRelativeBaseType.LATEST_TIME)">
+                <a href="javascript:">{{baseTypeToString(timeRelativeBaseType.LATEST_TIME)}}</a>
+              </li>
+            </ul>
+          </div>
+          <!-- // Selectbox -->
+        </div>
+      </div>
+    </div>
+    <!-- // time -->
+  </div>
+  <!-- //기준날 선택 -->
+
   <!-- 과거 선택 -->
-  <div class="ddp-filter-type">
+  <div class="ddp-filter-type" style="padding-top:35px;">
     <span class="ddp-label-name">Previous</span>
     <ul class="ddp-list-buttons">
       <li (click)="setRelative( 'PREVIOUS', 'DAY', 1 )"
@@ -56,6 +85,7 @@
             [value]="targetFilter.value"
             [valueType]="'number'"
             [inputClass]="'ddp-input-typebasic'"
+            [isTimeRelativeFilter]="true"
             (changeValue)="setFilterValue($event)"></component-input>
           <!-- Selectbox -->
           <div (click)="isShowLastComboOpts = !isShowLastComboOpts"
@@ -148,6 +178,7 @@
             [value]="targetFilter.value"
             [valueType]="'number'"
             [inputClass]="'ddp-input-typebasic'"
+            [isTimeRelativeFilter]="true"
             (changeValue)="setFilterValue($event)"></component-input>
           <!-- Selectbox -->
           <div (click)="isShowNextComboOpts = !isShowNextComboOpts"

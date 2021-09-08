@@ -458,7 +458,7 @@ export class FilterUtil {
         keyMap = [];
         break;
       case 'time_relative' :
-        keyMap = ['relTimeUnit', 'tense', 'value', 'timeUnit', 'byTimeUnit', 'discontinuous', 'timeZone'];
+        keyMap = ['relTimeUnit', 'tense', 'value', 'timeUnit', 'byTimeUnit', 'discontinuous', 'timeZone', 'baseType'];
         break;
       case 'time_range' :
       case 'time_single' :
@@ -644,6 +644,7 @@ export class FilterUtil {
     if (this.isTimeFilter(relativeFilter) && this.isTimeRelativeFilter(relativeFilter)) {
       let filter: TimeFilter = _.cloneDeep(relativeFilter) as TimeFilter;
       const relativeInterval = this.getIntervalFromRelative(filter);
+
       filter.clzField = DashboardUtil.getFieldByName(boardInfo, filter.dataSource, filter.field);
       filter = FilterUtil.getTimeRangeFilter(
         filter.clzField, filter.timeUnit, 'general',
@@ -769,18 +770,19 @@ export class FilterUtil {
     }
 
     // 날짜 설정
-    const objDate = moment();
+    const baseTime = timeRelativeFilter.baseType == 'TODAY' ? moment() : moment(timeRelativeFilter.latestTime);
+    const objDate = _.cloneDeep(baseTime);
     let strPreview: string = '';
     switch (timeRelativeFilter.tense) {
       case TimeRelativeTense.PREVIOUS :
         objDate.subtract(timeRelativeFilter.value, strManipulateKey);
         strPreview = objDate.format(strFormat);
-        strPreview = strPreview + '/' + moment().format(strFormat);
+        strPreview = strPreview + '/' + moment(baseTime).format(strFormat);
         break;
       case TimeRelativeTense.NEXT :
         objDate.add(timeRelativeFilter.value, strManipulateKey);
         strPreview = objDate.format(strFormat);
-        strPreview = moment().format(strFormat) + '/' + strPreview;
+        strPreview = moment(baseTime).format(strFormat) + '/' + strPreview;
         break;
       default :
         strPreview = objDate.format(strFormat);

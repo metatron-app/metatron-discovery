@@ -13,25 +13,32 @@
  */
 
 import {
+  AfterViewInit,
+  Component,
   ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnChanges,
   OnDestroy,
   OnInit,
-  Injector,
-  Component,
-  Input,
-  SimpleChanges,
+  Output,
   SimpleChange,
-  EventEmitter, Output, ViewChild, AfterViewInit, OnChanges
+  SimpleChanges,
+  ViewChild
 } from '@angular/core';
 import {EventBroadcaster} from '@common/event/event.broadcaster';
 
 import {TimeUnit} from '@domain/workbook/configurations/field/timestamp-field';
 import {
+  TimeRelativeBaseType,
   TimeRelativeFilter,
   TimeRelativeTense
 } from '@domain/workbook/configurations/filter/time-relative-filter';
 
 import {AbstractFilterPopupComponent} from '../abstract-filter-popup.component';
+import {Dashboard} from "@domain/dashboard/dashboard";
+import _ from "lodash";
 
 declare let moment;
 
@@ -54,6 +61,7 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public isShowBaseComboOpts: boolean = false;    // 기준날 입력 콤보박스 옵션 표시 여부
   public isShowLastComboOpts: boolean = false;    // 과거 시점 입력 콤보박스 옵션 표시 여부
   public isShowNextComboOpts: boolean = false;    // 미래 시점 입력 콤보박스 옵션 표시 여부
   public timeUnitComboList = [
@@ -74,6 +82,9 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
   @Input('filter')
   public inputFilter: TimeRelativeFilter;     // 입력 필터
 
+  @Input('dashboard')
+  public dashboard: Dashboard;            // 대시보드
+
   @Input('mode')
   public mode: string = 'CHANGE';             // CHANGE, PANEL, WIDGET
 
@@ -82,6 +93,10 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
   public changeEvent: EventEmitter<TimeRelativeFilter> = new EventEmitter();
 
   public isShortLabel: boolean = false;
+
+  public get timeRelativeBaseType(): typeof TimeRelativeBaseType {
+    return TimeRelativeBaseType;
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -125,18 +140,20 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
 
     // Set whether short labels
     this.isShortLabel = ('PANEL' === this.mode);
-    this.safelyDetectChanges();
+    // this.safelyDetectChanges();
 
     // Widget Resize Event
-    const $filterArea = $(this._filterArea.nativeElement);
-    this.subscriptions.push(
-      this.broadCaster.on<any>('RESIZE_WIDGET').subscribe(() => {
-        if ('WIDGET' === this.mode) {
-          this.isShortLabel = (320 > $filterArea.width());
-          this.safelyDetectChanges();
-        }
-      })
-    );
+    if(!this.isNullOrUndefined(this._filterArea)){
+      const $filterArea = $(this._filterArea.nativeElement);
+      this.subscriptions.push(
+        this.broadCaster.on<any>('RESIZE_WIDGET').subscribe(() => {
+          if ('WIDGET' === this.mode) {
+            this.isShortLabel = (320 > $filterArea.width());
+            this.safelyDetectChanges();
+          }
+        })
+      );
+    }
   } // function - ngAfterViewInit
 
   /**
@@ -164,14 +181,44 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
       if (this.isNullOrUndefined(tempFilter.relTimeUnit)) {
         tempFilter.relTimeUnit = TimeUnit.WEEK;
       }
+      // 이전에 baseType 없이 생성된 필터에 기본 값 정의
+      if (this.isNullOrUndefined(tempFilter.baseType)){
+        tempFilter.baseType = TimeRelativeBaseType.TODAY;
+      }
       this.selectedTimeUnitItem = this.timeUnitComboList.find(item => item.value === tempFilter.relTimeUnit);
     }
+
+    const filterDs = this.dashboard.dataSources.find(ds => tempFilter.dataSource == ds.engineName);
+    tempFilter['latestTime'] = filterDs.summary.ingestionMaxTime;
 
     this.targetFilter = tempFilter;
 
     (isBroadcast) && (this.changeEvent.emit(this.targetFilter));
-
     this.safelyDetectChanges();
+
+
+    //  const cloneFilter = _.cloneDeep(filter);
+    // this.datasourceService.getCandidateForFilter(cloneFilter, this.dashboard).then((result) => {
+    //   {
+    //     // 기본값 설정
+    //     (tempFilter.hasOwnProperty('value') && 0 < tempFilter.value) || (tempFilter.value = 1);
+    //     (tempFilter.tense) || (tempFilter.tense = TimeRelativeTense.PREVIOUS);
+    //     if (this.isNullOrUndefined(tempFilter.relTimeUnit)) {
+    //       tempFilter.relTimeUnit = TimeUnit.WEEK;
+    //     }
+    //     if (this.isNullOrUndefined(tempFilter.baseType)){
+    //       tempFilter.baseType = TimeRelativeBaseType.TODAY;
+    //     }
+    //     this.selectedTimeUnitItem = this.timeUnitComboList.find(item => item.value === tempFilter.relTimeUnit);
+    //   }
+    //
+    //   tempFilter.latestTime = result['maxTime'];
+    //   this.targetFilter = tempFilter;
+    //
+    //   (isBroadcast) && (this.changeEvent.emit(this.targetFilter));
+    //
+    //   this.safelyDetectChanges();
+    // });
   } // function - setData
 
   /**
@@ -204,7 +251,7 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
         strManipulateKey = 'M';
         break;
       case TimeUnit.WEEK:
-        strFormat = 'YYYY-MM [W]ww';
+        strFormat = 'GGGG-[W]ww';
         strManipulateKey = 'w';
         break;
       case TimeUnit.DAY:
@@ -226,18 +273,20 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
     }
 
     // 날짜 설정
-    const objDate = moment();
+    const baseTime = this.targetFilter.baseType == 'TODAY' ? moment() : moment(this.targetFilter.latestTime);
+    const objDate = _.cloneDeep(baseTime);
     let strPreview: string;
+
     switch (this.targetFilter.tense) {
       case TimeRelativeTense.PREVIOUS :
         objDate.subtract(this.targetFilter.value, strManipulateKey);
         strPreview = objDate.format(strFormat);
-        strPreview = strPreview + ' ~ ' + moment().format(strFormat);
+        strPreview = strPreview + ' ~ ' + moment(baseTime).format(strFormat);
         break;
       case TimeRelativeTense.NEXT :
         objDate.add(this.targetFilter.value, strManipulateKey);
         strPreview = objDate.format(strFormat);
-        strPreview = moment().format(strFormat) + ' ~ ' + strPreview;
+        strPreview = moment(baseTime).format(strFormat) + ' ~ ' + strPreview;
         break;
       default :
         strPreview = objDate.format(strFormat);
@@ -246,6 +295,16 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
 
     return strPreview;
   } // function - getPreview
+
+  /**
+   * Relative 기준날 설정
+   * @param baseTime
+   */
+  public setBaseTime(baseType: TimeRelativeBaseType){
+    this.targetFilter.baseType = baseType;
+    // 값 변경 전달
+    this.changeEvent.emit(this.targetFilter);
+  }  // function - setBaseTime
 
   /**
    * Relative 설정함
@@ -293,6 +352,21 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
     // 값 변경 전달
     this.changeEvent.emit(this.targetFilter);
   } // function - setFilterValue
+
+
+  /**
+   * baseType 값 string 변환
+   * @param baseType
+   */
+  public baseTypeToString(baseType: TimeRelativeBaseType){
+    if (baseType == TimeRelativeBaseType.TODAY){
+      return 'Today'
+    } else if (baseType == TimeRelativeBaseType.LATEST_TIME){
+      return 'Latest Time'
+    }
+    return '';
+  }
+
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method

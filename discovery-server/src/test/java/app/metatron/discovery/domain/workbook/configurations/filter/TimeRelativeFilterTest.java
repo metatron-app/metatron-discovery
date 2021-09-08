@@ -40,7 +40,9 @@ public class TimeRelativeFilterTest {
                                                                    "previous",
                                                                    5,
                                                                    "Asia/Seoul",
-                                                                   "ko"
+                                                                   "ko",
+                                                                    "TODAY",
+                                                                    null
                                                                    );
 
     System.out.println(timeRelativeFilter.getEngineIntervals(Field.ofFakeTimestamp()));
@@ -56,7 +58,9 @@ public class TimeRelativeFilterTest {
             "current",
             5,
             "Asia/Seoul",
-            "ko"
+            "ko",
+            "TODAY",
+            null
     );
 
     System.out.println(timeRelativeFilter.getEngineIntervals(dataSourceField));

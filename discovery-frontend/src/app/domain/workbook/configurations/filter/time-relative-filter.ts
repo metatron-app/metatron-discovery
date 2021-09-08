@@ -25,11 +25,15 @@ export class TimeRelativeFilter extends TimeFilter {
   public relTimeUnit: TimeUnit;
   public value: number;
   public timeZone: string;
+  public baseType: TimeRelativeBaseType;
+
+  public latestTime: Date;
 
   constructor(field: Field) {
     super(field);
     this.type = 'time_relative';
     this.timeZone = moment.tz.guess();
+    this.baseType = TimeRelativeBaseType.TODAY;
   }
 
   public toServerSpec() {
@@ -37,7 +41,8 @@ export class TimeRelativeFilter extends TimeFilter {
     return _.merge(spec, {
       tense: this.tense,
       relTimeUnit: this.relTimeUnit,
-      value: this.value
+      value: this.value,
+      baseType: this.baseType
     });
   } // function - toServerSpec
 }
@@ -49,4 +54,9 @@ export enum TimeRelativeTense {
   PREVIOUS = 'PREVIOUS',
   CURRENT = 'CURRENT',
   NEXT = 'NEXT'
+}
+
+export enum TimeRelativeBaseType{
+  TODAY = 'TODAY',
+  LATEST_TIME = 'LATEST_TIME'
 }
