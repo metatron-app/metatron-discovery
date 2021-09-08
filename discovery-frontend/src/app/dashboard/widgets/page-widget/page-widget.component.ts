@@ -1753,7 +1753,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
         let filter = cloneQuery.filters[idx];
         if (FilterUtil.isTimeFilter(filter)){
           // latest date 가 기준날일 경우 날짜 설정
-          if (filter.baseType != TimeRelativeBaseType.TODAY && this.isNullOrUndefined(filter.latestTime)){
+          if (filter.baseType == TimeRelativeBaseType.LATEST_TIME && this.isNullOrUndefined(filter.latestTime)){
             const filterDs = this.widget.dashBoard.dataSources.find(ds => filter.dataSource == ds.engineName);
             (filterDs) && (filter.latestTime = filterDs.summary.ingestionMaxTime);
           }

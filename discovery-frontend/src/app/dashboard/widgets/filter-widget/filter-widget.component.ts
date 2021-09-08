@@ -54,6 +54,7 @@ import {FilterUtil} from '../../util/filter.util';
 import {TimeFilter} from '@domain/workbook/configurations/filter/time-filter';
 import {TimeRangeFilter} from '@domain/workbook/configurations/filter/time-range-filter';
 import {
+  TimeRelativeBaseType,
   TimeRelativeFilter,
   TimeRelativeTense
 } from '@domain/workbook/configurations/filter/time-relative-filter';
@@ -372,12 +373,12 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
    */
   public changeWidgetOverflow(isShowOptions: boolean) {
     const $filterWidgetEl = $(this.filterWidget.nativeElement);
-    if(isShowOptions && 'WEEK' === this.filter['timeUnit']){
-      $filterWidgetEl.find('.wrap-time-filter').css({overflow:'visible'});
+    if (isShowOptions && 'WEEK' === this.filter['timeUnit']) {
+      $filterWidgetEl.find('.wrap-time-filter').css({overflow: 'visible'});
       $filterWidgetEl.closest('.ddp-wrap-widget').css({overflow: 'visible'});
       $filterWidgetEl.find('.ddp-dateinfo-view').css({overflow: 'visible'});
     } else {
-      $filterWidgetEl.find('.wrap-time-filter').css({overflow:''});
+      $filterWidgetEl.find('.wrap-time-filter').css({overflow: ''});
       $filterWidgetEl.closest('.ddp-wrap-widget').css({overflow: ''});
       $filterWidgetEl.find('.ddp-dateinfo-view').css({overflow: ''});
     }
@@ -452,7 +453,10 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
     const conf: FilterWidgetConfiguration = this.widget.configuration as FilterWidgetConfiguration;
     if (FilterUtil.isTimeFilter(conf.filter)) {
 
-      if (FilterUtil.isTimeRelativeFilter(conf.filter)){
+      if (FilterUtil.isTimeRelativeFilter(conf.filter)) {
+        if (this.isNullOrUndefined(conf.filter['baseType'])) {
+          conf.filter['baseType'] = TimeRelativeBaseType.TODAY;
+        }
         const filterDs = this.dashboard.dataSources.find(ds => conf.filter.dataSource == ds.engineName);
         conf.filter['latestTime'] = filterDs.summary.ingestionMaxTime;
       }
@@ -461,20 +465,6 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
       this.widget.configuration.filter = filter;
       this._setTimeFilterStatus(filter as TimeFilter);
       this._broadcastChangeFilter(filter);
-
-      // const cloneFilter = _.cloneDeep(conf.filter);
-      // this.datasourceService.getCandidateForFilter(cloneFilter, this.dashboard).then((result) => {
-      //   if (FilterUtil.isTimeRelativeFilter(cloneFilter)){
-      //     conf.filter['latestTime'] = result['maxTime'];
-      //   }
-      //   const filter: TimeFilter = FilterUtil.convertRelativeToInterval(conf.filter as TimeFilter, this.dashboard);
-      //   this.filter = filter;
-      //   this.widget.configuration.filter = filter;
-      //   // if(!this.isEditMode){
-      //   // }
-      //   this._setTimeFilterStatus(filter as TimeFilter);
-      //   this._broadcastChangeFilter(filter);
-      // });
     }
   } // function - setTimeRangeFilter
 
@@ -939,18 +929,10 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
     this.isListTypeTimeFilter = FilterUtil.isTimeListFilter(timeFilter);
     this.isSingleTypeTimeFilter = FilterUtil.isTimeSingleFilter(timeFilter);
 
-    // if (this.isRelativeTypeTimeFilter) {
-    //   this.setTimeRangeFilter();
-    //   if(!this.isEditMode){
-    //     this.safelyDetectChanges();
-    //   }
-    // }
-
     if (!this.isEditMode && this.isRelativeTypeTimeFilter) {
       this.setTimeRangeFilter();
       this.safelyDetectChanges();
     }
-
   } // function - _setTimeFilterStatus
 
 }
