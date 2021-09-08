@@ -94,6 +94,7 @@ import {MapLayerType} from '@common/component/chart/option/define/map/map-common
 import {fromEvent} from 'rxjs';
 import {debounceTime, map} from 'rxjs/operators';
 import {CookieConstant} from '@common/constant/cookie.constant';
+import {TimeRelativeBaseType} from '@domain/workbook/configurations/filter/time-relative-filter';
 
 const possibleMouseModeObj: any = {
   single: ['bar', 'line', 'grid', 'control', 'scatter', 'heatmap', 'pie', 'wordcloud', 'boxplot', 'combine'],
@@ -4128,7 +4129,16 @@ export class PageViewComponent extends AbstractPopupComponent implements OnInit,
 
     // 필터 설정
     for (let idx = 0, nMax = cloneQuery.filters.length; idx < nMax; idx++) {
-      cloneQuery.filters[idx] = FilterUtil.convertToServerSpec(cloneQuery.filters[idx]);
+      let filter = cloneQuery.filters[idx];
+      if (FilterUtil.isTimeFilter(filter)){
+        // latest date 가 기준날일 경우 날짜 설정
+        if (filter.baseType == TimeRelativeBaseType.LATEST_TIME && this.isNullOrUndefined(filter.latestTime)){
+          const filterDs = this.widget.dashBoard.dataSources.find(ds => filter.dataSource == ds.engineName);
+          (filterDs) && (filter.latestTime = filterDs.summary.ingestionMaxTime);
+        }
+      }
+      filter = FilterUtil.convertRelativeToInterval(filter, this.widget.dashBoard);
+      cloneQuery.filters[idx] = FilterUtil.convertToServerSpec(filter);
     }
 
     // 값이 없는 측정값 필터 제거

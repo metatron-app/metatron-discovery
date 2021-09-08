@@ -44,6 +44,7 @@ import {CommonUtil} from '@common/util/common.util';
 import {MapChartComponent} from '@common/component/chart/type/map-chart/map-chart.component';
 import {CustomField} from '@domain/workbook/configurations/field/custom-field';
 import {BoardConfiguration} from '@domain/dashboard/dashboard';
+import {TimeRelativeBaseType} from '@domain/workbook/configurations/filter/time-relative-filter';
 
 @Component({
   selector: 'app-embedded-page',
@@ -421,6 +422,13 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
     if( cloneQuery.filters ) {
       for (let idx = 0, nMax = cloneQuery.filters.length; idx < nMax; idx++) {
         let filter = cloneQuery.filters[idx];
+        if (FilterUtil.isTimeFilter(filter)){
+          // latest date 가 기준날일 경우 날짜 설정
+          if (filter.baseType == TimeRelativeBaseType.LATEST_TIME && this.isNullOrUndefined(filter.latestTime)){
+            const filterDs = this.widget.dashBoard.dataSources.find(ds => filter.dataSource == ds.engineName);
+            (filterDs) && (filter.latestTime = filterDs.summary.ingestionMaxTime);
+          }
+        }
         filter = FilterUtil.convertRelativeToInterval(filter, this.widget.dashBoard);
         cloneQuery.filters[idx] = FilterUtil.convertToServerSpec(filter);
       }
