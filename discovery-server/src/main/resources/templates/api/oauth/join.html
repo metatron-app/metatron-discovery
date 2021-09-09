@@ -37,6 +37,7 @@
     <div class="ddp-ui-popup-in">
         <!-- popup -->
         <div class="ddp-ui-popup ddp-box-user-popup">
+            <a id="btnClose" href="javascript:" class="ddp-btn-close" style="display: inline-block !important;"></a>
             <span class="ddp-ui-pop-title" th:text="#{message.app.oauth.join.title}"></span>
 
             <!-- contents -->
@@ -270,6 +271,8 @@
         // Pass Approve
         const $inputPassApprove = $('#inputPassApprove');
 
+        let isCheckedPrivacyTerms = false;
+
         // isTermsRequired 값에 따라 약관 내용 표시
         if($("#isTermsRequired").attr("value") === 'true')
         {
@@ -280,6 +283,7 @@
             $("#isTermsRequired").css('display','none');
             // 약관이 없을 경우 개인정보 동의 자동 체크
             $("#inputPrivacyTerms").attr('checked', true);
+            isCheckedPrivacyTerms = true;
         }
 
 
@@ -455,7 +459,7 @@
                 }
             }
             else if ('privacyTerms' === type){
-                if($inputPrivacyTerms.is(":checked")){
+                if(isCheckedPrivacyTerms){
                     setStatusInputForm($formInputPrivacyTerms, 'OK');
                     $msgInputPrivacyTerms.text('');
                 } else {
@@ -518,10 +522,14 @@
         $inputPrivacyTerms.bind(
             {
                 'click': function() {
+                    isCheckedPrivacyTerms = true;
                     validation('privacyTerms');
                 }
             }
         );
+        $('#btnClose').bind( 'click', function() {
+            history.back();
+        });
         $('#btnJoin').bind( 'click', function() {
             // required fields
             if( '' === $inputName.val().trim() || 1 > $inputName.val().length ) {
@@ -540,7 +548,7 @@
                 setStatusInputForm($formInputConfirmPassword, 'ERROR');
                 $msgInputConfirmPassword.text('[(#{message.app.oauth.empty_input})]');
             }
-            if(!$inputPrivacyTerms.is(":checked")) {
+            if(!isCheckedPrivacyTerms) {
                 setStatusInputForm($formInputPrivacyTerms, 'ERROR');
                 $msgInputPrivacyTerms.text('[(#{message.app.oauth.join.terms.unchecked})]');
             }
