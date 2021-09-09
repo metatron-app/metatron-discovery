@@ -339,11 +339,13 @@ public class AuthenticationController {
   public ResponseEntity<?> updateClient(@PathVariable("clientId") String clientId,
                                         @RequestBody OauthClientInformation oauthClientInformation,
                                           HttpServletRequest request) {
+
     BaseClientDetails baseClientDetails = (BaseClientDetails)jdbcClientDetailsService.loadClientByClientId(clientId);
     Map additionalInformation = new HashMap<String, String>();
     if (baseClientDetails.getAdditionalInformation() != null) {
       additionalInformation = new HashMap<>(baseClientDetails.getAdditionalInformation());
     }
+
     makeAdditionalInformation(oauthClientInformation, additionalInformation);
 
     baseClientDetails.setAdditionalInformation(additionalInformation);
@@ -587,6 +589,15 @@ public class AuthenticationController {
     }
     if (oauthClientInformation.isCheckIp() != null) {
       additionalInformation.put("checkIp", oauthClientInformation.isCheckIp());
+    }
+    if (oauthClientInformation.getIsTermsRequired() != null) {
+      additionalInformation.put("isTermsRequired", oauthClientInformation.getIsTermsRequired());
+    }
+    if (StringUtils.isNotEmpty(oauthClientInformation.getTermsHTML())) {
+      additionalInformation.put("termsHTML", oauthClientInformation.getTermsHTML());
+    }
+    if (oauthClientInformation.getPassApprove() != null) {
+      additionalInformation.put("passApprove", oauthClientInformation.getPassApprove());
     }
   }
 
