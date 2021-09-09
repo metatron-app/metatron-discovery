@@ -55,12 +55,18 @@ public abstract class AbstractTuningConfig implements TuningConfig {
     mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     String configJson;
-    try {
-      configJson = mapper.writeValueAsString(tuningConfig);
-      copyProperties(mapper.readValue(configJson, this.getClass()), this, tuningConfig.keySet());
-    } catch (Exception e) {
-      throw new DataSourceException(DataSourceErrorCodes.INGESTION_COMMON_ERROR, e.getMessage());
+
+    if (tuningConfig != null) {
+      try {
+        configJson = mapper.writeValueAsString(tuningConfig);
+        copyProperties(mapper.readValue(configJson, this.getClass()), this, tuningConfig.keySet());
+      } catch (Exception e) {
+        throw new DataSourceException(DataSourceErrorCodes.INGESTION_COMMON_ERROR, e.getMessage());
+      }
+    } else {
+      LOGGER.info("There were no tuningConfigs. Skip overriding.");
     }
+
 
   }
 
