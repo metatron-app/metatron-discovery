@@ -21,7 +21,7 @@ import {BoundFilter} from '@domain/workbook/configurations/filter/bound-filter';
 import {Modal} from '@common/domain/modal';
 import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
 
-import {BoardConfiguration} from '@domain/dashboard/dashboard';
+import {BoardConfiguration, Dashboard} from '@domain/dashboard/dashboard';
 import {CustomField} from '@domain/workbook/configurations/field/custom-field';
 import {Datasource, Field, FieldRole, LogicalType} from '@domain/datasource/datasource';
 import {Filter} from '@domain/workbook/configurations/filter/filter';
@@ -80,6 +80,7 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
   private _boardFilters: Filter[] = [];
   private _chartFilters: Filter[] = [];
   private _boardConf: BoardConfiguration;
+  private _board: Dashboard;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -144,23 +145,25 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
 
   /**
    * 컴포넌트를 연다.
-   * @param {BoardConfiguration} boardConf
+   * @param {Dashboard} board
    * @param {Datasource[]} dataSources
    * @param {Datasource} targetDataSource
    * @param {Filter[]} chartFilters
    * @param {Widget} widget
    */
-  public open(boardConf: BoardConfiguration, dataSources: Datasource[], targetDataSource: Datasource,
+  public open(board: Dashboard, dataSources: Datasource[], targetDataSource: Datasource,
               chartFilters: Filter[], widget?: Widget) {
     this.widget = widget;
 
     this.dataSources = dataSources;
     this.selectedDataSource = (targetDataSource) ? targetDataSource : dataSources[0];
 
+    const boardConf = board.configuration;
     this._boardFilters = isUndefined(boardConf.filters) ? [] : boardConf.filters;
     this._chartFilters = chartFilters;
 
     this._boardConf = boardConf;
+    this._board = board;
 
     this.selectDataSource(this.selectedDataSource);
 
@@ -309,7 +312,7 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
     let timeFilter: TimeFilter;
     if (isNullOrUndefined(unit)) {
       // timeFilter = new TimeAllFilter(<Field>field);
-      timeFilter = FilterUtil.getTimeRangeFilter(field as Field, undefined, undefined, this.selectedDataSource);
+      timeFilter = FilterUtil.getTimeRangeFilter(field as Field, undefined, undefined, this.selectedDataSource, this._board);
     } else {
       timeFilter = new TimeListFilter(field as Field);
       timeFilter.timeUnit = unit;
