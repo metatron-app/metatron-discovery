@@ -85,7 +85,7 @@
             [value]="targetFilter.value"
             [valueType]="'number'"
             [inputClass]="'ddp-input-typebasic'"
-            [isTimeRelativeFilter]="true"
+            [autoFocus]="false"
             (changeValue)="setFilterValue($event)"></component-input>
           <!-- Selectbox -->
           <div (click)="isShowLastComboOpts = !isShowLastComboOpts"
@@ -178,7 +178,7 @@
             [value]="targetFilter.value"
             [valueType]="'number'"
             [inputClass]="'ddp-input-typebasic'"
-            [isTimeRelativeFilter]="true"
+            [autoFocus]="false"
             (changeValue)="setFilterValue($event)"></component-input>
           <!-- Selectbox -->
           <div (click)="isShowNextComboOpts = !isShowNextComboOpts"
