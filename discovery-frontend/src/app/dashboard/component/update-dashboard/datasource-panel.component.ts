@@ -387,7 +387,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
       this.showDatasourcePanel = false;
       // 시간일 경우
       if (field.logicalType === LogicalType.TIMESTAMP) {
-        this.onUpdateFilter.emit(FilterUtil.getTimeRangeFilter(field, undefined, undefined, this.dataSource));
+        this.onUpdateFilter.emit(FilterUtil.getTimeRangeFilter(field, undefined, undefined, this.dataSource, this.dashboard));
       } else if (field.role === FieldRole.MEASURE) {
         // 측정값 필터
         this.onUpdateFilter.emit(FilterUtil.getBasicBoundFilter(field));

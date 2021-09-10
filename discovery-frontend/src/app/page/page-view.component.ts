@@ -1918,7 +1918,7 @@ export class PageViewComponent extends AbstractPopupComponent implements OnInit,
       let newFilter: Filter;
       if (selectedField.logicalType === LogicalType.TIMESTAMP) {
         // 시간 필터
-        const timeFilter = FilterUtil.getTimeRangeFilter(selectedField, undefined, undefined, this.dataSource);
+        const timeFilter = FilterUtil.getTimeRangeFilter(selectedField, undefined, undefined, this.dataSource, this.widget.dashBoard);
 
         // widgetId set
         timeFilter.ui.widgetId = this.widget.id;

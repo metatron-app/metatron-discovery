@@ -207,7 +207,7 @@ export class ConfigureFiltersTimeComponent extends AbstractFilterPopupComponent 
     } else {
       currFilter = FilterUtil.getTimeRangeFilter(
         currFilter.clzField, TimeUnit.NONE, currFilter.ui.importanceType,
-        this.dashboard.dataSources.find( ds => ds.engineName === this.targetFilter.dataSource )
+        this.dashboard.dataSources.find( ds => ds.engineName === this.targetFilter.dataSource ), this.dashboard
       );
     }
     this.targetFilter = currFilter;

@@ -648,7 +648,7 @@ export class FilterUtil {
       filter.clzField = DashboardUtil.getFieldByName(boardInfo, filter.dataSource, filter.field);
       filter = FilterUtil.getTimeRangeFilter(
         filter.clzField, filter.timeUnit, 'general',
-        boardInfo.dataSources.find(ds => ds.engineName === filter.dataSource)
+        boardInfo.dataSources.find(ds => ds.engineName === filter.dataSource), boardInfo
       );
       (filter as TimeRangeFilter).timeUnit = TimeUnit.DAY;
       (filter as TimeRangeFilter).intervals = relativeInterval;
@@ -818,6 +818,7 @@ export class FilterUtil {
    * @param {TimeUnit} timeUnit
    * @param {string} importanceType
    * @param {Datasource} ds
+   * @param {Dashboard} dashboard
    * @returns {TimeRangeFilter}
    */
   public static getTimeRangeFilter(field: Field, timeUnit?: TimeUnit, importanceType?: string, ds?: Datasource, dashboard?: Dashboard): TimeRangeFilter {
@@ -826,27 +827,26 @@ export class FilterUtil {
 
     (importanceType) && (timeFilter.ui.importanceType = importanceType);
 
-    if(!timeFilter.intervals && dashboard){
-      const target = dashboard.timeRanges.find(info =>
-        info.dataSource.engineName == field.dataSource &&
-        info.fieldName == field.logicalName);
+    if(!timeFilter.intervals) {
+      if(dashboard && dashboard.timeRanges) {
+        const target = dashboard.timeRanges.find(info =>
+          info.dataSource.engineName == field.dataSource &&
+          info.fieldName == field.logicalName);
 
-      (timeFilter as TimeRangeFilter).intervals = [
-        FilterUtil.getDateTimeFormat(target.minTime, timeUnit)
-        + '/'
-        + FilterUtil.getDateTimeFormat(target.maxTime, timeUnit)
-      ]
+        (timeFilter as TimeRangeFilter).intervals = [
+          FilterUtil.getDateTimeFormat(target.minTime, timeUnit)
+          + '/'
+          + FilterUtil.getDateTimeFormat(target.maxTime, timeUnit)
+        ]
+      }
+      else if (ds && ds.summary && ds.summary.ingestionMinTime && ds.summary.ingestionMaxTime) {
+        (timeFilter as TimeRangeFilter).intervals = [
+          FilterUtil.getDateTimeFormat(ds.summary.ingestionMinTime, timeUnit)
+          + '/'
+          + FilterUtil.getDateTimeFormat(ds.summary.ingestionMaxTime, timeUnit)
+        ];
+      }
     }
-    else if (!timeFilter.intervals
-      && ds && ds.summary
-      && ds.summary.ingestionMinTime && ds.summary.ingestionMaxTime) {
-      (timeFilter as TimeRangeFilter).intervals = [
-        FilterUtil.getDateTimeFormat(ds.summary.ingestionMinTime, timeUnit)
-        + '/'
-        + FilterUtil.getDateTimeFormat(ds.summary.ingestionMaxTime, timeUnit)
-      ];
-    }
-
     return timeFilter;
   } // function - getTimeRangeFilter
 
