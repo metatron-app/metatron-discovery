@@ -163,7 +163,7 @@ export class ConfigureFiltersTimeComponent extends AbstractFilterPopupComponent 
   public setTimeRangeFilter() {
     this.targetFilter = FilterUtil.getTimeRangeFilter(
       this.targetFilter.clzField, this.targetFilter.timeUnit, this.targetFilter.ui.importanceType,
-      this.dashboard.dataSources.find( ds => ds.engineName === this.targetFilter.dataSource )
+      this.dashboard.dataSources.find( ds => ds.engineName === this.targetFilter.dataSource ), this.dashboard
     );
     this._setStatus();
   } // function - setTimeRangeFilter

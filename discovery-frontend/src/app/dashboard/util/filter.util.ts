@@ -820,13 +820,24 @@ export class FilterUtil {
    * @param {Datasource} ds
    * @returns {TimeRangeFilter}
    */
-  public static getTimeRangeFilter(field: Field, timeUnit?: TimeUnit, importanceType?: string, ds?: Datasource): TimeRangeFilter {
+  public static getTimeRangeFilter(field: Field, timeUnit?: TimeUnit, importanceType?: string, ds?: Datasource, dashboard?: Dashboard): TimeRangeFilter {
     const timeFilter = new TimeRangeFilter(field);
     timeFilter.timeUnit = CommonUtil.isNullOrUndefined(timeUnit) ? TimeUnit.NONE : timeUnit;
 
     (importanceType) && (timeFilter.ui.importanceType = importanceType);
 
-    if (!timeFilter.intervals
+    if(!timeFilter.intervals && dashboard){
+      const target = dashboard.timeRanges.find(info =>
+        info.dataSource.engineName == field.dataSource &&
+        info.fieldName == field.logicalName);
+
+      (timeFilter as TimeRangeFilter).intervals = [
+        FilterUtil.getDateTimeFormat(target.minTime, timeUnit)
+        + '/'
+        + FilterUtil.getDateTimeFormat(target.maxTime, timeUnit)
+      ]
+    }
+    else if (!timeFilter.intervals
       && ds && ds.summary
       && ds.summary.ingestionMinTime && ds.summary.ingestionMaxTime) {
       (timeFilter as TimeRangeFilter).intervals = [

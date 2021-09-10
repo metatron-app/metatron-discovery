@@ -425,8 +425,11 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
         if (FilterUtil.isTimeFilter(filter)){
           // latest date 가 기준날일 경우 날짜 설정
           if (filter.baseType == TimeRelativeBaseType.LATEST_TIME && this.isNullOrUndefined(filter.latestTime)){
-            const filterDs = this.widget.dashBoard.dataSources.find(ds => filter.dataSource == ds.engineName);
-            (filterDs) && (filter.latestTime = filterDs.summary.ingestionMaxTime);
+            const target = this.widget.dashBoard.timeRanges.find(info =>
+              info.dataSource.engineName == filter.dataSource &&
+              info.fieldName == filter.field);
+
+            filter['latestTime'] = (target) ? target.maxTime : new Date();
           }
         }
         filter = FilterUtil.convertRelativeToInterval(filter, this.widget.dashBoard);
