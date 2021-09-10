@@ -45,8 +45,11 @@ import {MapChartComponent} from '@common/component/chart/type/map-chart/map-char
 import {CustomField} from '@domain/workbook/configurations/field/custom-field';
 import {BoardConfiguration} from '@domain/dashboard/dashboard';
 import {TimeRelativeBaseType} from '@domain/workbook/configurations/filter/time-relative-filter';
+import {LogicalType} from "@domain/datasource/datasource";
 
 declare let moment;
+declare let async;
+
 
 @Component({
   selector: 'app-embedded-page',
@@ -282,17 +285,54 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
    * @private
    */
   private _getPageInfo(pageId: string) {
+
     this.widgetService.getWidget(pageId).then(result => {
       this.widget = (_.extend(new PageWidget(), result) as PageWidget);
       this.widgetConfiguration = (this.widget.configuration as PageWidgetConfiguration);
       this.chartType = this.widgetConfiguration.chart.type.toString();
       this.widget.dashBoard.configuration.fields
         = this.widget.dashBoard.dataSources.reduce((acc, ds) => {
-          ds.fields.forEach( dsInfo => dsInfo.dataSource = ds.engineName);
-          return acc.concat(ds.fields);
+        ds.fields.forEach( dsInfo => dsInfo.dataSource = ds.engineName);
+        return acc.concat(ds.fields);
       }, []);
-      this.changeDetect.detectChanges();
-      this._search();
+
+      const timestampFields = this.widget.dashBoard.dataSources.reduce((acc, dsInfo) =>{
+        acc.push(
+          ...dsInfo.fields
+            .filter(fieldInfo => LogicalType.TIMESTAMP === fieldInfo.logicalType)
+            .map( fieldInfo => {
+              return {
+                dsInfo: dsInfo,
+                field: fieldInfo
+              }
+            })
+        );
+        return acc;
+      }, []);
+
+      this.widget.dashBoard.timeRanges=[];
+
+      const procCandidate: ((callback) => void)[] = timestampFields.map(fieldInfo => {
+        return (callback) => {
+          this.datasourceService.getCandidateForTimestamp(fieldInfo, this.widget.dashBoard).then(rangeResult => {
+            if (rangeResult){
+              const timeRangeInfo = {
+                fieldName : fieldInfo.field.name,
+                maxTime : rangeResult.maxTime,
+                minTime : rangeResult.minTime,
+                dataSource: fieldInfo.dsInfo
+              };
+              this.widget.dashBoard.timeRanges.push(timeRangeInfo);
+            }
+            callback();
+          }).catch(()=> callback());
+        }
+      })
+
+      async.waterfall(procCandidate, () => {
+        this.changeDetect.detectChanges();
+        this._search();
+      })
     });
   } // function - _getPageInfo
 
