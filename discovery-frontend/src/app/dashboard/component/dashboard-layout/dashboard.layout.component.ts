@@ -79,6 +79,7 @@ import {TimeDateFilter} from '@domain/workbook/configurations/filter/time-date-f
 
 declare let moment;
 declare let GoldenLayout: any;
+declare let async;
 
 export abstract class DashboardLayoutComponent extends AbstractDashboardComponent implements OnInit, OnDestroy {
 
@@ -1371,132 +1372,167 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
         boardInfo = DashboardUtil.convertSpecToUI(boardInfo);
       } // end of data migration
 
-      // 글로벌 필터 셋팅
-      this.initializeFilter(boardInfo).then((boardData) => {
+      // getCandidate For TimeRange Max value
+      const timestampFields = boardInfo.dataSources.reduce((acc, dsInfo) => {
+        acc.push(
+          ...dsInfo.fields
+            .filter( fieldInfo => LogicalType.TIMESTAMP === fieldInfo.logicalType)
+            .map( fieldInfo => {
+              return {
+                dsInfo: dsInfo,
+                field: fieldInfo
+              };
+            })
+        );
+        return acc;
+      }, []);
 
-        boardInfo = boardData;
+      boardInfo.timeRanges = [];
+      const procCandidate: ((callback) => void)[] = timestampFields.map( fieldInfo => {
+        return (callback) => {
+          this.datasourceService.getCandidateForTimestamp(fieldInfo, boardInfo).then(rangeResult => {
+            if (rangeResult) {
+              const timeRangeInfo = {
+                fieldName : fieldInfo.field.name,
+                maxTime : rangeResult.maxTime,
+                minTime : rangeResult.minTime
+              };
+              boardInfo.timeRanges.push(timeRangeInfo);
+            }
+            callback();
+          }).catch(() => callback())
+        };
+      })
 
-        const promises = [];
-        if (boardInfo.configuration.filters) {
-          // remove current_time timestamp filter - S
-          boardInfo.configuration.filters
-            = boardInfo.configuration.filters.filter((filter: Filter) => {
-            if (FilterUtil.isTimeFilter(filter) && filter['clzField']) {
-              const filterField: Field = (filter as TimeFilter).clzField;
-              if (FieldRole.TIMESTAMP === filterField.role && CommonConstant.COL_NAME_CURRENT_DATETIME === filterField.name) {
-                const filterId: string = filter.dataSource + '_' + filter.field;
-                const filterWidgets: Widget[] = boardInfo.widgets.filter(widget => {
-                  if ('filter' === widget.type) {
-                    const filterInWidget: Filter = (widget.configuration as FilterWidgetConfiguration).filter;
-                    return (filterInWidget.dataSource + '_' + filterInWidget.field === filterId);
-                  }
-                });
+      async.waterfall(procCandidate, () => {
 
-                filterWidgets.forEach((item) => {
-                  promises.push(new Promise((res) => {
-                    this.widgetService.deleteWidget(item.id)
-                      .then(() => {
-                        console.log('+=+=+=+=+=+=+=+=+=+=+=+=+=+=+= remove current_time filter');
-                        boardInfo.widgets = boardInfo.widgets.filter(widgetItem => widgetItem.id !== item.id);
-                        res(null);
-                      });
-                  }));
-                });
+        // 글로벌 필터 셋팅
+        this.initializeFilter(boardInfo).then((boardData) => {
 
-                return false;
+          boardInfo = boardData;
+
+          const promises = [];
+          if (boardInfo.configuration.filters) {
+            // remove current_time timestamp filter - S
+            boardInfo.configuration.filters
+              = boardInfo.configuration.filters.filter((filter: Filter) => {
+              if (FilterUtil.isTimeFilter(filter) && filter['clzField']) {
+                const filterField: Field = (filter as TimeFilter).clzField;
+                if (FieldRole.TIMESTAMP === filterField.role && CommonConstant.COL_NAME_CURRENT_DATETIME === filterField.name) {
+                  const filterId: string = filter.dataSource + '_' + filter.field;
+                  const filterWidgets: Widget[] = boardInfo.widgets.filter(widget => {
+                    if ('filter' === widget.type) {
+                      const filterInWidget: Filter = (widget.configuration as FilterWidgetConfiguration).filter;
+                      return (filterInWidget.dataSource + '_' + filterInWidget.field === filterId);
+                    }
+                  });
+
+                  filterWidgets.forEach((item) => {
+                    promises.push(new Promise((res) => {
+                      this.widgetService.deleteWidget(item.id)
+                        .then(() => {
+                          console.log('+=+=+=+=+=+=+=+=+=+=+=+=+=+=+= remove current_time filter');
+                          boardInfo.widgets = boardInfo.widgets.filter(widgetItem => widgetItem.id !== item.id);
+                          res(null);
+                        });
+                    }));
+                  });
+
+                  return false;
+                } else {
+                  return true;
+                }
               } else {
                 return true;
               }
-            } else {
-              return true;
-            }
-          });
-          // remove current_time timestamp filter - E
-
-          // Adjust filter widget information error - S
-          boardInfo.configuration.filters.forEach((filter: Filter) => {
-
-            // add missing widget or remove duplicate widget
-            const filterId: string = filter.dataSource + '_' + filter.field;
-            const filterWidgets: Widget[] = boardInfo.widgets.filter(widget => {
-              if ('filter' === widget.type) {
-                const filterInWidget: Filter = (widget.configuration as FilterWidgetConfiguration).filter;
-                return (filterInWidget.dataSource + '_' + filterInWidget.field === filterId);
-              }
             });
+            // remove current_time timestamp filter - E
 
-            if (0 === filterWidgets.length) {
-              // 필터위젯 정보가 없는 필터의 경우 - 필터 위젯 정보 생성
-              promises.push(new Promise((res) => {
-                this.widgetService.createWidget(new FilterWidget(filter, boardInfo), boardInfo.id)
-                  .then(createResult => {
-                    boardInfo.widgets.push(createResult);
-                    res(null);
-                  });
-              }));
-            } else {
-              // 동일한 필드에 대해서 필터가 1개 이상일 경우에 삭제 등록
-              filterWidgets.forEach((item, index) => {
-                if (0 < index) {
-                  promises.push(new Promise((res) => {
-                    this.widgetService.deleteWidget(item.id)
-                      .then(() => {
-                        boardInfo.widgets = boardInfo.widgets.filter(widgetItem => widgetItem.id !== item.id);
-                        res(null);
-                      });
-                  }));
+            // Adjust filter widget information error - S
+            boardInfo.configuration.filters.forEach((filter: Filter) => {
+
+              // add missing widget or remove duplicate widget
+              const filterId: string = filter.dataSource + '_' + filter.field;
+              const filterWidgets: Widget[] = boardInfo.widgets.filter(widget => {
+                if ('filter' === widget.type) {
+                  const filterInWidget: Filter = (widget.configuration as FilterWidgetConfiguration).filter;
+                  return (filterInWidget.dataSource + '_' + filterInWidget.field === filterId);
                 }
               });
-            }
-          });
-          // Adjust filter widget information error - E
 
-          // set filter relation
-          if (boardInfo.widgets && !boardInfo.configuration.filterRelations) {
-            boardInfo.configuration.filterRelations = [];
-            boardInfo.widgets.forEach(widget => {
-              if ('filter' === widget.type) {
-                const widgetFilter = (widget as FilterWidget).configuration.filter;
-                if (boardInfo.configuration.filters.some(filterItem => {
-                  if (widgetFilter.dataSource === filterItem.dataSource && widgetFilter.field === filterItem.field) {
-                    return 'recommended' !== filterItem.ui.importanceType;
-                  } else {
-                    return false;
+              if (0 === filterWidgets.length) {
+                // 필터위젯 정보가 없는 필터의 경우 - 필터 위젯 정보 생성
+                promises.push(new Promise((res) => {
+                  this.widgetService.createWidget(new FilterWidget(filter, boardInfo), boardInfo.id)
+                    .then(createResult => {
+                      boardInfo.widgets.push(createResult);
+                      res(null);
+                    });
+                }));
+              } else {
+                // 동일한 필드에 대해서 필터가 1개 이상일 경우에 삭제 등록
+                filterWidgets.forEach((item, index) => {
+                  if (0 < index) {
+                    promises.push(new Promise((res) => {
+                      this.widgetService.deleteWidget(item.id)
+                        .then(() => {
+                          boardInfo.widgets = boardInfo.widgets.filter(widgetItem => widgetItem.id !== item.id);
+                          res(null);
+                        });
+                    }));
                   }
-                })) {
-                  // 일반 필터만 추가함
-                  if (!this._findWidgetRelation(widget.id, boardInfo.configuration.filterRelations, [], () => true)) {
-                    // 필터 relation 을 생성한다.
-                    (boardInfo.configuration.filterRelations) || (boardInfo.configuration.filterRelations = []);
-                    this._addWidgetRelation(widget.id, boardInfo.configuration.filterRelations);
-                    boardInfo['change'] = true;
-                  }
-                }
+                });
               }
             });
-          } // end if - filterRelations
+            // Adjust filter widget information error - E
 
-          // 필터 관계 맵 생성
-          this._generateFilterRelationMap(boardInfo);
+            // set filter relation
+            if (boardInfo.widgets && !boardInfo.configuration.filterRelations) {
+              boardInfo.configuration.filterRelations = [];
+              boardInfo.widgets.forEach(widget => {
+                if ('filter' === widget.type) {
+                  const widgetFilter = (widget as FilterWidget).configuration.filter;
+                  if (boardInfo.configuration.filters.some(filterItem => {
+                    if (widgetFilter.dataSource === filterItem.dataSource && widgetFilter.field === filterItem.field) {
+                      return 'recommended' !== filterItem.ui.importanceType;
+                    } else {
+                      return false;
+                    }
+                  })) {
+                    // 일반 필터만 추가함
+                    if (!this._findWidgetRelation(widget.id, boardInfo.configuration.filterRelations, [], () => true)) {
+                      // 필터 relation 을 생성한다.
+                      (boardInfo.configuration.filterRelations) || (boardInfo.configuration.filterRelations = []);
+                      this._addWidgetRelation(widget.id, boardInfo.configuration.filterRelations);
+                      boardInfo['change'] = true;
+                    }
+                  }
+                }
+              });
+            } // end if - filterRelations
 
-        } // end if - filters
+            // 필터 관계 맵 생성
+            this._generateFilterRelationMap(boardInfo);
 
-        Promise.all(promises).then(() => {
-          // 데이터 변환
-          boardInfo = this._convertSpecToUI(boardInfo);
-          boardInfo = this._initWidgetsAndLayout(boardInfo, mode);
-          resolve(boardInfo);
+          } // end if - filters
+
+          Promise.all(promises).then(() => {
+            // 데이터 변환
+            boardInfo = this._convertSpecToUI(boardInfo);
+            boardInfo = this._initWidgetsAndLayout(boardInfo, mode);
+            resolve(boardInfo);
+          }).catch(() => {
+            boardInfo = this._convertSpecToUI(boardInfo);
+            boardInfo = this._initWidgetsAndLayout(boardInfo, mode);
+            resolve(boardInfo);
+          });
+
         }).catch(() => {
           boardInfo = this._convertSpecToUI(boardInfo);
           boardInfo = this._initWidgetsAndLayout(boardInfo, mode);
           resolve(boardInfo);
         });
-
-      }).catch(() => {
-        boardInfo = this._convertSpecToUI(boardInfo);
-        boardInfo = this._initWidgetsAndLayout(boardInfo, mode);
-        resolve(boardInfo);
-      });
+      })
 
     });
 

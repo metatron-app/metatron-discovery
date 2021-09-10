@@ -457,8 +457,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
         if (this.isNullOrUndefined(conf.filter['baseType'])) {
           conf.filter['baseType'] = TimeRelativeBaseType.TODAY;
         }
-        const filterDs = this.dashboard.dataSources.find(ds => conf.filter.dataSource == ds.engineName);
-        conf.filter['latestTime'] = filterDs.summary.ingestionMaxTime;
+        conf.filter['latestTime'] = this.dashboard.timeRanges.find(info => info.fieldName == conf.filter.field).maxTime;
       }
       const filter: TimeFilter = FilterUtil.convertRelativeToInterval(conf.filter as TimeFilter, this.dashboard);
       this.filter = filter;
