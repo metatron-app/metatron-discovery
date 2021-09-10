@@ -1753,11 +1753,12 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
         let filter = cloneQuery.filters[idx];
         if (FilterUtil.isTimeFilter(filter)){
           // latest date 가 기준날일 경우 날짜 설정
-          if (filter.baseType == TimeRelativeBaseType.LATEST_TIME && this.isNullOrUndefined(filter.latestTime)
-            && !this.isNullOrUndefined(this.widget.dashBoard.timeRanges)){
-            filter['latestTime'] = this.widget.dashBoard.timeRanges.find(info =>
+          if (filter.baseType == TimeRelativeBaseType.LATEST_TIME && this.isNullOrUndefined(filter.latestTime)){
+            const target = this.widget.dashBoard.timeRanges.find(info =>
               info.dataSource.engineName == filter.dataSource &&
-              info.fieldName == filter.field).maxTime;
+              info.fieldName == filter.field);
+
+            filter['latestTime'] = (target) ? target.maxTime : new Date();
           }
         }
         filter = FilterUtil.convertRelativeToInterval(filter, this.widget.dashBoard);

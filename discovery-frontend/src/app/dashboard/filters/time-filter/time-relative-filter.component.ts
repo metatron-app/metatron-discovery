@@ -188,11 +188,12 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
       this.selectedTimeUnitItem = this.timeUnitComboList.find(item => item.value === tempFilter.relTimeUnit);
     }
 
-    if(!this.isNullOrUndefined(this.dashboard.timeRanges)){
-      tempFilter['latestTime'] = this.dashboard.timeRanges.find(info =>
-        info.dataSource.engineName == tempFilter.dataSource &&
-        info.fieldName == tempFilter.field).maxTime;
-    }
+    const target = this.dashboard.timeRanges.find(info =>
+      info.dataSource.engineName == tempFilter.dataSource &&
+      info.fieldName == tempFilter.field);
+
+
+    tempFilter['latestTime'] = (target) ? target.maxTime : new Date();
 
     this.targetFilter = tempFilter;
 
