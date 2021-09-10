@@ -193,7 +193,7 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
       info.fieldName == tempFilter.field);
 
 
-    tempFilter['latestTime'] = (target) ? target.maxTime : new Date();
+    tempFilter.latestTime = (target) ? target.maxTime : (moment().format('YYYY-MM-DDTHH:mm:ss') + '.000Z');
 
     this.targetFilter = tempFilter;
 

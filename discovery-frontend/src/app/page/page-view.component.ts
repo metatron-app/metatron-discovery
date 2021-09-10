@@ -95,6 +95,7 @@ import {fromEvent} from 'rxjs';
 import {debounceTime, map} from 'rxjs/operators';
 import {CookieConstant} from '@common/constant/cookie.constant';
 import {TimeRelativeBaseType} from '@domain/workbook/configurations/filter/time-relative-filter';
+declare let moment;
 
 const possibleMouseModeObj: any = {
   single: ['bar', 'line', 'grid', 'control', 'scatter', 'heatmap', 'pie', 'wordcloud', 'boxplot', 'combine'],
@@ -4137,7 +4138,7 @@ export class PageViewComponent extends AbstractPopupComponent implements OnInit,
             info.dataSource.engineName == filter.dataSource &&
             info.fieldName == filter.field);
 
-          filter['latestTime'] = (target) ? target.maxTime : new Date();
+          filter['latestTime'] = (target) ? target.maxTime : (moment().format('YYYY-MM-DDTHH:mm:ss') + '.000Z');
         }
       }
       filter = FilterUtil.convertRelativeToInterval(filter, this.widget.dashBoard);

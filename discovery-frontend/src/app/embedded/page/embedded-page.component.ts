@@ -46,6 +46,8 @@ import {CustomField} from '@domain/workbook/configurations/field/custom-field';
 import {BoardConfiguration} from '@domain/dashboard/dashboard';
 import {TimeRelativeBaseType} from '@domain/workbook/configurations/filter/time-relative-filter';
 
+declare let moment;
+
 @Component({
   selector: 'app-embedded-page',
   templateUrl: './embedded-page.component.html',
@@ -429,7 +431,7 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
               info.dataSource.engineName == filter.dataSource &&
               info.fieldName == filter.field);
 
-            filter['latestTime'] = (target) ? target.maxTime : new Date();
+            filter['latestTime'] = (target) ? target.maxTime : (moment().format('YYYY-MM-DDTHH:mm:ss') + '.000Z');
           }
         }
         filter = FilterUtil.convertRelativeToInterval(filter, this.widget.dashBoard);

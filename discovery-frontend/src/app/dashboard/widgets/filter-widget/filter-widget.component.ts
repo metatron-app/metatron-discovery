@@ -61,6 +61,8 @@ import {
 import {TimeUnit} from '@domain/workbook/configurations/field/timestamp-field';
 import {DIRECTION} from '@domain/workbook/configurations/sort';
 
+declare let moment;
+
 @Component({
   selector: 'filter-widget',
   templateUrl: './filter-widget.component.html',
@@ -462,7 +464,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
           info.dataSource.engineName == conf.filter.dataSource &&
           info.fieldName == conf.filter.field);
 
-        conf.filter['latestTime'] = (target) ? target.maxTime : new Date();
+        conf.filter['latestTime'] = (target) ? target.maxTime : (moment().format('YYYY-MM-DDTHH:mm:ss') + '.000Z');
       }
       const filter: TimeFilter = FilterUtil.convertRelativeToInterval(conf.filter as TimeFilter, this.dashboard);
       this.filter = filter;

@@ -1758,7 +1758,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
               info.dataSource.engineName == filter.dataSource &&
               info.fieldName == filter.field);
 
-            filter['latestTime'] = (target) ? target.maxTime : new Date();
+            filter['latestTime'] = (target) ? target.maxTime : (moment().format('YYYY-MM-DDTHH:mm:ss') + '.000Z');
           }
         }
         filter = FilterUtil.convertRelativeToInterval(filter, this.widget.dashBoard);
