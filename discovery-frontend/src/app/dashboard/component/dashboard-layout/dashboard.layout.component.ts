@@ -1395,7 +1395,8 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
               const timeRangeInfo = {
                 fieldName : fieldInfo.field.name,
                 maxTime : rangeResult.maxTime,
-                minTime : rangeResult.minTime
+                minTime : rangeResult.minTime,
+                dataSource: fieldInfo.dsInfo
               };
               boardInfo.timeRanges.push(timeRangeInfo);
             }

@@ -328,4 +328,5 @@ export class TimeRangeInfo {
   public fieldName: string;
   public maxTime: Date;
   public minTime: Date;
+  public dataSource: Datasource
 } // structure - TimeRangeInfo
