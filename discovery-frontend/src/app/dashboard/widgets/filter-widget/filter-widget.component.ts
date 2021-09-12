@@ -122,6 +122,8 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
   public isListTypeTimeFilter: boolean = false;     // List Time Filter
   public isSingleTypeTimeFilter: boolean = false;   // Single Time Filter
 
+  public isFinishInitialize: boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables - Input & Output
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -239,6 +241,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
   public ngAfterViewInit() {
     super.ngAfterViewInit();
     this._initializeFilterWidget(this.inputWidget);
+    this.isFinishInitialize = true;
     this.safelyDetectChanges();
   } // function - ngAfterViewInit
 
@@ -557,7 +560,10 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
    * @private
    */
   private _broadcastChangeFilter(filter: Filter) {
-    this.broadCaster.broadcast('CHANGE_FILTER_WIDGET', {filter: filter});
+    // 대시보드 열람에서 초기에 Relative -> Range 로 바꾸는 과정에서 broadcast 가 발생하여 초기화 이후에 동작하도록 한다.
+    if( this.isFinishInitialize) {
+      this.broadCaster.broadcast('CHANGE_FILTER_WIDGET', {filter: filter});
+    }
   } // function - _broadcastChangeFilter
 
   /**

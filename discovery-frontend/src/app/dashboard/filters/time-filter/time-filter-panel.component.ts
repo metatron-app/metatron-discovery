@@ -34,8 +34,8 @@ import {TimeUnitSelectResult} from '../component/timeUnit-select.component';
 import {TimeListFilterComponent} from './time-list-filter.component';
 import {TimeRelativeFilterComponent} from './time-relative-filter.component';
 import {TimeRangeFilterComponent} from './time-range-filter.component';
-import {TimeDateFilterComponent} from "./time-date-filter.component";
-import {TimeDateFilter} from "@domain/workbook/configurations/filter/time-date-filter";
+import {TimeDateFilterComponent} from './time-date-filter.component';
+import {TimeDateFilter} from '@domain/workbook/configurations/filter/time-date-filter';
 
 @Component({
   selector: 'time-filter-panel',

@@ -76,8 +76,8 @@ import {AbstractDashboardComponent} from '../../abstract.dashboard.component';
 import {DashboardWidgetComponent} from './dashboard.widget.component';
 import {DashboardWidgetHeaderComponent} from './dashboard.widget.header.component';
 import {TimeDateFilter} from '@domain/workbook/configurations/filter/time-date-filter';
+import {TimeRelativeBaseType, TimeRelativeFilter} from '@domain/workbook/configurations/filter/time-relative-filter';
 
-declare let moment;
 declare let GoldenLayout: any;
 declare let async;
 
@@ -1376,7 +1376,23 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
       const timestampFields = boardInfo.dataSources.reduce((acc, dsInfo) => {
         acc.push(
           ...dsInfo.fields
-            .filter( fieldInfo => LogicalType.TIMESTAMP === fieldInfo.logicalType)
+            .filter( fieldInfo => {
+              if( LogicalType.TIMESTAMP === fieldInfo.logicalType ) {
+                if( boardInfo.configuration.filters && boardInfo.configuration.filters.length ) {
+                  return !!boardInfo.configuration.filters.find( filter => {
+                    return ( filter.field === fieldInfo.name
+                      && filter.dataSource === dsInfo.engineName
+                      && FilterUtil.isTimeRelativeFilter(filter)
+                      && TimeRelativeBaseType.LATEST_TIME === ( filter as TimeRelativeFilter ).baseType
+                    );
+                  });
+                } else {
+                  return false;
+                }
+              } else {
+                return false;
+              }
+            })
             .map( fieldInfo => {
               return {
                 dsInfo: dsInfo,

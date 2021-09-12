@@ -37,8 +37,8 @@ import {
 } from '@domain/workbook/configurations/filter/time-relative-filter';
 
 import {AbstractFilterPopupComponent} from '../abstract-filter-popup.component';
-import {Dashboard} from "@domain/dashboard/dashboard";
-import _ from "lodash";
+import {Dashboard} from '@domain/dashboard/dashboard';
+import _ from 'lodash';
 
 declare let moment;
 

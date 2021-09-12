@@ -76,7 +76,7 @@ import {WidgetService} from '../../service/widget.service';
 import {FilterUtil} from '../../util/filter.util';
 import {ChartLimitInfo, DashboardUtil} from '../../util/dashboard.util';
 import {AbstractWidgetComponent} from '../abstract-widget.component';
-import {TimeRelativeBaseType} from "@domain/workbook/configurations/filter/time-relative-filter";
+import {TimeRelativeBaseType} from '@domain/workbook/configurations/filter/time-relative-filter';
 
 declare let $;
 declare let moment;

@@ -827,26 +827,25 @@ export class FilterUtil {
 
     (importanceType) && (timeFilter.ui.importanceType = importanceType);
 
-    if(!timeFilter.intervals) {
-      if(dashboard && dashboard.timeRanges) {
-        const target = dashboard.timeRanges.find(info =>
-          info.dataSource.engineName == field.dataSource &&
-          info.fieldName == field.logicalName);
+    if(!timeFilter.intervals && dashboard && dashboard.timeRanges && dashboard.timeRanges.length) {
+      const target = dashboard.timeRanges.find(info =>
+        info.dataSource.engineName == field.dataSource &&
+        info.fieldName == field.logicalName);
 
-        (timeFilter as TimeRangeFilter).intervals = [
-          FilterUtil.getDateTimeFormat(target.minTime, timeUnit)
-          + '/'
-          + FilterUtil.getDateTimeFormat(target.maxTime, timeUnit)
-        ]
-      }
-      else if (ds && ds.summary && ds.summary.ingestionMinTime && ds.summary.ingestionMaxTime) {
-        (timeFilter as TimeRangeFilter).intervals = [
-          FilterUtil.getDateTimeFormat(ds.summary.ingestionMinTime, timeUnit)
-          + '/'
-          + FilterUtil.getDateTimeFormat(ds.summary.ingestionMaxTime, timeUnit)
-        ];
-      }
+      (timeFilter as TimeRangeFilter).intervals = [
+        FilterUtil.getDateTimeFormat(target.minTime, timeUnit)
+        + '/'
+        + FilterUtil.getDateTimeFormat(target.maxTime, timeUnit)
+      ]
     }
+    if (!timeFilter.intervals && ds && ds.summary && ds.summary.ingestionMinTime && ds.summary.ingestionMaxTime) {
+      (timeFilter as TimeRangeFilter).intervals = [
+        FilterUtil.getDateTimeFormat(ds.summary.ingestionMinTime, timeUnit)
+        + '/'
+        + FilterUtil.getDateTimeFormat(ds.summary.ingestionMaxTime, timeUnit)
+      ];
+    }
+
     return timeFilter;
   } // function - getTimeRangeFilter
 
