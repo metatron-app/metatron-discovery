@@ -46,6 +46,27 @@ public class OauthClientInformation implements Serializable {
 
   Boolean checkIp;
 
+  /**
+   * (Use Utilize within the signup from the external log in page)
+   * Whether to check the agreement to the terms and conditions
+   *
+   */
+  Boolean isTermsRequired;
+
+  /**
+   * (Use Utilize within the signup from the external log in page)
+   * Terms contents
+   *
+   */
+  String termsHTML;
+
+  /**
+   * (Use Utilize within the signup from the external log in page)
+   * Whether it is automatically approved after sign-up
+   *
+   */
+  Boolean passApprove;
+
   public String getRedirectUri() {
     return redirectUri;
   }
@@ -145,4 +166,28 @@ public class OauthClientInformation implements Serializable {
   public Boolean isCheckIp() { return checkIp; }
 
   public void setCheckIp(Boolean checkIp) { this.checkIp = checkIp; }
+
+  public Boolean getIsTermsRequired() {
+    return isTermsRequired;
+  }
+
+  public void setIsTermsRequired(Boolean termsRequired) {
+    isTermsRequired = termsRequired;
+  }
+
+  public String getTermsHTML() {
+    return termsHTML;
+  }
+
+  public void setTermsHTML(String termsHTML) {
+    this.termsHTML = termsHTML;
+  }
+
+  public Boolean getPassApprove() {
+    return passApprove;
+  }
+
+  public void setPassApprove(Boolean passApprove) {
+    this.passApprove = passApprove;
+  }
 }

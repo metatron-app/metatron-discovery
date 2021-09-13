@@ -339,11 +339,13 @@ public class AuthenticationController {
   public ResponseEntity<?> updateClient(@PathVariable("clientId") String clientId,
                                         @RequestBody OauthClientInformation oauthClientInformation,
                                           HttpServletRequest request) {
+
     BaseClientDetails baseClientDetails = (BaseClientDetails)jdbcClientDetailsService.loadClientByClientId(clientId);
     Map additionalInformation = new HashMap<String, String>();
     if (baseClientDetails.getAdditionalInformation() != null) {
       additionalInformation = new HashMap<>(baseClientDetails.getAdditionalInformation());
     }
+
     makeAdditionalInformation(oauthClientInformation, additionalInformation);
 
     baseClientDetails.setAdditionalInformation(additionalInformation);
@@ -485,6 +487,9 @@ public class AuthenticationController {
       String backgroundFilePath = String.valueOf(additionalInformation.getOrDefault("backgroundFilePath", ""));
       String smallLogoFilePath = String.valueOf(additionalInformation.getOrDefault("smallLogoFilePath", ""));
       String smallLogoDesc = String.valueOf(additionalInformation.getOrDefault("smallLogoDesc", ""));
+      boolean isTermsRequired = Boolean.valueOf(String.valueOf(additionalInformation.getOrDefault("isTermsRequired", "false")));
+      String termsHTML = String.valueOf(additionalInformation.getOrDefault("termsHTML", ""));
+      boolean passApprove = Boolean.valueOf(String.valueOf(additionalInformation.getOrDefault("passApprove", "false")));
       String copyrightHtml
               = String.valueOf(additionalInformation.getOrDefault("copyrightHtml", "<span>Copyright © SK Telecom Co., Ltd. All rights reserved.</span>"));
       LOGGER.info("Login ClientId {}, basicHeader {}", clientId, basicHeader);
@@ -499,6 +504,9 @@ public class AuthenticationController {
       mav.addObject("smallLogoFilePath", smallLogoFilePath);
       mav.addObject("smallLogoDesc", smallLogoDesc);
       mav.addObject("copyrightHtml", copyrightHtml);
+      mav.addObject("isTermsRequired", isTermsRequired);
+      mav.addObject("termsHTML", termsHTML);
+      mav.addObject("passApprove", passApprove);
     } catch (Exception e) {
       throw new MetatronException(e);
     }
@@ -581,6 +589,15 @@ public class AuthenticationController {
     }
     if (oauthClientInformation.isCheckIp() != null) {
       additionalInformation.put("checkIp", oauthClientInformation.isCheckIp());
+    }
+    if (oauthClientInformation.getIsTermsRequired() != null) {
+      additionalInformation.put("isTermsRequired", oauthClientInformation.getIsTermsRequired());
+    }
+    if (StringUtils.isNotEmpty(oauthClientInformation.getTermsHTML())) {
+      additionalInformation.put("termsHTML", oauthClientInformation.getTermsHTML());
+    }
+    if (oauthClientInformation.getPassApprove() != null) {
+      additionalInformation.put("passApprove", oauthClientInformation.getPassApprove());
     }
   }
 

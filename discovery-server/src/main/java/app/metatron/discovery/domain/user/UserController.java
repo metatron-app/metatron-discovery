@@ -75,7 +75,6 @@ import app.metatron.discovery.util.AuthUtils;
 
 import static app.metatron.discovery.domain.user.UserService.DuplicatedTarget.EMAIL;
 import static app.metatron.discovery.domain.user.UserService.DuplicatedTarget.USERNAME;
-import static app.metatron.discovery.domain.user.org.Organization.DEFAULT_ORGANIZATION_CODE;
 
 /**
  *
@@ -356,11 +355,13 @@ public class UserController {
       user.setPassword(encodedPassword);
     }
 
-    user.setStatus(User.Status.REQUESTED);
-
-    userRepository.save(user);
-
-    mailer.sendSignUpRequestMail(user, false);
+    if(user.getPassApprove()){
+      userService.approveSignupRequest(user);
+      userRepository.save(user);
+    } else {
+      user.setStatus(User.Status.REQUESTED);
+      mailer.sendSignUpRequestMail(user, false);
+    }
 
     return ResponseEntity.created(URI.create("")).build();
   }
@@ -649,32 +650,7 @@ public class UserController {
       throw new ResourceNotFoundException(username);
     }
 
-    user.setStatus(User.Status.ACTIVATED);
-
-    // Add Organization
-    List<String> orgCodes = null;
-    if(StringUtils.isNotEmpty(user.getRequestOrgCodes())){
-      orgCodes = GlobalObjectMapper.readListValue(user.getRequestOrgCodes(), String.class);
-    }
-    if(orgCodes == null || orgCodes.size() < 1) {
-      orgCodes = Lists.newArrayList(DEFAULT_ORGANIZATION_CODE);
-    }
-    for(String orgCode : orgCodes){
-      orgService.addMembers(Lists.newArrayList(orgCode), user.getUsername(), user.getFullName(), DirectoryProfile.Type.USER);
-    }
-
-    // 기본 그룹에 포함
-    Group defaultGroup = groupService.getDefaultGroup(orgCodes.get(0));
-    if (defaultGroup == null) {
-      LOGGER.warn("Default group not found.");
-    } else {
-      defaultGroup.addGroupMember(new GroupMember(user.getUsername(), user.getFullName()));
-    }
-
-    // 워크스페이스 생성(등록된 워크스페이스가 없을 경우 생성)
-    workspaceService.createWorkspaceByUserCreation(user, false);
-
-    mailer.sendSignUpApprovedMail(user, false, null);
+    userService.approveSignupRequest(user);
 
     return ResponseEntity.noContent().build();
   }

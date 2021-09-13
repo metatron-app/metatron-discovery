@@ -231,7 +231,7 @@
   "msg.comm.ui.site.access": "이용약관",
   "msg.comm.ui.service.access": "서비스 이용약관",
   "msg.comm.usr.login.find.passwd": "비밀번호가 기억나지 않으세요?",
-  "msg.comm.usr.login.join": "등록",
+  "msg.comm.usr.login.join": "회원가입",
   "msg.comm.menu.logout": "로그아웃",
   "msg.comm.menu.usr.information.mngt": "사용자 정보 관리",
   "msg.comm.menu.profile": "프로필",

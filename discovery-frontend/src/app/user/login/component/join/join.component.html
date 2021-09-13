@@ -16,7 +16,7 @@
   <em class="ddp-bg-popup"></em>
   <div class="ddp-ui-popup-in">
     <!-- popup -->
-    <div class="ddp-ui-popup ddp-box-user-popup">
+    <div class="ddp-ui-popup ddp-box-user-popup" style="position:fixed; overflow: scroll; height:650px">
       <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
       <span class="ddp-ui-pop-title">{{'msg.login.join.title' | translate}}</span>
 
@@ -173,6 +173,56 @@
           <!-- //error 메시지 -->
         </div>
         <!-- // 조직 입력 -->
+
+        <!-- 약관 동의 -->
+<!--        <div class="ddp-ui-input-form" >-->
+<!--          <label class="ddp-label-type">[개인정보 수집 및 이용에 대한 동의 (필수동의)]-->
+<!--          </label>-->
+<!--          <div class="ddp-input-check" style="padding-right: 0 !important;">-->
+<!--           <table class="privacy-terms-table">-->
+<!--             <tr>-->
+<!--               <td class="privacy-terms-content" colspan="3">-->
+<!--                 <span>Metatron Grandview 서비스와 관련하여, 개인정보를 귀사(sk텔리콤 주식회사)가 수집 및 이용하는 것에 대해 동의합니다.</span>-->
+<!--                 <br/><br/>-->
+<!--                 <span>* Metatron Grandview 서비스와 관련하여, 개인정보를 귀사(sk텔리콤 주식회사)가 수집 및 이용하는 것에 대해 동의합니다.</span>-->
+<!--               </td>-->
+<!--             </tr>-->
+<!--             <tr class="privacy-terms-content2" style="font-weight: bold">-->
+<!--               <td>수집,이용 목적</td>-->
+<!--               <td>수집항목</td>-->
+<!--               <td>보유 및 이용기간</td>-->
+<!--             </tr>-->
+<!--             <tr class="privacy-terms-content2">-->
+<!--               <td>서비스 권한 부여 및 이용</td>-->
+<!--               <td>사용자성명, 이메일, 아이디, 비밀번호</td>-->
+<!--               <td>서비스 사용기간</td>-->
+<!--             </tr>-->
+<!--             <tr>-->
+<!--               <td class="privacy-terms-content" colspan="3">-->
+<!--                 <span># 본 동의는 서비스의 본질적 기능 제공을 위한 개인정보 수집/이용에 대한 동의로서, 동의하지 않으실 경우 서비스 제공이 불가능합니다.</span>-->
+<!--                 <br/><br/>-->
+<!--                 <span># 본 동의는 서비스의 본질적 기능 제공을 위한 개인정보 수집/이용에 대한 동의로서, 동의하지 않으실 경우 서비스 제공이 불가능합니다.</span>-->
+<!--               </td>-->
+<!--             </tr>-->
+<!--           </table>-->
+<!--          </div>-->
+<!--          <div style="width:100%; padding-top: 5px;"-->
+<!--               [ngClass]="joinValidation.privacyTerms ? 'ddp-type-ok' :'ddp-type-error'"-->
+<!--               class="ddp-ui-input-form">-->
+<!--            <label class="ddp-label-checkbox" style="float: right">-->
+<!--              <input type="checkbox" (click)="setPrivacyTerms()" [checked]="this.user.privacyTerms">-->
+<!--              <i class="ddp-icon-checkbox"></i>-->
+<!--              <span class="ddp-txt-checkbox">개인정보 수집 이용에 동의합니다.</span>-->
+<!--            </label>-->
+<!--            &lt;!&ndash; error 메시지 &ndash;&gt;-->
+<!--            <span class="ddp-ui-error" *ngIf="joinValidation.privacyTerms == false"-->
+<!--                  style="width:100%; text-align: right; height:1px">-->
+<!--                  <em class="ddp-icon-error"></em>약관에 동의해주세요-->
+<!--              </span>-->
+<!--            &lt;!&ndash; //error 메시지 &ndash;&gt;-->
+<!--          </div>-->
+<!--        </div>-->
+        <!-- // 약관 동의 -->
 
         <!-- input form -->
         <!--<div class="ddp-ui-input-form">-->

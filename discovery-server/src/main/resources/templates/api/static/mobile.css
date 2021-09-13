@@ -196,6 +196,11 @@ body,html {min-width:auto;}
 .ddp-wrap-popup.type-page a.ddp-btn-type-popup {width:auto; max-width:206px; min-width:40%;}
 .ddp-wrap-popup.type-page .ddp-btn-close {display:none !important;}
 
+.privacy-terms-table{border: 1px solid #ddd; border-collapse: collapse}
+.privacy-terms-table td{padding: 5px; border: 1px solid #ddd;}
+.privacy-terms-content{height:70px; vertical-align:top;}
+.privacy-terms-content2{height:30px; text-align:center;}
+
 
 @media all and (max-width: 750px) {
     .ddp-wrap-popup.type-page .ddp-ui-user-contet .ddp-wrap-overflow .ddp-ui-fright {width:100%;}

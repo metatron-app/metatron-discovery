@@ -245,4 +245,8 @@
             <column name="requestOrgCodes_MOD" type="${boolean.type}" />
         </addColumn>
     </changeSet>
+
+    <changeSet author="sohncw" id="1630370828589">
+        <modifyDataType tableName="oauth_client_details" columnName="additional_information" newDataType="${mediumtext.type}" />
+    </changeSet>
 </databaseChangeLog>
