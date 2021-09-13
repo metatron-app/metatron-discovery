@@ -27,7 +27,7 @@ export class TimeRelativeFilter extends TimeFilter {
   public timeZone: string;
   public baseType: TimeRelativeBaseType;
 
-  public latestTime: Date;
+  public latestTime: Date | string;
 
   constructor(field: Field) {
     super(field);

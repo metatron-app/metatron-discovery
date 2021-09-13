@@ -61,6 +61,8 @@ import {
 import {TimeUnit} from '@domain/workbook/configurations/field/timestamp-field';
 import {DIRECTION} from '@domain/workbook/configurations/sort';
 
+declare let moment;
+
 @Component({
   selector: 'filter-widget',
   templateUrl: './filter-widget.component.html',
@@ -119,6 +121,8 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
   public isRangeTypeTimeFilter: boolean = false;    // Range Time Filter
   public isListTypeTimeFilter: boolean = false;     // List Time Filter
   public isSingleTypeTimeFilter: boolean = false;   // Single Time Filter
+
+  public isFinishInitialize: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables - Input & Output
@@ -237,6 +241,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
   public ngAfterViewInit() {
     super.ngAfterViewInit();
     this._initializeFilterWidget(this.inputWidget);
+    this.isFinishInitialize = true;
     this.safelyDetectChanges();
   } // function - ngAfterViewInit
 
@@ -457,8 +462,12 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
         if (this.isNullOrUndefined(conf.filter['baseType'])) {
           conf.filter['baseType'] = TimeRelativeBaseType.TODAY;
         }
-        const filterDs = this.dashboard.dataSources.find(ds => conf.filter.dataSource == ds.engineName);
-        conf.filter['latestTime'] = filterDs.summary.ingestionMaxTime;
+
+        const target = this.dashboard.timeRanges.find(info =>
+          info.dataSource.engineName == conf.filter.dataSource &&
+          info.fieldName == conf.filter.field);
+
+        conf.filter['latestTime'] = (target) ? target.maxTime : (moment().format('YYYY-MM-DDTHH:mm:ss') + '.000Z');
       }
       const filter: TimeFilter = FilterUtil.convertRelativeToInterval(conf.filter as TimeFilter, this.dashboard);
       this.filter = filter;
@@ -551,7 +560,10 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
    * @private
    */
   private _broadcastChangeFilter(filter: Filter) {
-    this.broadCaster.broadcast('CHANGE_FILTER_WIDGET', {filter: filter});
+    // 대시보드 열람에서 초기에 Relative -> Range 로 바꾸는 과정에서 broadcast 가 발생하여 초기화 이후에 동작하도록 한다.
+    if( this.isFinishInitialize) {
+      this.broadCaster.broadcast('CHANGE_FILTER_WIDGET', {filter: filter});
+    }
   } // function - _broadcastChangeFilter
 
   /**

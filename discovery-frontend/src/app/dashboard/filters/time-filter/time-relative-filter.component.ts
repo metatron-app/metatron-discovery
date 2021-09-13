@@ -37,8 +37,8 @@ import {
 } from '@domain/workbook/configurations/filter/time-relative-filter';
 
 import {AbstractFilterPopupComponent} from '../abstract-filter-popup.component';
-import {Dashboard} from "@domain/dashboard/dashboard";
-import _ from "lodash";
+import {Dashboard} from '@domain/dashboard/dashboard';
+import _ from 'lodash';
 
 declare let moment;
 
@@ -188,14 +188,17 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
       this.selectedTimeUnitItem = this.timeUnitComboList.find(item => item.value === tempFilter.relTimeUnit);
     }
 
-    const filterDs = this.dashboard.dataSources.find(ds => tempFilter.dataSource == ds.engineName);
-    tempFilter['latestTime'] = filterDs.summary.ingestionMaxTime;
+    const target = this.dashboard.timeRanges.find(info =>
+      info.dataSource.engineName == tempFilter.dataSource &&
+      info.fieldName == tempFilter.field);
+
+
+    tempFilter.latestTime = (target) ? target.maxTime : (moment().format('YYYY-MM-DDTHH:mm:ss') + '.000Z');
 
     this.targetFilter = tempFilter;
 
     (isBroadcast) && (this.changeEvent.emit(this.targetFilter));
     this.safelyDetectChanges();
-
 
     //  const cloneFilter = _.cloneDeep(filter);
     // this.datasourceService.getCandidateForFilter(cloneFilter, this.dashboard).then((result) => {

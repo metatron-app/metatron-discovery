@@ -95,6 +95,7 @@ import {fromEvent} from 'rxjs';
 import {debounceTime, map} from 'rxjs/operators';
 import {CookieConstant} from '@common/constant/cookie.constant';
 import {TimeRelativeBaseType} from '@domain/workbook/configurations/filter/time-relative-filter';
+declare let moment;
 
 const possibleMouseModeObj: any = {
   single: ['bar', 'line', 'grid', 'control', 'scatter', 'heatmap', 'pie', 'wordcloud', 'boxplot', 'combine'],
@@ -1918,7 +1919,7 @@ export class PageViewComponent extends AbstractPopupComponent implements OnInit,
       let newFilter: Filter;
       if (selectedField.logicalType === LogicalType.TIMESTAMP) {
         // 시간 필터
-        const timeFilter = FilterUtil.getTimeRangeFilter(selectedField, undefined, undefined, this.dataSource);
+        const timeFilter = FilterUtil.getTimeRangeFilter(selectedField, undefined, undefined, this.dataSource, this.widget.dashBoard);
 
         // widgetId set
         timeFilter.ui.widgetId = this.widget.id;
@@ -4133,8 +4134,11 @@ export class PageViewComponent extends AbstractPopupComponent implements OnInit,
       if (FilterUtil.isTimeFilter(filter)){
         // latest date 가 기준날일 경우 날짜 설정
         if (filter.baseType == TimeRelativeBaseType.LATEST_TIME && this.isNullOrUndefined(filter.latestTime)){
-          const filterDs = this.widget.dashBoard.dataSources.find(ds => filter.dataSource == ds.engineName);
-          (filterDs) && (filter.latestTime = filterDs.summary.ingestionMaxTime);
+          const target = this.widget.dashBoard.timeRanges.find(info =>
+            info.dataSource.engineName == filter.dataSource &&
+            info.fieldName == filter.field);
+
+          filter['latestTime'] = (target) ? target.maxTime : (moment().format('YYYY-MM-DDTHH:mm:ss') + '.000Z');
         }
       }
       filter = FilterUtil.convertRelativeToInterval(filter, this.widget.dashBoard);

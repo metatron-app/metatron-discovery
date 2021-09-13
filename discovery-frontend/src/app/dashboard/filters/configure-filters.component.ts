@@ -101,7 +101,7 @@ export class ConfigureFiltersComponent extends AbstractFilterPopupComponent impl
       this._chartFilters = chartFilters;
       const dataSources:Datasource[] = DashboardUtil.getMainDataSources( this._board );
       this._selectFieldComp.open(
-        board.configuration, dataSources, this._getTargetDataSource( dataSources, this._widget ),
+        board, dataSources, this._getTargetDataSource( dataSources, this._widget ),
         this._chartFilters, this._widget
       );
     }
@@ -143,7 +143,7 @@ export class ConfigureFiltersComponent extends AbstractFilterPopupComponent impl
   public showSelectFieldComp(selectedFilter:Filter) {
     const dataSources:Datasource[] = DashboardUtil.getMainDataSources( this._board );
     this._selectFieldComp.open(
-      this._board.configuration, dataSources, dataSources.find( ds => ds.engineName === selectedFilter.dataSource ),
+      this._board, dataSources, dataSources.find( ds => ds.engineName === selectedFilter.dataSource ),
       this._chartFilters, this._widget
     );
     this._updateFilterComp.close();

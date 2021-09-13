@@ -46,6 +46,8 @@ export class Dashboard extends AbstractHistoryEntity {
   // for UI
   public selectDatasource: Datasource;
   public updateId:string;
+  public timeRanges?: TimeRangeInfo[];
+
 } // structure - Dashboard
 
 /**
@@ -318,3 +320,13 @@ export class LayoutDimensions {
     this.margin = 5;
   }
 } // structure - LayoutDimensions
+
+/**
+ * Field 별 latest, earliest time
+ */
+export class TimeRangeInfo {
+  public fieldName: string;
+  public maxTime: Date;
+  public minTime: Date;
+  public dataSource: Datasource
+} // structure - TimeRangeInfo

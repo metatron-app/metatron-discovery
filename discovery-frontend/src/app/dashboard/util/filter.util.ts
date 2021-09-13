@@ -648,7 +648,7 @@ export class FilterUtil {
       filter.clzField = DashboardUtil.getFieldByName(boardInfo, filter.dataSource, filter.field);
       filter = FilterUtil.getTimeRangeFilter(
         filter.clzField, filter.timeUnit, 'general',
-        boardInfo.dataSources.find(ds => ds.engineName === filter.dataSource)
+        boardInfo.dataSources.find(ds => ds.engineName === filter.dataSource), boardInfo
       );
       (filter as TimeRangeFilter).timeUnit = TimeUnit.DAY;
       (filter as TimeRangeFilter).intervals = relativeInterval;
@@ -818,17 +818,27 @@ export class FilterUtil {
    * @param {TimeUnit} timeUnit
    * @param {string} importanceType
    * @param {Datasource} ds
+   * @param {Dashboard} dashboard
    * @returns {TimeRangeFilter}
    */
-  public static getTimeRangeFilter(field: Field, timeUnit?: TimeUnit, importanceType?: string, ds?: Datasource): TimeRangeFilter {
+  public static getTimeRangeFilter(field: Field, timeUnit?: TimeUnit, importanceType?: string, ds?: Datasource, dashboard?: Dashboard): TimeRangeFilter {
     const timeFilter = new TimeRangeFilter(field);
     timeFilter.timeUnit = CommonUtil.isNullOrUndefined(timeUnit) ? TimeUnit.NONE : timeUnit;
 
     (importanceType) && (timeFilter.ui.importanceType = importanceType);
 
-    if (!timeFilter.intervals
-      && ds && ds.summary
-      && ds.summary.ingestionMinTime && ds.summary.ingestionMaxTime) {
+    if(!timeFilter.intervals && dashboard && dashboard.timeRanges && dashboard.timeRanges.length) {
+      const target = dashboard.timeRanges.find(info =>
+        info.dataSource.engineName == field.dataSource &&
+        info.fieldName == field.logicalName);
+
+      (timeFilter as TimeRangeFilter).intervals = [
+        FilterUtil.getDateTimeFormat(target.minTime, timeUnit)
+        + '/'
+        + FilterUtil.getDateTimeFormat(target.maxTime, timeUnit)
+      ]
+    }
+    if (!timeFilter.intervals && ds && ds.summary && ds.summary.ingestionMinTime && ds.summary.ingestionMaxTime) {
       (timeFilter as TimeRangeFilter).intervals = [
         FilterUtil.getDateTimeFormat(ds.summary.ingestionMinTime, timeUnit)
         + '/'

@@ -76,7 +76,7 @@ import {WidgetService} from '../../service/widget.service';
 import {FilterUtil} from '../../util/filter.util';
 import {ChartLimitInfo, DashboardUtil} from '../../util/dashboard.util';
 import {AbstractWidgetComponent} from '../abstract-widget.component';
-import {TimeRelativeBaseType} from "@domain/workbook/configurations/filter/time-relative-filter";
+import {TimeRelativeBaseType} from '@domain/workbook/configurations/filter/time-relative-filter';
 
 declare let $;
 declare let moment;
@@ -1754,8 +1754,11 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
         if (FilterUtil.isTimeFilter(filter)){
           // latest date 가 기준날일 경우 날짜 설정
           if (filter.baseType == TimeRelativeBaseType.LATEST_TIME && this.isNullOrUndefined(filter.latestTime)){
-            const filterDs = this.widget.dashBoard.dataSources.find(ds => filter.dataSource == ds.engineName);
-            (filterDs) && (filter.latestTime = filterDs.summary.ingestionMaxTime);
+            const target = this.widget.dashBoard.timeRanges.find(info =>
+              info.dataSource.engineName == filter.dataSource &&
+              info.fieldName == filter.field);
+
+            filter['latestTime'] = (target) ? target.maxTime : (moment().format('YYYY-MM-DDTHH:mm:ss') + '.000Z');
           }
         }
         filter = FilterUtil.convertRelativeToInterval(filter, this.widget.dashBoard);

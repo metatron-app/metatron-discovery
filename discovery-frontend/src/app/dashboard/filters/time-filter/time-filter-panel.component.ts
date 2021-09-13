@@ -34,8 +34,8 @@ import {TimeUnitSelectResult} from '../component/timeUnit-select.component';
 import {TimeListFilterComponent} from './time-list-filter.component';
 import {TimeRelativeFilterComponent} from './time-relative-filter.component';
 import {TimeRangeFilterComponent} from './time-range-filter.component';
-import {TimeDateFilterComponent} from "./time-date-filter.component";
-import {TimeDateFilter} from "@domain/workbook/configurations/filter/time-date-filter";
+import {TimeDateFilterComponent} from './time-date-filter.component';
+import {TimeDateFilter} from '@domain/workbook/configurations/filter/time-date-filter';
 
 @Component({
   selector: 'time-filter-panel',
@@ -217,7 +217,7 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent<TimeF
         console.log('_tempRangeFilter');
         cloneFilter = this._tempRangeFilter;
       } else {
-        cloneFilter = FilterUtil.getTimeRangeFilter( cloneFilter.clzField, cloneFilter.timeUnit, cloneFilter.ui.importanceType, this.dataSource );
+        cloneFilter = FilterUtil.getTimeRangeFilter( cloneFilter.clzField, cloneFilter.timeUnit, cloneFilter.ui.importanceType, this.dataSource, this.dashboard );
       }
       this._updateFilter(cloneFilter);
     }
@@ -360,7 +360,7 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent<TimeF
       currFilter = FilterUtil.getTimeListFilter( currFilter.clzField, data.discontinuous, data.unit, data.byUnit, currFilter.ui.importanceType );
     } else {
       currFilter = FilterUtil.getTimeRangeFilter(
-        currFilter.clzField, TimeUnit.NONE, currFilter.ui.importanceType, this.dataSource
+        currFilter.clzField, TimeUnit.NONE, currFilter.ui.importanceType, this.dataSource, this.dashboard
       );
     }
     this._initialize(currFilter, true);

@@ -33,8 +33,8 @@ import {UILineChart} from '@common/component/chart/option/ui-option/ui-line-char
 import {UIGridChart} from '@common/component/chart/option/ui-option/ui-grid-chart';
 import {FilterUtil} from '../../dashboard/util/filter.util';
 import {InclusionFilter} from '@domain/workbook/configurations/filter/inclusion-filter';
-import {Dashboard} from '@domain/dashboard/dashboard';
-import {Field, LogicalType} from '@domain/datasource/datasource';
+import {BoardDataSource, Dashboard} from '@domain/dashboard/dashboard';
+import {Datasource, Field, LogicalType} from '@domain/datasource/datasource';
 import {MeasureInequalityFilter} from '@domain/workbook/configurations/filter/measure-inequality-filter';
 import {AdvancedFilter} from '@domain/workbook/configurations/filter/advanced-filter';
 import {MeasurePositionFilter} from '@domain/workbook/configurations/filter/measure-position-filter';
@@ -353,6 +353,37 @@ export class DatasourceService extends AbstractService {
 
     return this.post(this.API_URL + 'datasources/query/candidate', param);
   } // function - getCandidateForFilter
+
+  /**
+   * 필드 timestamp 의 후보값 조회
+   * @param tsInfo
+   * @param dsInfo
+   */
+  public getCandidateForTimestamp(tsInfo: {dsInfo: Datasource, field: Field}, dsInfo: Dashboard) {
+
+    const param: any = {};
+    param.dataSource = DashboardUtil.getDataSourceForApi( _.cloneDeep(DashboardUtil.getBoardDataSourceFromDataSource(dsInfo, tsInfo.dsInfo)) as BoardDataSource );
+
+    param.targetField = {
+      type: 'timestamp',
+      name: tsInfo.field.name,
+      alias: tsInfo.field.name,
+      format: {
+        discontinuous: false,
+        filteringType: 'RANGE',
+        type: 'time_continuous',
+        unit: 'NONE'
+      }
+    };
+
+    // 값이 없는 측정값 필터 제거
+    param.filters = [];
+
+    // valueAlias 설정
+    param.valueAliasRef = '';
+
+    return this.post(this.API_URL + 'datasources/query/candidate', param);
+  } // function - getCandidateForTimestamp
 
   /**
    * 차트 데이터를 조회하긴 위한 쿼리 생성

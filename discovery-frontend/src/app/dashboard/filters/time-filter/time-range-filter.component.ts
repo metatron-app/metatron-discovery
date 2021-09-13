@@ -157,23 +157,31 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
    * @param {boolean} isBroadcast
    */
   public setData(filter: TimeRangeFilter, isBroadcast: boolean = false) {
-    if (!this._isRunningCandidate) {
-      this._isRunningCandidate = true;
-      this.loadingShow();
+    if( 'WIDGET' === this.mode ) {
       const cloneFilter: TimeRangeFilter = _.cloneDeep(filter);
-      this.datasourceService.getCandidateForFilter(cloneFilter, this.dashboard).then((result) => {
-        this.targetFilter = this._setRangeFilter(result, cloneFilter);
-        this.safelyDetectChanges();
+      this.targetFilter = this._setRangeFilter(null, cloneFilter);
+      this.safelyDetectChanges();
+      // 변경사항 전파
+      (isBroadcast) && (this._broadcastChange());
+    } else {
+      if (!this._isRunningCandidate) {
+        this._isRunningCandidate = true;
+        this.loadingShow();
+        const cloneFilter: TimeRangeFilter = _.cloneDeep(filter);
+        this.datasourceService.getCandidateForFilter(cloneFilter, this.dashboard).then((result) => {
+          this.targetFilter = this._setRangeFilter(result, cloneFilter);
+          this.safelyDetectChanges();
 
-        // 변경사항 전파
-        (isBroadcast) && (this._broadcastChange());
+          // 변경사항 전파
+          (isBroadcast) && (this._broadcastChange());
 
-        this._isRunningCandidate = false;
-        this.loadingHide();
-      }).catch(err => {
-        this._isRunningCandidate = false;
-        this.commonExceptionHandler(err);
-      });
+          this._isRunningCandidate = false;
+          this.loadingHide();
+        }).catch(err => {
+          this._isRunningCandidate = false;
+          this.commonExceptionHandler(err);
+        });
+      }
     }
   } // function - setData
 
@@ -192,7 +200,7 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
    * @return {TimeRangeData}
    */
   public getTimeRangeData(item: TimeRange): TimeRangeData {
-    return new TimeRangeData(this.rangeBoundary.minTime, this.rangeBoundary.maxTime, item, false, this.targetFilter.timeUnit);
+    return new TimeRangeData(this.rangeBoundary?.minTime, this.rangeBoundary?.maxTime, item, false, this.targetFilter.timeUnit);
   } // function - getIntervalRangeData
 
   /**
