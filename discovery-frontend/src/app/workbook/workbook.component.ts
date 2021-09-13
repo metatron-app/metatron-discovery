@@ -690,14 +690,14 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   /**
    * 모드 변경
    * @param {string} mode
-   * @param {boolean} isUpdateCancel
+   * @param {boolean} isScrollToDashboard
    * @param {any} startupCmd
    */
-  public changeMode(mode: string, isUpdateCancel  = false, startupCmd?: { cmd: string, id?: string, type?: string }) {
+  public changeMode(mode: string, isScrollToDashboard  = false, startupCmd?: { cmd: string, id?: string, type?: string }) {
     this.updateDashboardStartupCmd = startupCmd ? startupCmd : {cmd: 'NONE'};
     this.mode = mode;
     this.safelyDetectChanges();
-    if(isUpdateCancel){
+    if(isScrollToDashboard){
       const selectedIdx: number = this.dashboards.findIndex(item => item.id === this.selectedDashboard.id);
       this.scrollLoc = selectedIdx * ('LIST' === this.listType ? 52: 185);
       this.scrollToDashboard(this.selectedDashboard.id);
@@ -1110,7 +1110,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     });
 
     // mode
-    this.changeMode('VIEW');
+    this.changeMode('VIEW', true);
   } // function - updateCompleteDashboard
 
   /**
