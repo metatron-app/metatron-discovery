@@ -39,6 +39,7 @@ import {
 import {AbstractFilterPopupComponent} from '../abstract-filter-popup.component';
 import {Dashboard} from '@domain/dashboard/dashboard';
 import _ from 'lodash';
+import {DatasourceService} from "../../../datasource/service/datasource.service";
 
 declare let moment;
 
@@ -104,6 +105,7 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
 
   // 생성자
   constructor(protected broadCaster: EventBroadcaster,
+              protected datasourceService: DatasourceService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
@@ -192,13 +194,28 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
       info.dataSource.engineName == tempFilter.dataSource &&
       info.fieldName == tempFilter.field);
 
+    if( this.isNullOrUndefined(target)) {
+      const filterDs = this.dashboard.dataSources.find(ds => ds.engineName == tempFilter.dataSource);
+      const dsField = filterDs.fields.find(fieldInfo => fieldInfo.logicalName == tempFilter.field);
 
-    tempFilter.latestTime = (target) ? target.maxTime : (moment().format('YYYY-MM-DDTHH:mm:ss') + '.000Z');
-
-    this.targetFilter = tempFilter;
-
-    (isBroadcast) && (this.changeEvent.emit(this.targetFilter));
-    this.safelyDetectChanges();
+      const targetField = {dsInfo: filterDs, field: dsField};
+      // 필터 생성 페이지일 경우 target 값이 없으므로 한번 더 체크
+      this.datasourceService.getCandidateForTimestamp(targetField, this.dashboard).then(rangeResult => {
+        if(rangeResult){
+          tempFilter.latestTime = rangeResult.maxTime;
+        } else {
+          tempFilter.latestTime = (moment().format('YYYY-MM-DDTHH:mm:ss') + '.000Z');
+        }
+        this.targetFilter = tempFilter;
+        (isBroadcast) && (this.changeEvent.emit(this.targetFilter));
+        this.safelyDetectChanges();
+      });
+    }else {
+      tempFilter.latestTime = target.maxTime;
+      this.targetFilter = tempFilter;
+      (isBroadcast) && (this.changeEvent.emit(this.targetFilter));
+      this.safelyDetectChanges();
+    }
 
     //  const cloneFilter = _.cloneDeep(filter);
     // this.datasourceService.getCandidateForFilter(cloneFilter, this.dashboard).then((result) => {
