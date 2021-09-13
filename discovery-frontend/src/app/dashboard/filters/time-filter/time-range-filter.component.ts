@@ -159,7 +159,19 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
   public setData(filter: TimeRangeFilter, isBroadcast: boolean = false) {
     if( 'WIDGET' === this.mode ) {
       const cloneFilter: TimeRangeFilter = _.cloneDeep(filter);
-      this.targetFilter = this._setRangeFilter(null, cloneFilter);
+      let boundary: RangeBoundary;
+      if( this.dashboard.timeRanges && this.dashboard.timeRanges.length) {
+        const target = this.dashboard.timeRanges.find(info =>
+          info.dataSource.engineName == filter.dataSource &&
+          info.fieldName == filter.field);
+        if( target ) {
+          boundary = {
+            minTime: target.minTime,
+            maxTime: target.maxTime
+          };
+        }
+      }
+      this.targetFilter = this._setRangeFilter(boundary, cloneFilter);
       this.safelyDetectChanges();
       // 변경사항 전파
       (isBroadcast) && (this._broadcastChange());

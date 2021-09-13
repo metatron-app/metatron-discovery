@@ -1380,11 +1380,19 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
               if( LogicalType.TIMESTAMP === fieldInfo.logicalType ) {
                 if( boardInfo.configuration.filters && boardInfo.configuration.filters.length ) {
                   return !!boardInfo.configuration.filters.find( filter => {
-                    return ( filter.field === fieldInfo.name
-                      && filter.dataSource === dsInfo.engineName
-                      && FilterUtil.isTimeRelativeFilter(filter)
-                      && TimeRelativeBaseType.LATEST_TIME === ( filter as TimeRelativeFilter ).baseType
-                    );
+                    if( filter.field === fieldInfo.name && filter.dataSource === dsInfo.engineName ) {
+                      if( FilterUtil.isTimeRelativeFilter(filter) && TimeRelativeBaseType.LATEST_TIME === ( filter as TimeRelativeFilter ).baseType ) {
+                        return true;
+                      } else if(FilterUtil.isTimeRangeFilter(filter)) {
+                        return !!( filter as TimeRangeFilter ).intervals.find( interval => {
+                          return -1 < interval.indexOf(TimeRangeFilter.LATEST_DATETIME);
+                        });
+                      } else {
+                        return false;
+                      }
+                    } else {
+                      return false;
+                    }
                   });
                 } else {
                   return false;
