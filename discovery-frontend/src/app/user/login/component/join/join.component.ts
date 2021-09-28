@@ -255,7 +255,8 @@ export class JoinComponent extends AbstractComponent implements OnInit, OnDestro
   public checkRequiredFields() {
 
     // required fields
-    const list = ['username', 'email', 'password', 'confirmPassword' ,'privacyTerms'];
+    // const list = ['username', 'email', 'password', 'confirmPassword' ,'privacyTerms'];
+    const list = ['username', 'email', 'password', 'confirmPassword'];
 
     list.forEach((item) => {
       // check if required fields are empty
@@ -422,7 +423,6 @@ export class JoinComponent extends AbstractComponent implements OnInit, OnDestro
 
   } // function - validation
 
-
   // public setPrivacyTerms(){
   //   this.user.privacyTerms =
   //     this.isNullOrUndefined(this.user.privacyTerms) ? true : !this.user.privacyTerms;
@@ -431,18 +431,19 @@ export class JoinComponent extends AbstractComponent implements OnInit, OnDestro
   //
   // } // function - setPrivacyTerms
 
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     | Private Methods
     |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-
   // 입력값 검증 결과
   private isValid() {
     const validationList = Object.keys(this.joinValidation).filter((f) => {
       if( f.indexOf('Message') === -1 ) {
         if( 'org' === f ) {
-          return this.joinValidation.org === false;
+          if( null === this.joinValidation.org || undefined === this.joinValidation.org ) {
+            return false;
+          } else {
+            return this.joinValidation.org === false;
+          }
         } else {
           return this.joinValidation[f] !== true;
         }
