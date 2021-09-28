@@ -941,7 +941,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
     this.isListTypeTimeFilter = FilterUtil.isTimeListFilter(timeFilter);
     this.isSingleTypeTimeFilter = FilterUtil.isTimeSingleFilter(timeFilter);
 
-    if (!this.isEditMode && this.isRelativeTypeTimeFilter) {
+    if (this.isRelativeTypeTimeFilter) {
       this.setTimeRangeFilter();
       this.safelyDetectChanges();
     }
