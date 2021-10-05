@@ -615,21 +615,31 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
       this.getCandidatesOfDimension();
     }
 
-    // if( !colorObj.settingUseFl ) {
-    //   const colorList = ChartColorList[colorObj.schema];
-    //
-    //   // 기존 컬러 리스트로 초기화
-    //   const currColorMapObj = colorObj.mapping;
-    //   const currColorMapList = colorObj.mappingArray;
-    //   currColorMapList.forEach((item,idx) => {
-    //     item['color'] = colorList[idx];
-    //     (currColorMapObj[item['alias']]) && (currColorMapObj[item['alias']] = colorList[idx]);
-    //   });
-    //
-    //   // 차트 업데이트
-    //   this.uiOption.color = colorObj;
-    //   this.update();
-    // }
+    if( !colorObj.settingUseFl ) {
+      const colorList = ChartColorList[colorObj.schema];
+
+      // 기존 컬러 리스트로 초기화
+      const currColorMapObj = colorObj.mapping;
+      const currColorMapList = colorObj.mappingArray;
+      currColorMapList.forEach((item,idx) => {
+        item['color'] = colorList[idx];
+        (currColorMapObj[item['alias']]) && (currColorMapObj[item['alias']] = colorList[idx]);
+      });
+
+      // 차트 업데이트
+      this.uiOption.color = colorObj;
+      this.uiOption = (_.extend({}, this.uiOption, {
+        color: {
+          type: this.uiOption.color.type,
+          mapping: (this.uiOption.color as UIChartColorBySeries).mapping,
+          mappingArray: (this.uiOption.color as UIChartColorBySeries).mappingArray,
+          schema: (this.uiOption.color as UIChartColorBySeries).schema,
+          settingUseFl: (this.uiOption.color as UIChartColorBySeries).settingUseFl,
+          colorTarget: this.uiOption.color['colorTarget']
+        }
+      }) as UIOption);
+      this.update();
+    }
   }
 
   /**
