@@ -360,6 +360,7 @@ public class UserController {
       userRepository.save(user);
     } else {
       user.setStatus(User.Status.REQUESTED);
+      userRepository.save(user);
       mailer.sendSignUpRequestMail(user, false);
     }
 
