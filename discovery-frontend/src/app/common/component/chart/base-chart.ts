@@ -890,6 +890,8 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
     // apply
     ////////////////////////////////////////////////////////
 
+    console.log('chartOption:', _.cloneDeep(this.chartOption));
+
     // 차트 반영
     this.apply();
 
@@ -1594,7 +1596,7 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
 
         // 사용자 색상 설정 리스트에 맞춰 범례 값 색 정의
         if(!this.isNullOrUndefined(this.uiOption.color['mappingArray'])
-          && this.uiOption.color['mappingArray'].length > 0){
+          && this.uiOption.color['mappingArray'].length > 0 && this.uiOption.type!='bar'){
           legendData.forEach((legend, index) => {
             const legendIdx = this.uiOption.color['mappingArray'].findIndex(item => {
               return item['alias'] == legend;
