@@ -32,12 +32,12 @@
 </head>
 <!-- login -->
 <body>
-<div class="ddp-wrap-popup type-page" style="overflow: hidden; position:fixed">
-    <em class="ddp-bg-popup"></em>
-    <div class="ddp-ui-popup-in">
+<div class="ddp-wrap-popup type-page">
+    <div class="ddp-ui-popup-in" style="display: block;">
         <!-- popup -->
         <div class="ddp-ui-popup ddp-box-user-popup">
-            <a id="btnClose" href="javascript:" class="ddp-btn-close" style="display: inline-block !important;"></a>
+            <a id="btnClose" href="javascript:" class="ddp-btn-close"
+               style="top: 0; display: inline-block !important;"></a>
             <span class="ddp-ui-pop-title" th:text="#{message.app.oauth.join.title}"></span>
 
             <!-- contents -->
@@ -528,7 +528,8 @@
             }
         );
         $('#btnClose').bind( 'click', function() {
-            history.back();
+            // history.back();
+            location.href = '/oauth/authorize' + location.search;
         });
         $('#btnJoin').bind( 'click', function() {
             // required fields
