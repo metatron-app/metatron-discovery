@@ -31,6 +31,7 @@ import {TreeMapChartComponent} from './component/chart/type/treemap-chart.compon
 import {CombineChartComponent} from './component/chart/type/combine-chart.component';
 import {LabelChartComponent} from './component/chart/type/label-chart.component';
 import {MapChartComponent} from './component/chart/type/map-chart/map-chart.component';
+import {KeplerMapChartComponent} from './component/chart/type/map-chart/kepler-map-chart.component';
 
 @NgModule({
   imports: [
@@ -53,7 +54,8 @@ import {MapChartComponent} from './component/chart/type/map-chart/map-chart.comp
     NetworkChartComponent,
     SankeyChartComponent,
     GaugeChartComponent,
-    MapChartComponent
+    MapChartComponent,
+    KeplerMapChartComponent
   ],
   exports: [
     BarChartComponent,
@@ -72,7 +74,8 @@ import {MapChartComponent} from './component/chart/type/map-chart/map-chart.comp
     NetworkChartComponent,
     SankeyChartComponent,
     GaugeChartComponent,
-    MapChartComponent
+    MapChartComponent,
+    KeplerMapChartComponent
   ]
 })
 export class ChartModule {

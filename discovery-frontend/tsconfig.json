@@ -1,14 +1,17 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "allowJs": true,
     "allowSyntheticDefaultImports": true, // json 파일을 import 허용 여부
     "allowUnreachableCode": false,        // 도달 불가능한 코드에 대한 허용 여부.
     "allowUnusedLabels": false,           // 사용하지 않는 라벨에 대한 허용 여부
     "baseUrl": "src",
+    "checkJs": true,
     "declaration": false,   // .d.ts 파일의 생성 여부
     "downlevelIteration": false, // target이 ES3 및 ES5 일때도 for..of, spread, destructuring 문법 지원 - TypeScript 2.3 이전에는 target이 ES6/ES2015 이후 버전일때만 지원함
     "experimentalDecorators": true, // ES Decorator에 대한 실험적 기능 사용 여부s
     "importHelpers": true,  // tslib에서 helpers (e.g. __extends, __rest, etc..)를 가져온다
+    "jsx": "react",
     "module": "esnext",           // 모듈 설정
     "moduleResolution": "node",   // 모듈 (검색)해석 방식 설정
     "noFallthroughCasesInSwitch": true, // 잘못 적혔다고 판단되는 switch문에 대한 에러 발생
@@ -51,7 +54,9 @@
     "src/polyfills.ts"
   ],
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.js"
   ],
   "exclude": [
     "src/test.ts",

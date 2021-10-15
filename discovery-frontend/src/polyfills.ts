@@ -75,6 +75,11 @@ import 'core-js/es/reflect';
 /***************************************************************************************************
  * APPLICATION IMPORTS
  */
+import 'global/window';
+import * as process from 'process';
+(window as any).global = window;
+(window as any).process = process;
+
 /**
  * Date, currency, decimal and percent pipes.
  * Needed for: All but Chrome, Firefox, Edge, IE11 and Safari 10
