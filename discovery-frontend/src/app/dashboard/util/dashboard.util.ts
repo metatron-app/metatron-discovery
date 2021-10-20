@@ -41,6 +41,7 @@ import {TextWidget} from '@domain/dashboard/widget/text-widget';
 import {BoardWidgetOptions, WidgetShowType} from '@domain/dashboard/dashboard.globalOptions';
 
 import {FilterUtil} from './filter.util';
+import {isNotNullOrUndefined} from "codelyzer/util/isNotNullOrUndefined";
 
 export class DashboardUtil {
 
@@ -756,7 +757,7 @@ export class DashboardUtil {
    */
   public static getDataSourceForApi(dataSource: BoardDataSource): BoardDataSource {
     // enginName과 name가 맞지 않으면 오류 발생함
-    dataSource.name = isNullOrUndefined(dataSource.engineName) ? dataSource.name : dataSource.engineName;
+    dataSource.name = isNotNullOrUndefined(dataSource.engineName) ? dataSource.engineName : dataSource.name;
 
     if (dataSource.hasOwnProperty('joins') && dataSource.joins.length > 0) {
       dataSource.joins.forEach((join) => {

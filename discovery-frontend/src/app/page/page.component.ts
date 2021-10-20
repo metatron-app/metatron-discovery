@@ -194,6 +194,9 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       // ui 초기화
       this.uiOption = OptionGenerator.initUiOption(this.uiOption);
+      if(!this.isNullOrUndefined(this.uiOption.color) && ChartColorType.DIMENSION === this.uiOption.color.type){
+        this.uiOption.dataSource = this.dataSource;
+      }
 
       // 차트만 변경시 min / max값은 변경되지 않으므로 초기화되지않게 설정
       this.uiOption.minValue = deepCopyUiOption.minValue;
@@ -228,7 +231,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     }
 
     this.selectChartSource.next({chartType: chartType, type: EventType.CHART_TYPE});
-
   }
 
   get uiOption(): UIOption {
@@ -522,6 +524,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * @param {Field} field
    */
   public static updatePivotAliasFromField(pivot: Pivot, field: Field) {
+
     pivot.columns.forEach(col => {
       if (col.name === field.name) {
         // console.log( '>>>>> col alias : %s, fieldAlias : %s, newAlias : %s', col.alias, col.fieldAlias, field.nameAlias.nameAlias );
@@ -580,7 +583,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     super.ngOnInit();
 
     this.init();
-
     // resize시 data panel의 내부 스크롤 설정
     const resizeEvent$ = fromEvent(window, 'resize')
       .pipe(
@@ -648,6 +650,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       // 선택된 데이터 패널의 내부 스크롤 설정
       this.dataPanelInnerScroll();
     }, 700); // css의 duration이 0.5s로 되어 있으므로 600 이하로 설정하면 안됨
+
   }
 
   // Destory
@@ -689,7 +692,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * @param {boolean} isDimension
    */
   public onPivotSelect(targetField: Field, isDimension: boolean): void {
-
     // 필드 변환
     // ( 초기에 이곳에서 fieldAlias 를 설정했으나,
     // pivot에 설정된 후에 convertField 메서드를 이용해서 필드가 재설정되므로 이곳에서의 설정은 의미 없음
@@ -773,6 +775,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
           this.mapPivot.convertField(targetField, 'layer' + layerNum);
         }
       }
+
       return;
 
     }
@@ -1065,7 +1068,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * @param {boolean} isBBoxChange
    */
   public selectDataSource(dataSource: Datasource, isBBoxChange: boolean) {
-
     (this.widget) || (this.widget = _.cloneDeep(this.originalWidget));
 
     if (ChartType.MAP === this.widget.configuration.chart.type) {
@@ -1126,6 +1128,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       if (this.pagePivot) this.pagePivot.removeAnimation();
     }
+
   } // function - selectDataSource
 
   /**
@@ -1241,14 +1244,12 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
           console.log(err);
         });
 
-
     } else {
       // 위젯 수정
       const param = {
         configuration: this.widgetConfiguration,
         name: this.widget.name
       };
-
 
       if (ChartType.GRID.toString() === this.selectChart && this.chart.chart) {
         param.configuration.chart['gridColumnWidth'] = this.chart.chart.getLeafColumnWidth();
@@ -2023,7 +2024,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * @param uiOption
    */
   public updateUIOption(uiOption) {
-    console.log('updateUIOption~');
     this.uiOption = _.extend({}, this.uiOption, uiOption);
   }
 
@@ -2636,7 +2636,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         item.field.pivot.splice(item.field.pivot.indexOf(deleteTargetType), 1);
 
         // 해당 index가 있는경우
-        if (-1 !== measureIndex && addTargetType) {
+        if (-1 !== measureIndex && addTargetType && this.measures[measureIndex].pivot) {
 
           // 교차선반을 타입으로 설정
           this.measures[measureIndex].pivot.push(addTargetType);
@@ -3795,6 +3795,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     this.isNoData = false;
     this.isError = false;
     this.isChartShow = true;
+    this.uiOption.dataSource = this.dataSource;
 
     // 변경사항 반영 (resultData설정시 설정할 옵션전에 패널이 켜지므로 off)
     // this.changeDetect.detectChanges();

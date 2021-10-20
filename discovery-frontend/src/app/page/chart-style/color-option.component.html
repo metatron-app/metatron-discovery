@@ -111,7 +111,7 @@
             <!-- color select --->
             <div *ngFor="let item of uiOption.color['mappingArray']; let index = index" class="ddp-ui-color-select">
               <div class="ddp-txt-label">
-                <a href="javascript:" *ngIf="uiOption.color['settingUseFl']" (click)="resetUserColorSet(item, index)" class="ddp-btn-reset3"></a>
+                <a href="javascript:" *ngIf="uiOption.color['settingUseFl']" (click)="resetUserColorSet(item, index)" class="ddp-btn-reset3" style="z-index: 100"></a>
                 <div class="ddp-ui-txt">
                   <!-- 사용자가 바꾼 color : ddp-user 추가 -->
                   <div class="ddp-box-color">
@@ -132,7 +132,7 @@
         <!-- //color by series part -->
 
         <!-- color by dimension part -->
-        <div *ngIf="'gauge' == uiOption.type.toString() && isDimensionColorType" class="ddp-wrap-divide">
+        <div *ngIf="isDimensionColorType && !isCannotChangeColorType && isDimensionColorChangeType" class="ddp-wrap-divide">
 
           <div class="ddp-wrap-option-slider">
             <span class="ddp-label-slider">{{'msg.page.chart.color.series.color.setting' | translate}}</span>
@@ -144,19 +144,19 @@
             </div>
             <!-- //Slide THREE -->
           </div>
-          <!-- series -->
+          <!-- dimension -->
           <div *ngIf="uiOption.color['settingUseFl']" class="ddp-list-sub2">
             <!-- color select --->
             <div *ngFor="let item of uiOption.color['mappingArray']; let index = index" class="ddp-ui-color-select">
               <div class="ddp-txt-label">
-                <a href="javascript:" *ngIf="uiOption.color['settingUseFl']" (click)="resetGaugeUserColorSet(item, index)" class="ddp-btn-reset3"></a>
+                <a href="javascript:" *ngIf="uiOption.color['settingUseFl']" (click)="resetUserColorSet(item, index)" class="ddp-btn-reset3" style="z-index: 100"></a>
 
                 <div class="ddp-ui-txt">
                   <!-- 사용자가 바꾼 color : ddp-user 추가 -->
                   <div class="ddp-box-color">
                     <!-- 사용자가 바꾼 color : ddp-user 추가 -->
                     <color-picker [showAlpha]="true" [color]="item.color" [showInitial]="true"
-                                  [showInput]="true" [showUserColor]="true" #colorPicker (selected)="colorGaugePaletteSelected($event, item)"></color-picker>
+                                  [showInput]="true" [showUserColor]="true" #colorPicker (selected)="colorPaletteSelected($event, item)"></color-picker>
                   </div>
                   <span class="ddp-txt-data" title="{{item.alias}}">{{item.alias}}</span>
 
@@ -165,7 +165,7 @@
             </div>
             <!-- //color select --->
           </div>
-          <!--//series-->
+          <!--//dimension-->
         </div>
         <!-- //color by dimension part -->
 

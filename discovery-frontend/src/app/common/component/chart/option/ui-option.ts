@@ -141,6 +141,9 @@ export interface UIOption {
   // dimension 데이터 리스트
   fieldDimensionDataList?: string[];
 
+  // datasource
+  dataSource?: any;
+
   // 데이터 최소값
   minValue?: number;
 

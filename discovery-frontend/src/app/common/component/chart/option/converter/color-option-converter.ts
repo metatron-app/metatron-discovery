@@ -74,13 +74,11 @@ export class ColorOptionConverter {
 
     switch (color.type) {
       case ChartColorType.DIMENSION: {
-
         // option = this.convertColorByDimension(option, fieldOriginInfo, pivotInfo, uiOption);
         option = this.convertColorByDimension(option, fieldOriginInfo, fieldInfo, pivotInfo, uiOption);
         break;
       }
       case ChartColorType.SERIES: {
-
         const schema = (color as UIChartColorBySeries).schema;
         const colorCodes = _.cloneDeep(ChartColorList[schema]);
 
@@ -108,7 +106,6 @@ export class ColorOptionConverter {
         break;
       }
     }
-
     return option;
   }
 
@@ -148,13 +145,25 @@ export class ColorOptionConverter {
     option: BaseOption, fieldOriginInfo: PivotTableInfo, fieldInfo: PivotTableInfo, pivotInfo: PivotTableInfo, uiOption: UIOption): BaseOption {
 
     const schema = (uiOption.color as UIChartColorByDimension).schema;
-    const codes = _.cloneDeep(ChartColorList[schema]);
+
+   // dimension 사용자 색상 설정
+    const color: UIChartColorBySeries = uiOption.color;
+    let mappingColors = [];
+
+    if(!_.isUndefined(color.mapping) && (Object.keys(color.mapping)).length != 0){
+      (Object.keys(color.mapping).forEach(key => {
+        mappingColors.push(color.mapping[key]);
+      }))
+    }
+
+    const codes =  mappingColors.length > 0 ? mappingColors : _.cloneDeep(ChartColorList[schema]);
     const targetField = (uiOption.color as UIChartColorByDimension).targetField;
 
     const series = option.series;
 
     // visualMap 존재한다면 삭제
     if (!_.isUndefined(option.visualMap)) delete option.visualMap;
+
 
     // 범례 항목을 구성하는 차원값 데이터
     let legendData: string[];
@@ -201,11 +210,18 @@ export class ColorOptionConverter {
       if (_.isUndefined(name)) name = params[paramType];
 
       legendData = _.uniq(legendData);
-
       let colorIdx = _.indexOf(legendData, name);
       colorIdx = colorIdx >= codes['length'] ? colorIdx % codes['length'] : colorIdx;
       return codes[colorIdx];
     });
+
+    // // 기존 스타일이 존재 하지 않을 경우 기본스타일 생성 후 적용
+    // if (_.isUndefined(option.visualMap)) option.visualMap = OptionGenerator.VisualMap.continuousVisualMap();
+    //
+    // delete option.visualMap.itemHeight;
+    // // 색상 리스트 적용
+    // option.visualMap.color = codes;
+    // option.visualMap.type = VisualMapType.PIECEWISE;
 
     _.each(series, (obj) => {
 
@@ -237,6 +253,10 @@ export class ColorOptionConverter {
         };
       }
     });
+
+    if(!_.isUndefined(option.legend)){
+      option.legend.color = codes;
+    }
 
     return option;
   }
@@ -320,7 +340,6 @@ export class ColorOptionConverter {
         option.visualMap.dimension = _.eq(option.xAxis[0].type, AxisType.VALUE) || _.eq(option.xAxis[0].type, AxisType.LOG) ? VisualMapDimension.X : VisualMapDimension.Y;
       }
     }
-
     return option;
   }
 

@@ -101,8 +101,6 @@ export class ColorTemplateComponent extends AbstractComponent implements AfterVi
 
   public ngAfterViewInit() {
     super.ngAfterViewInit();
-    console.log( '>>>>> schema : ' + this.schema );
-    console.log( '>>>>> colorType : ' + this.colorType );
   }
 
   /**

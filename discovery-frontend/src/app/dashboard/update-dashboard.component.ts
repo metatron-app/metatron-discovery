@@ -182,6 +182,10 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
   @Output()
   public updateComplete: EventEmitter<Dashboard> = new EventEmitter();
 
+  // 차트만 업데이트
+  @Output()
+  public updateCompleteChart: EventEmitter<Dashboard> = new EventEmitter();
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -333,6 +337,9 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
         } else if ('modify-page-complete' === data.name) {
           this.modifyPageWidget(changeWidgetData, true);
           alertMsg = this.translateService.instant('msg.board.alert.update.chart.success');
+          // this.updateCompleteChart.emit(changeWidgetData);
+          this.dashboard.widgets.forEach(item => item = (item.id == changeWidgetData.id) ? changeWidgetData : item);
+          this.updateCompleteChart.emit(this.dashboard);     // 대시보드 정보 전달
         }
 
         // 위젯 및 필터 재정리

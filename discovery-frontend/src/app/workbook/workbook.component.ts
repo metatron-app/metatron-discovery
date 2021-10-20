@@ -1099,7 +1099,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    * 대시보드 업데이트 후 동작
    * @param dashboard
    */
-  public updateCompleteDashboard(dashboard) {
+  public updateCompleteDashboard(dashboard, isUpdateChartOnly = false) {
     // 업데이트한 대시보드 선택처리
     this._setSelectedDashboard(dashboard);
     // 좌측 대시보드 리스트 썸네일 갱신
@@ -1109,9 +1109,11 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       }
     });
 
+    if(isUpdateChartOnly) {return;}
     // mode
     this.changeMode('VIEW', true);
   } // function - updateCompleteDashboard
+
 
   /**
    * 대시보드 삭제 확인 팝업
