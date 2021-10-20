@@ -487,6 +487,7 @@
           <!-- //value list -->
         </ng-container>
         <!-- //not LINKED source -->
+
         <!-- table detail -->
         <div class="ddp-wrap-table-detail" [style.display]="!isLinkedTypeSource(datasource) && (selectedField.role === FIELD_ROLE.MEASURE || selectedField.logicalType === LOGICAL_TYPE.TIMESTAMP) ? 'block' : 'none'">
           <!-- histogram -->
@@ -535,6 +536,21 @@
             </ul>
           </div>
           <!-- //Covariance -->
+        </div>
+        <!-- //table detail -->
+
+        <!-- table detail -->
+        <div class="ddp-wrap-table-detail" [style.display]="!isLinkedTypeSource(datasource) && isGeoType(selectedField)">
+          <!-- Kepler Map -->
+          <label class="ddp-label-detail">Map</label>
+          <div class="ddp-ui-detail-in">
+<!--            &lt;!&ndash; box histogram &ndash;&gt;-->
+<!--            <div class="ddp-box-histogram" #histogram>-->
+
+<!--            </div>-->
+<!--            &lt;!&ndash; //box histogram &ndash;&gt;-->
+          </div>
+          <!-- // Kepler Map -->
         </div>
         <!-- //table detail -->
       </div>

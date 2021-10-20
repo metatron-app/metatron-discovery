@@ -43,6 +43,7 @@ import {DataStorageShareModule} from './data-storage-share.module';
 import {ConstantService} from '../shared/datasource-metadata/service/constant.service';
 import {DataStorageCriteriaModule} from './data-storage-criteria.module';
 import {SchedulingService} from './service/scheduling.service';
+import {KeplerWrapperComponent} from "./data-source-list/detail-data-source/column-detail-data-source/data-source-map/keplerWrapperComponent";
 
 const storageRoutes: Routes = [
   {
@@ -89,7 +90,8 @@ const storageRoutes: Routes = [
     // data connection
     DataConnectionComponent,
     CreateConnectionComponent,
-    UpdateConnectionComponent
+    UpdateConnectionComponent,
+    KeplerWrapperComponent
   ],
   exports: [
     // 워크벤치에서 사용하기 위해

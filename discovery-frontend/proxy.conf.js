@@ -7,15 +7,27 @@ const PROXY_CONFIG = [
       "/static",
       "/resources"
     ],
-    target: "http://localhost:8180",
-    secure: false
+    target: {
+      host: 't1-discovery.metatron.bundang10f.io',
+      protocol: 'http:',
+      port: 80
+    },
+    secure: false,
+    changeOrigin: true,
+    logLevel: 'debug'
   },
   {
     context: [
       "/stomp"
     ],
-    target: "http://localhost:8180",
-    secure: false
+    target: {
+      host: 't1-discovery.metatron.bundang10f.io',
+      protocol: 'http:',
+      port: 80
+    },
+    secure: false,
+    changeOrigin: true,
+    logLevel: 'debug'
   }
 ];
 

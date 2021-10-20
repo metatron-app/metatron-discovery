@@ -65,7 +65,13 @@
     "sql-formatter": "2.3.2",
     "string-pixel-width": "1.8.0",
     "xlsx": "0.16.9",
-    "zone.js": "0.10.2"
+    "zone.js": "0.10.2",
+    "kepler.gl": "^2.3.2",
+    "styled-components": "^5.1.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-palm": "^3.3.7",
+    "redux": "^4.1.1"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "0.1102.7",
@@ -78,6 +84,8 @@
     "@types/jquery": "3.3.29",
     "@types/lodash": "4.14.119",
     "@types/node": "14.14.41",
+    "@types/react": "^17.0.19",
+    "@types/react-dom": "^17.0.9",
     "codelyzer": "6.0.1",
     "jasmine-core": "3.3.0",
     "jasmine-spec-reporter": "4.2.1",
