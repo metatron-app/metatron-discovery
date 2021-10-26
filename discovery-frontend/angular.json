@@ -98,7 +98,8 @@
               "src/lib/vis/vis.js",
               "src/lib/split/split.js",
               "src/lib/plupload/plupload.full.min.js",
-              "src/lib/openlayers/ol.js"
+              "src/lib/openlayers/ol.js",
+              "src/lib/kepler.gl/dist/index.js"
             ]
           },
           "configurations": {

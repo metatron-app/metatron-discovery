@@ -3,7 +3,8 @@ import {Component, ViewChild, ElementRef, AfterViewInit} from "@angular/core";
 import * as React from "react";
 import * as ReactDOM from 'react-dom';
 import store from './store';
-import {Provider} from "react-redux";
+import {Provider} from 'react-redux';
+
 
 declare let $: any;
 const containerElementName = 'keplerContainer'
