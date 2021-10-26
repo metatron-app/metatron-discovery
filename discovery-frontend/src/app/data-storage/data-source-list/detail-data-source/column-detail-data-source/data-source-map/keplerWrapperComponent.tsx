@@ -4,6 +4,7 @@ import * as React from "react";
 import * as ReactDOM from 'react-dom';
 import store from './store';
 import {Provider} from 'react-redux';
+import KeplerComponent from "./kepler.component";
 
 
 declare let $: any;
@@ -23,7 +24,10 @@ export class KeplerWrapperComponent implements AfterViewInit{
     if(this.containerRef){
       React.version;
 
-      ReactDOM.render(<Provider store={store}></Provider>, this.containerRef.nativeElement);
+      ReactDOM.render(<Provider store={store}>
+        <KeplerComponent>
+        </KeplerComponent>
+      </Provider>, this.containerRef.nativeElement);
     }
 
   }

@@ -540,10 +540,12 @@
         <!-- //table detail -->
 
         <!-- table detail -->
-        <div class="ddp-wrap-table-detail" [style.display]="!isLinkedTypeSource(datasource) && isGeoType(selectedField)">
+        <div class="ddp-wrap-table-detail"
+             *ngIf="!isLinkedTypeSource(datasource) && isGeoType(selectedField)">
           <!-- Kepler Map -->
           <label class="ddp-label-detail">Map</label>
-          <div class="ddp-ui-detail-in">
+          <div class="ddp-ui-detail-in" style="margin-top:30px;">
+            <app-kepler></app-kepler>
 <!--            &lt;!&ndash; box histogram &ndash;&gt;-->
 <!--            <div class="ddp-box-histogram" #histogram>-->
 
