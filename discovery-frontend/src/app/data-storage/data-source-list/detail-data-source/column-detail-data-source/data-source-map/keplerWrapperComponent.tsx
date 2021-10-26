@@ -16,11 +16,15 @@ const containerElementName = 'keplerContainer'
 export class KeplerWrapperComponent implements AfterViewInit{
   @ViewChild(containerElementName, {static:false}) containerRef: ElementRef | undefined;
 
+
   ngAfterViewInit() {
     this.render();
+
   }
 
+
   private render(){
+
     if(this.containerRef){
       React.version;
 
@@ -28,6 +32,8 @@ export class KeplerWrapperComponent implements AfterViewInit{
         <KeplerComponent>
         </KeplerComponent>
       </Provider>, this.containerRef.nativeElement);
+
+
     }
 
   }
