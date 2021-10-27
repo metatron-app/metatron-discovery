@@ -598,15 +598,14 @@
                     data: JSON.stringify(requestData),
                     success: function () {
                         setDefaultOpts();
-                        setTimeout(() => {
-                            toastr.success(alertMsg,'Success');
-                        }, 500);
-                        history.back();
+                        toastr.success(alertMsg,'Success');
+                        setTimeout(function(){
+                            history.back();
+                        }, 2000);
+                        // history.back();
                     },
                     error: function (error) {
-                        setTimeout(() => {
-                            toastr.error('[(#{message.app.oauth.join.fail})]', 'Failed');
-                        }, 500);
+                        toastr.error('[(#{message.app.oauth.join.fail})]', 'Failed');
                         // alert('[(#{message.app.oauth.join.fail})]');
                     }
                 });
