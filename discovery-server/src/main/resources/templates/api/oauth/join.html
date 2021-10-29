@@ -27,8 +27,10 @@
     <title th:text="${clientName}"></title>
     <link rel="icon" type="image/x-icon" th:href="${faviconPath}">
     <link href="/resources/mobile.css" rel="stylesheet"/>
+    <link href="/resources/toastr.css" rel="stylesheet"/>
     <script src="/resources/jquery.min.js"></script>
     <script src="/resources/moment.min.js"></script>
+    <script src="/resources/toastr.js"></script>
 </head>
 <!-- login -->
 <body>
@@ -240,6 +242,7 @@
 </div>
 <input type="hidden" id="inputPassApprove" th:value="${passApprove}"/>
 <script type="text/javascript" th:inline="javascript">
+
     /* <![CDATA[ */
     $(document).ready(function () {
         // Name
@@ -272,6 +275,23 @@
         const $inputPassApprove = $('#inputPassApprove');
 
         let isCheckedPrivacyTerms = false;
+
+        function setDefaultOpts() {
+            toastr.options = {
+                closeButton: true,
+                onlyShowNewest: true,
+                newestOnTop: false,
+                escapeHtml: true,
+                positionClass: 'toast-top-center',
+                showMethod: 'slideDown',
+                showEasing: 'linear',
+                hideMethod: 'slideUp',
+                showDuration: 300,
+                hideDuration: 300,
+                timeOut: 3000,
+                onCustomAction: null
+            };
+        } // function - _setDefaultOpts
 
         // isTermsRequired 값에 따라 약관 내용 표시
         if($("#isTermsRequired").attr("value") === 'true')
@@ -577,11 +597,16 @@
                     contentType: "application/json; charset=utf-8",
                     data: JSON.stringify(requestData),
                     success: function () {
-                        alert(alertMsg);
-                        history.back();
+                        setDefaultOpts();
+                        toastr.success(alertMsg,'Success');
+                        setTimeout(function(){
+                            history.back();
+                        }, 2000);
+                        // history.back();
                     },
                     error: function (error) {
-                        alert('[(#{message.app.oauth.join.fail})]');
+                        toastr.error('[(#{message.app.oauth.join.fail})]', 'Failed');
+                        // alert('[(#{message.app.oauth.join.fail})]');
                     }
                 });
             }
