@@ -69,6 +69,9 @@ public class WorkBookProjections {
 
     String getFolderId();
 
+    @Value("#{@bookTreeService.findBookHierarchies(target.folderId)}")
+    List<Map<String, String>> getHierarchies();
+
     //@Value("#{T(app.metatron.discovery.util.ProjectionUtils).toListResource(@projectionFactory, T(app.metatron.discovery.domain.datasource.DataSourceProjections$ForSimpleViewProjection), @dashboardRepository.findAllDataSourceInDashboard(target.id))}")
     @Value("#{T(app.metatron.discovery.util.ProjectionUtils).toListResource(@projectionFactory, T(app.metatron.discovery.domain.datasource.DataSourceProjections$ForSimpleViewProjection), @dashBoardService.backingDataSource(target))}")
     Object getDataSource();
