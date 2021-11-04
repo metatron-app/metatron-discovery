@@ -272,7 +272,6 @@ export abstract class AbstractFilterPanelComponent<T extends Filter> extends Abs
    * return Filter;
    */
   protected getFiltersParam(filter: Filter): Filter[] {
-
     if (!this.boardFilters) this.boardFilters = [];
     if (!this.chartFilters) this.chartFilters = [];
 
@@ -299,6 +298,9 @@ export abstract class AbstractFilterPanelComponent<T extends Filter> extends Abs
     } else {
       // 타임스탬프 + 자기보다 시퀀스가 낮은(우선순위가 높은) 필터
       filters = this.boardFilters.filter((item) => {
+        if(this.isNullOrUndefined(filter.ui.filteringSeq)) {
+          return item.ui.importanceType === 'timestamp';
+        }
         return item.ui.importanceType === 'timestamp' || item.ui.filteringSeq < filter.ui.filteringSeq;
       });
     }

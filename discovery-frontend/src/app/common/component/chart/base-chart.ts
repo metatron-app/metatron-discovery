@@ -890,8 +890,6 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
     // apply
     ////////////////////////////////////////////////////////
 
-    console.log('chartOption:', _.cloneDeep(this.chartOption));
-
     // 차트 반영
     this.apply();
 
