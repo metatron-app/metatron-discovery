@@ -292,6 +292,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
    * 메인 화면으로 이동
    */
   public goMain() {
+    this.cookieService.delete(CookieConstant.KEY.CURRENT_WORKSPACE);  // 쿠키 삭제
     this.cookieService.delete(CookieConstant.KEY.CURRENT_WORKSPACE, '/');  // 쿠키 삭제
     if ('/workspace' === this.router.url) {
       this.broadCaster.broadcast('moveFromLnb', 'my');

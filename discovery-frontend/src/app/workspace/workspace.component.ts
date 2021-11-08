@@ -1510,9 +1510,14 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
       this.currentFolderId = cookieWorkspace.folderId;
       if( workspaceId && cookieWorkspace.workspaceId !== workspaceId) {
         this.workspaceId = workspaceId;
+        this.initFolderHierarchies = null;
       } else {
         this.workspaceId = cookieWorkspace.workspaceId;
-        this.initFolderHierarchies = cookieWorkspace.folderHierarchies;
+        if( cookieWorkspace.folderHierarchies && cookieWorkspace.folderHierarchies.length ) {
+          this.initFolderHierarchies = cookieWorkspace.folderHierarchies;
+        } else {
+          this.initFolderHierarchies = null;
+        }
       }
       // 쿠키 삭제
       // this.cookieService.delete(CookieConstant.KEY.CURRENT_WORKSPACE);
