@@ -450,11 +450,22 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   public gotoWorkspace() {
     const cookieWs = this.cookieService.get(CookieConstant.KEY.CURRENT_WORKSPACE);
     const cookieWorkspace = (cookieWs) ? JSON.parse(cookieWs) : null;
-    if (null !== cookieWorkspace && null !== cookieWorkspace['workspaceId']) {
-      this.router.navigate(['/workspace', cookieWorkspace['workspaceId']]).then();
-    } else {
-      this.router.navigate(['/workspace']).then();
+    let viewType = 'CARD';
+    if (null !== cookieWorkspace ) {
+      viewType = cookieWorkspace.viewType;
     }
+    this.cookieService.set(
+      CookieConstant.KEY.CURRENT_WORKSPACE,
+      JSON.stringify(
+        {
+          viewType: viewType,
+          workspaceId: this.workbook.workspaceId,
+          folderId: this.workbook.folderId,
+          folderHierarchies: this.workbook.hierarchies
+        }
+      )
+    );
+    this.router.navigate(['/workspace', this.workbook.workspaceId]).then();
   } // function - gotoWorkspace
 
   /**

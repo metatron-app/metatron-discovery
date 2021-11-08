@@ -1498,7 +1498,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
   }
 
   // 쿠키 조회
-  private getCookie() {
+  private getCookie(workspaceId?: string) {
     // 쿠키 조회
     const cookieWs = this.cookieService.get(CookieConstant.KEY.CURRENT_WORKSPACE);
     let cookieWorkspace = null;
@@ -1508,8 +1508,12 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
     if (null !== cookieWorkspace) {
       this.viewType = cookieWorkspace.viewType;
       this.currentFolderId = cookieWorkspace.folderId;
-      this.workspaceId = cookieWorkspace.workspaceId;
-      this.initFolderHierarchies = cookieWorkspace.folderHierarchies;
+      if( workspaceId && cookieWorkspace.workspaceId !== workspaceId) {
+        this.workspaceId = workspaceId;
+      } else {
+        this.workspaceId = cookieWorkspace.workspaceId;
+        this.initFolderHierarchies = cookieWorkspace.folderHierarchies;
+      }
       // 쿠키 삭제
       // this.cookieService.delete(CookieConstant.KEY.CURRENT_WORKSPACE);
     }
@@ -1590,7 +1594,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
    * @private
    */
   private _traceFolderHierarchies() {
-    if (this.initFolderHierarchies) {
+    if (this.initFolderHierarchies && this.initFolderHierarchies.length) {
       this.loadingShow();
       setTimeout(() => {
         const tempId = this.initFolderHierarchies.shift().id;
@@ -1600,6 +1604,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
     } else {
       // 목록 상태가 변할때 마다 현재 상태를 쿠키로 저장함
       this.setCookie();
+      this.loadingHide();
     }
   } //  function - _traceFolderHierarchies
 
@@ -1612,7 +1617,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
   private _initViewPage(workspaceId?: string, folderId?: string) {
 
     // 쿠키 조회
-    this.getCookie();
+    this.getCookie(workspaceId);
     this.loadWorkspaceCriteria();
 
     // initialize Data

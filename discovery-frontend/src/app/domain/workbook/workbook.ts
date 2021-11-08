@@ -15,6 +15,7 @@
 import {Book} from '../workspace/book';
 import {UserProfile} from '../user/user-profile';
 import {Dashboard} from '../dashboard/dashboard';
+import {Hirearchies} from '@domain/workspace/folder';
 
 export class Workbook extends Book {
   public configuration: any;
@@ -34,5 +35,7 @@ export class WorkbookDetailProjections extends Workbook {
   public dashBoards: Dashboard[];
   public countOfComments: number;
   public dataSource: any[];
+  public folderId: string;
   public workspaceId: string;
+  public hierarchies:Hirearchies[];
 }
