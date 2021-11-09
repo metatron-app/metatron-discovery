@@ -463,7 +463,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
           folderId: this.workbook.folderId,
           folderHierarchies: this.workbook.hierarchies
         }
-      )
+      ), 0, '/'
     );
     this.router.navigate(['/workspace', this.workbook.workspaceId]).then();
   } // function - gotoWorkspace
