@@ -201,7 +201,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
 
   public boardUtil = DashboardUtil;
 
-  // 그리드에서 사용하는 옵션 ({}을 넣게되면 차트를 그릴때 uiOption값이 없는데도 차트를 그리다가 오류가 발생하므로 제거하였음 by juhee)
+  // 그리드에서 사용하는 옵션 ({}을 넣게되면 차트를 그릴때 uiOption 값이 없는데도 차트를 그리다가 오류가 발생하므로 제거하였음 by juhee)
   public gridUiOption: UIOption;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -723,6 +723,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
    * @param uiOption
    */
   public gridUiOptionUpdatedHandler(uiOption) {
+
     this.gridUiOption = _.extend({}, this.gridUiOption, uiOption);
   } // function - gridUiOptionUpdatedHandler
 

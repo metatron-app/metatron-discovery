@@ -1604,6 +1604,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    */
   private _getGeneralFilterListInPanel() {
     let filterList: FilterWidget[];
+
     if (this.dashboard.configuration && this.dashboard.configuration.filterRelations) {
       const filterRel: DashboardWidgetRelation[] = this.dashboard.configuration.filterRelations;
 
@@ -1613,6 +1614,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
             node: relItem.ref,
             parent: parentId
           });
+
           if (relItem.children && 0 < relItem.children.length) {
             hierarchy = recurrsiveRelation(relItem.children, [].concat(hierarchy), relItem.ref);
           }
@@ -1621,6 +1623,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       };
 
       filterList = recurrsiveRelation(filterRel, [], '').map(hierarchyItem => {
+
         const filterWidget: FilterWidget = DashboardUtil.getWidget(this.dashboard, hierarchyItem.node) as FilterWidget;
         if (filterWidget) {
           filterWidget.parent = DashboardUtil.getWidget(this.dashboard, hierarchyItem.parent) as FilterWidget;

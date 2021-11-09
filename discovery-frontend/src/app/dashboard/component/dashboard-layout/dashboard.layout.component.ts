@@ -1412,6 +1412,8 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
       }, []);
 
       boardInfo.timeRanges = [];
+
+
       const procCandidate: ((callback) => void)[] = timestampFields.map( fieldInfo => {
         return (callback) => {
           this.datasourceService.getCandidateForTimestamp(fieldInfo, boardInfo).then(rangeResult => {
@@ -1438,6 +1440,24 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
 
           const promises = [];
           if (boardInfo.configuration.filters) {
+
+            // hierarchy 가 없이 저장된 필터 제외
+            const filterRelation = boardInfo.configuration.filterRelations;
+            const hierarchyIdList = [];
+
+            filterRelation.forEach(filterRel => {
+              const filterWidget = (DashboardUtil.getWidget(this.dashboard, filterRel.ref) as FilterWidget);
+
+              if(!this.isNullOrUndefined(filterWidget)){
+                hierarchyIdList.push(filterWidget.configuration.filter.dataSource + '_' + filterWidget.configuration.filter.field);
+              }
+            });
+
+            boardInfo.configuration.filters = boardInfo.configuration.filters.filter((filter: Filter) => {
+              const filterId = filter.dataSource + '_' + filter.field;
+              return hierarchyIdList.includes(filterId);
+            });
+
             // remove current_time timestamp filter - S
             boardInfo.configuration.filters
               = boardInfo.configuration.filters.filter((filter: Filter) => {
