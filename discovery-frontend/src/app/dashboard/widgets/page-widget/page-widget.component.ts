@@ -203,6 +203,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
 
   // 그리드에서 사용하는 옵션 ({}을 넣게되면 차트를 그릴때 uiOption값이 없는데도 차트를 그리다가 오류가 발생하므로 제거하였음 by juhee)
   public gridUiOption: UIOption;
+  public isNotUpdateWidth: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables - Input & Output
@@ -734,6 +735,10 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
 
       // 새로고침 다시 그림 여부 설정
       this.isUpdateRedraw = (LayoutMode.EDIT === this.layoutMode);
+
+      if( this.layoutMode !== LayoutMode.EDIT) {
+        this.isNotUpdateWidth = true;
+      }
 
       this.processEnd();
       this._isDuringProcess = false;

@@ -275,6 +275,7 @@
     <grid-chart #chart
                 *ngIf="chartType === 'grid' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
                 [userCustomFunction]="userCustomFunction"
+                [isNotUpdateWidth]="isNotUpdateWidth"
                 (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
                 (chartSelectInfo)="chartSelectInfo($event)"
                 (noData)="showNoData()"

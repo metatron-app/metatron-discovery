@@ -70,6 +70,9 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
   @Input()
   public viewMode: boolean = false;
 
+  @Input()
+  public isNotUpdateWidth: boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -588,6 +591,11 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
 
     // 차트 데이터 주입
     try {
+
+      if( this.isNotUpdateWidth ) {
+        this.gridModel.columnWidth = this.chart.getLeafColumnWidth();
+      }
+
       this.chart.initialize(data, this.gridModel);
     } catch (e) {
       console.log(e);
