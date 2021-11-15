@@ -1191,7 +1191,25 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       }
 
       if (ChartType.GRID.toString() === this.selectChart && this.chart.chart) {
-        param.configuration.chart.gridColumnWidth = this.chart.chart.getLeafColumnWidth();
+        const chartAreaWidth = $( '.ddp-ui-chart-area' ).width();
+        const leafColWidth = this.chart.chart.getLeafColumnWidth();
+        const totalWidth = Object.keys(leafColWidth).reduce((acc, key) => {
+          return acc + leafColWidth[key];
+        }, 0);
+        if( 10 > Math.abs( chartAreaWidth - totalWidth ) ) {
+          const leftColWidth = this.pivot.rows.reduce((acc, row) => {
+            return acc + leafColWidth[row.name] ? leafColWidth[row.name] : 0;
+          }, 0);
+          const dataAreaWidth = totalWidth - leftColWidth;
+          Object.keys(leafColWidth).forEach(key => {
+            if( -1 === this.pivot.rows.findIndex( row => row.name === key ) ) {
+              leafColWidth[key] = leafColWidth[key] / dataAreaWidth;
+            }
+          });
+          param.configuration.chart.gridColumnWidth = leafColWidth;
+        } else {
+          param.configuration.chart.gridColumnWidth = leafColWidth;
+        }
       }
 
       // 서버에 저장될필요 없는 파라미터 제거
@@ -1222,13 +1240,13 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
               const configuration = {configuration: pageWidget.configuration, imageUrl: res['imageUrl']};
               this.widgetService
                 .updateWidget(pageWidget.id, configuration)
-                .then(() => {
+                .then((savedPageWidget) => {
+                  pageWidget.imageUrl = savedPageWidget.imageUrl;
                   this.popupService.notiPopup({
                     name: 'create-page-complete',
                     data: pageWidget
                   });
                 });
-
             })
             .catch((err) => {
               console.log('image upload error', err);
@@ -1252,7 +1270,25 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       };
 
       if (ChartType.GRID.toString() === this.selectChart && this.chart.chart) {
-        param.configuration.chart['gridColumnWidth'] = this.chart.chart.getLeafColumnWidth();
+        const chartAreaWidth = $( '.ddp-ui-chart-area' ).width();
+        const leafColWidth = this.chart.chart.getLeafColumnWidth();
+        const totalWidth = Object.keys(leafColWidth).reduce((acc, key) => {
+          return acc + leafColWidth[key];
+        }, 0);
+        if( 10 > Math.abs( chartAreaWidth - totalWidth ) ) {
+          const leftColWidth = this.pivot.rows.reduce((acc, row) => {
+            return acc + leafColWidth[row.name] ? leafColWidth[row.name] : 0;
+          }, 0);
+          const dataAreaWidth = totalWidth - leftColWidth;
+          Object.keys(leafColWidth).forEach(key => {
+            if( -1 === this.pivot.rows.findIndex( row => row.name === key ) ) {
+              leafColWidth[key] = leafColWidth[key] / dataAreaWidth;
+            }
+          });
+          param.configuration.chart['gridColumnWidth'] = leafColWidth;
+        } else {
+          param.configuration.chart['gridColumnWidth'] = leafColWidth;
+        }
       }
 
       // 서버에 저장될필요 없는 파라미터 제거
