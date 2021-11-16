@@ -139,8 +139,9 @@
             <!-- Title -->
             <div class="ddp-ui-boardside-title">
               {{'msg.page.ui.chart' | translate}}
-              <span class="ddp-data-num">{{boardUtil.getPageWidgets(dashboard).length}}</span>
-
+              <span class="ddp-data-num" *ngIf="dashboard" >
+                {{dashboard.configuration.relations ? dashboard.configuration.relations.length : 0}}
+              </span>
               <!-- Chart Panel Tooltip -->
               <div class="ddp-info" [class.ddp-selected]="isShowChartPanelTooltip"
                    (mouseenter)="isShowChartPanelTooltip=true" (mouseleave)="isShowChartPanelTooltip=false">

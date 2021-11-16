@@ -228,7 +228,7 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
       return;
     }
 
-    // 차트변경시 uiOption이 초기화되므로 uiOption값 재설정
+    // 차트변경시 uiOption 이 초기화되므로 uiOption 값 재설정
     this.setDataInfo();
 
     // 차트 표현
