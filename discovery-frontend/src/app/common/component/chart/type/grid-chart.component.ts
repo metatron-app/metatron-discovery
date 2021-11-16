@@ -600,7 +600,7 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
           if( colWidth ) {
             let isFitWidth: boolean = false;
             const pixelWidth = Object.keys(colWidth).reduce((acc, key) => {
-              if( 0 < colWidth[key] ) {
+              if( 1 < colWidth[key] ) {
                 return acc + colWidth[key];
               } else {
                 isFitWidth = true;
@@ -610,7 +610,7 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
             if( isFitWidth ) {
               const currWidth = this.$element.find('.chartCanvas').width() - pixelWidth;
               Object.keys(colWidth).forEach(key => {
-                if( 0 > colWidth[key] ) {
+                if( 1 > colWidth[key] ) {
                   colWidth[key] = colWidth[key] * currWidth;
                 }
               });
