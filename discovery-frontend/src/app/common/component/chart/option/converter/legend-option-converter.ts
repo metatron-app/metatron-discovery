@@ -14,7 +14,7 @@
 
 import { BaseOption } from '../base-option';
 import { UIOption } from '../ui-option';
-import { Orient } from '../define/common';
+import {ChartColorType, Orient} from '../define/common';
 import { DataZoomType } from '../define/datazoom';
 import * as _ from 'lodash';
 
@@ -59,6 +59,11 @@ export class LegendOptionConverter {
       if (option.legend) {
         option.legend.show = false;
       }
+    }
+
+    // 차원값이 A x B 가 될 경우, 범례 값이 중복되는 것 삭제
+    if(_.eq(uiOption.color.type, ChartColorType.DIMENSION) && option.legend.show){
+     option.legend.data = option.legend.data.filter((el,i,a) => i === a.indexOf(el));
     }
 
     // Grid가 존재하는 경우 범례 표시 여부에 따라 크기 변경
