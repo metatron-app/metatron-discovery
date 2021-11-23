@@ -70,6 +70,9 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
   @Input()
   public viewMode: boolean = false;
 
+  @Input()
+  public isNotUpdateWidth: boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -588,6 +591,35 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
 
     // 차트 데이터 주입
     try {
+
+      if( this.isNotUpdateWidth ) {
+        this.gridModel.columnWidth = this.chart.getLeafColumnWidth();
+      } else {
+        if( this.gridModel.columnWidth ) {
+          const colWidth = JSON.parse(JSON.stringify(this.gridModel.columnWidth));
+          if( colWidth ) {
+            let isFitWidth: boolean = false;
+            const pixelWidth = Object.keys(colWidth).reduce((acc, key) => {
+              if( 1 < colWidth[key] ) {
+                return acc + colWidth[key];
+              } else {
+                isFitWidth = true;
+                return acc;
+              }
+            }, 0);
+            if( isFitWidth ) {
+              const currWidth = this.$element.find('.chartCanvas').width() - pixelWidth;
+              Object.keys(colWidth).forEach(key => {
+                if( 1 > colWidth[key] ) {
+                  colWidth[key] = colWidth[key] * currWidth;
+                }
+              });
+              this.gridModel.columnWidth = colWidth;
+            }
+          }
+        }
+      }
+
       this.chart.initialize(data, this.gridModel);
     } catch (e) {
       console.log(e);
