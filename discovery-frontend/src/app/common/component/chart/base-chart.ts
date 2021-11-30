@@ -1587,14 +1587,15 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
         }
 
         this.chartOption.legend.data = legendData;
-        if(this.isNullOrUndefined(this.chartOption.legend.color)){
+        if(this.isNullOrUndefined(this.chartOption.legend.color)
+          || this.chartOption.legend.color.length < this.chartOption.series.length){ // 최종 범례 값이 차트 색보다 많을 경우
           this.chartOption.legend.color = ChartColorList[this.uiOption.color['schema']];
 
         }
 
         // 사용자 색상 설정 리스트에 맞춰 범례 값 색 정의
         if(!this.isNullOrUndefined(this.uiOption.color['mappingArray'])
-          && this.uiOption.color['mappingArray'].length > 0 && this.uiOption.type!='bar'){
+          && this.uiOption.color['mappingArray'].length > 0 && this.uiOption.type=='pie'){
           legendData.forEach((legend, index) => {
             const legendIdx = this.uiOption.color['mappingArray'].findIndex(item => {
               return item['alias'] == legend;
