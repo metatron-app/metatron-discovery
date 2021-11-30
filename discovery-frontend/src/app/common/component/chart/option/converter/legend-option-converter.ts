@@ -62,11 +62,11 @@ export class LegendOptionConverter {
     }
 
     // 차원값이 A x B 가 될 경우, 범례 값이 중복되는 것 삭제
-    if(_.eq(uiOption.color.type, ChartColorType.DIMENSION) && option.legend.show){
+    if(_.eq(uiOption.color.type, ChartColorType.DIMENSION) && option.legend.show && uiOption.fielDimensionList.length > 0){
      option.legend.data = option.legend.data.filter((el,i,a) => i === a.indexOf(el));
     }
 
-    // Grid가 존재하는 경우 범례 표시 여부에 따라 크기 변경
+    // Grid가 존재하는 경우 범례 표시 여부에 따라 크기 변경ㅊ
     if (!_.isUndefined(option.grid) && !_.isUndefined(option.dataZoom)) {
       const sliderZooms = option.dataZoom.filter((dataZoom) => {
         return _.eq(dataZoom.type, DataZoomType.SLIDER);
