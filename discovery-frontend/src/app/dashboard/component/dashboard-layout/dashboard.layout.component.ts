@@ -39,7 +39,7 @@ import {
   BoardDataSource,
   BoardDataSourceRelation,
   Dashboard,
-  DashboardLayout,
+  DashboardLayout, DashboardWidgetRelation,
   JoinMapping,
   LayoutMode,
   LayoutWidgetInfo
@@ -1441,22 +1441,38 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
           const promises = [];
           if (boardInfo.configuration.filters) {
 
-            // hierarchy 가 없이 저장된 필터 제외
+            const filterIdList = boardInfo.widgets.filter((widget) => widget.type == 'filter').map(widget => widget.id);
+
+            if(this.isNullOrUndefined(boardInfo.configuration.filterRelations)){
+              boardInfo.configuration.filterRelations = [];
+            }
             const filterRelation = boardInfo.configuration.filterRelations;
-            const hierarchyIdList = [];
 
-            filterRelation.forEach(filterRel => {
-              const filterWidget = (DashboardUtil.getWidget(this.dashboard, filterRel.ref) as FilterWidget);
-
-              if(!this.isNullOrUndefined(filterWidget)){
-                hierarchyIdList.push(filterWidget.configuration.filter.dataSource + '_' + filterWidget.configuration.filter.field);
+            // filterRelation 에 hierarchy 값이 없는 filter일 경우 강제 설정
+            filterIdList.forEach((id)=> {
+              if(!filterRelation.some(filterRel => filterRel.ref === id)){
+                boardInfo.configuration.filterRelations.push(new DashboardWidgetRelation(id));
               }
             });
 
-            boardInfo.configuration.filters = boardInfo.configuration.filters.filter((filter: Filter) => {
-              const filterId = filter.dataSource + '_' + filter.field;
-              return hierarchyIdList.includes(filterId);
-            });
+            // // hierarchy 가 없이 저장된 필터 제외
+            // const filterRelation = boardInfo.configuration.filterRelations;
+            // console.log('filterRelation: ,', filterRelation);
+            //
+            // const hierarchyIdList = [];
+            //
+            // filterRelation.forEach(filterRel => {
+            //   const filterWidget = (DashboardUtil.getWidget(this.dashboard, filterRel.ref) as FilterWidget);
+            //
+            //   if(!this.isNullOrUndefined(filterWidget)){
+            //     hierarchyIdList.push(filterWidget.configuration.filter.dataSource + '_' + filterWidget.configuration.filter.field);
+            //   }
+            // });
+            //
+            // boardInfo.configuration.filters = boardInfo.configuration.filters.filter((filter: Filter) => {
+            //   const filterId = filter.dataSource + '_' + filter.field;
+            //   return hierarchyIdList.includes(filterId);
+            // });
 
             // remove current_time timestamp filter - S
             boardInfo.configuration.filters
