@@ -116,7 +116,7 @@ public class DashBoardRestIntegrationTest extends AbstractRestIntegrationTest {
     TestUtils.printTestTitle("데이터 소스 연결 스펙 추가");
 
     DataSource datasource = new DefaultDataSource(datasourceName);
-    BoardConfiguration boardConfiguration = new BoardConfiguration(datasource, null, null, null, null, null, null);
+    BoardConfiguration boardConfiguration = new BoardConfiguration(datasource, null, null, null, null, null, null, null);
 
     Object body = new DashBoardBuilder()
         .name("dashboard-test")
