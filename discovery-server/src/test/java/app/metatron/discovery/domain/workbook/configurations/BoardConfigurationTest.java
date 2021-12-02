@@ -112,7 +112,7 @@ public class BoardConfigurationTest {
     filters.add(inFilter);
 
     BoardConfiguration boardConfiguration = new BoardConfiguration(multiDataSource, boardGlobalOptions, layoutWidgets,
-                                                                   null, widgetRelations, null, filters);
+                                                                   null, widgetRelations, null, null, filters);
 
     String boardSpecStr = GlobalObjectMapper.writeValueAsString(boardConfiguration);
     System.out.println(boardSpecStr);

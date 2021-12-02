@@ -123,6 +123,12 @@ public class DashBoardService {
           }
         }
 
+        if(CollectionUtils.isNotEmpty(conf.getFilterRelations())) {
+          for (WidgetRelation filterRelation : conf.getFilterRelations()) {
+            filterRelation.replaceId(widgetIdMap);
+          }
+        }
+
         copiedDashBoard.setConfiguration(GlobalObjectMapper.writeValueAsString(conf));
 
       } catch (Exception e) {
