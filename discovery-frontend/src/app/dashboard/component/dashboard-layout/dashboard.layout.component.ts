@@ -1448,9 +1448,26 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
             }
             const filterRelation = boardInfo.configuration.filterRelations;
 
-            // filterRelation 에 hierarchy 값이 없는 filter일 경우 강제 설정
+            const recurrsiveRelation = (items: DashboardWidgetRelation[], hierarchy: { node: string, parent: string }[] = [], parentId: string) => {
+              items.forEach((relItem: DashboardWidgetRelation) => {
+                hierarchy.push({
+                  node: relItem.ref,
+                  parent: parentId
+                });
+
+                if (relItem.children && 0 < relItem.children.length) {
+                  hierarchy = recurrsiveRelation(relItem.children, [].concat(hierarchy), relItem.ref);
+                }
+              });
+              return hierarchy;
+            };
+
+            const hierarchyList = recurrsiveRelation(filterRelation, [], '');
+
+            // 상위 계층 설정이 안되어 있으나 rel 값이 없는 필터일 경우 본인 과의 rel 설정
             filterIdList.forEach((id)=> {
-              if(!filterRelation.some(filterRel => filterRel.ref === id)){
+              if(!filterRelation.some(filterRel => filterRel.ref === id)
+                && (hierarchyList.length == 0 || hierarchyList.find(hierarchy => hierarchy.node === id && hierarchy.parent ===''))){
                 boardInfo.configuration.filterRelations.push(new DashboardWidgetRelation(id));
               }
             });
