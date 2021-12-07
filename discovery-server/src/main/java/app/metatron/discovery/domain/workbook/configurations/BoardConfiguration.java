@@ -62,6 +62,11 @@ public class BoardConfiguration implements Serializable {
   List<WidgetRelation> relations;
 
   /**
+   * Set filter widget relations
+   */
+  List<WidgetRelation> filterRelations;
+
+  /**
    * User defined fields
    */
   List<UserDefinedField> userDefinedFields;
@@ -81,6 +86,7 @@ public class BoardConfiguration implements Serializable {
                             @JsonProperty("widgets") List<LayoutWidget> widgets,
                             @JsonProperty("content") String content,
                             @JsonProperty("relations") List<WidgetRelation> relations,
+                            @JsonProperty("filterRelations") List<WidgetRelation> filterRelations,
                             @JsonProperty("userDefinedFields") List<UserDefinedField> userDefinedFields,
                             @JsonProperty("filters") List<Filter> filters) {
     this.dataSource = dataSource;
@@ -88,6 +94,7 @@ public class BoardConfiguration implements Serializable {
     this.widgets = widgets;
     this.content = content;
     this.relations = relations;
+    this.filterRelations = filterRelations;
     this.userDefinedFields = userDefinedFields;
     this.filters = filters;
   }
@@ -111,6 +118,8 @@ public class BoardConfiguration implements Serializable {
   public List<WidgetRelation> getRelations() {
     return relations;
   }
+
+  public List<WidgetRelation> getFilterRelations() { return filterRelations; }
 
   public List<UserDefinedField> getUserDefinedFields() {
     return userDefinedFields;

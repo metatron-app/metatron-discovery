@@ -1286,6 +1286,9 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     // 변경된 필터가 어떤 필터의 상위 필터인 경우 하위 필터의 값을 초기화 해준다. - S
     {
       const findRelationInfo = (targetId: string, items: DashboardWidgetRelation[], callback: (relItem: DashboardWidgetRelation) => void) => {
+        if(this.isNullOrUndefined(items)){
+          return false;
+        }
         return items.some((relItem: DashboardWidgetRelation) => {
           if (targetId === relItem.ref) {
             return callback(relItem);
