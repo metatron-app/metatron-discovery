@@ -49,6 +49,7 @@
     "json5": "1.0.1",
     "jspdf": "^2.3.0",
     "lodash": "^4.17.15",
+    "mapbox-gl": "^2.6.1",
     "moment": "2.29.1",
     "ng-click-outside": "2.4.1",
     "ng2-cookies": "1.0.12",
