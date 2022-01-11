@@ -61,6 +61,7 @@ import {Shelf, ShelfLayers} from '@domain/workbook/configurations/shelf/shelf';
 import {InclusionFilter} from '@domain/workbook/configurations/filter/inclusion-filter';
 import {WidgetShowType} from '@domain/dashboard/dashboard.globalOptions';
 import {FilterWidget, FilterWidgetConfiguration} from '@domain/dashboard/widget/filter-widget';
+import {TimeFilter} from '@domain/workbook/configurations/filter/time-filter';
 
 import {DatasourceService} from '../datasource/service/datasource.service';
 import {PageComponent} from '../page/page.component';
@@ -417,7 +418,8 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
         break;
       case 'filter' :
         const filterWidgetConf: FilterWidgetConfiguration = widget.configuration as FilterWidgetConfiguration;
-        this.openUpdateFilterPopup(filterWidgetConf.filter);
+        const filterInfo = DashboardUtil.getBoardFilter(this.dashboard, filterWidgetConf.filter.dataSource, filterWidgetConf.filter.field);
+        this.openUpdateFilterPopup(filterInfo);
         break;
       case 'text' :
         this.openTextWidgetEditor(widget as TextWidget);
@@ -1389,26 +1391,53 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       const newFilterWidget: FilterWidget = new FilterWidget(filter, this.dashboard);
       this.widgetService.createWidget(newFilterWidget, this.dashboard.id).then((result) => {
 
-        // 위젯 등록
-        this.dashboard = this._addWidget(this.dashboard, _.merge(newFilterWidget, result));
+        const afterCreateWidget = (createResult, addCallback?: () => void) => {
+          // 위젯 등록
+          this.dashboard = this._addWidget(this.dashboard, _.merge(newFilterWidget, createResult));
 
-        // 글로벌 필터 업데이트
-        filter['isNew'] = true;
-        this.dashboard = DashboardUtil.addBoardFilter(this.dashboard, filter);
+          // 글로벌 필터 업데이트
+          filter['isNew'] = true;
+          this.dashboard = DashboardUtil.addBoardFilter(this.dashboard, filter);
 
-        (callback) && (callback());
+          (addCallback) && (addCallback());
 
-        this.safelyDetectChanges();
+          this.safelyDetectChanges();
 
-        // Layout 업데이트
-        this.renderLayout();
+          // Layout 업데이트
+          this.renderLayout();
 
-        this.dashboard.updateId = CommonUtil.getUUID();
+          this.dashboard.updateId = CommonUtil.getUUID();
 
-        this.defaultFilterListInPanel = this._getDefaultFilterListInPanel();
-        this.generalFilterListInPanel = this._getGeneralFilterListInPanel();
+          this.defaultFilterListInPanel = this._getDefaultFilterListInPanel();
+          this.generalFilterListInPanel = this._getGeneralFilterListInPanel();
 
-        this.hideBoardLoading();
+          this.hideBoardLoading();
+        };
+
+        if( FilterUtil.isTimeFilter(filter) ) {
+          const filterField = ( filter as TimeFilter ).clzField;
+          const filterDs = this.dashboard.dataSources.find( ds => ds.engineName === filter.dataSource );
+          this.datasourceService.getCandidateForTimestamp(
+            {
+              dsInfo : filterDs,
+              field : filterField
+            },
+            this.dashboard
+          ).then(rangeResult => {
+            if (rangeResult) {
+              const timeRangeInfo = {
+                fieldName : filterField.name,
+                maxTime : rangeResult.maxTime,
+                minTime : rangeResult.minTime,
+                dataSource: filterDs
+              };
+              this.dashboard.timeRanges.push(timeRangeInfo);
+            }
+            afterCreateWidget(result, callback);
+          }).catch(() => (callback) && (callback()))
+        } else {
+          afterCreateWidget(result, callback);
+        }
       });
     }
   } // function - addFilter

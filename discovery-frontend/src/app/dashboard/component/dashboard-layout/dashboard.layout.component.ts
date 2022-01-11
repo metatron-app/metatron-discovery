@@ -219,18 +219,22 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
    * @private
    */
   private _getLayoutComponentConfByWidget(widget: Widget) {
-    const info: LayoutWidgetInfo = DashboardUtil.getLayoutWidgetInfoByWidgetId(this.dashboard, widget.id);
-    return {
-      id: info.id,
-      title: widget.name,
-      type: 'component',
-      componentName: 'widget',
-      componentState: {
-        id: info.id,
-        type: info.type,
-        imageUrl: (widget['imageUrl']) ? '/api/images/load/url?url=' + widget['imageUrl'] : ''
+    if( widget ) {
+      const info: LayoutWidgetInfo = DashboardUtil.getLayoutWidgetInfoByWidgetId(this.dashboard, widget.id);
+      if( info ) {
+        return {
+          id: info.id,
+          title: widget.name,
+          type: 'component',
+          componentName: 'widget',
+          componentState: {
+            id: info.id,
+            type: info.type,
+            imageUrl: (widget['imageUrl']) ? '/api/images/load/url?url=' + widget['imageUrl'] : ''
+          }
+        };
       }
-    };
+    }
   } // function - _getLayoutComponentConfByWidget
 
   /**
@@ -731,22 +735,23 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
     if (newWidgets && 0 < newWidgets.length) {
       newWidgets.forEach(item => {
         const newItemConfig = this._getLayoutComponentConfByWidget(item);
-        const rootItem: any = this._layoutObj.root;
-
-        const rowItems: any[] = rootItem.getItemsByType('row');
-        const colItems: any[] = rootItem.getItemsByType('column');
-        const stackItems: any[] = rootItem.getItemsByType('stack');
-        if (0 < rowItems.length) {
-          rowItems[0].addChild(newItemConfig);
-        } else if (0 < colItems.length) {
-          colItems[0].addChild(newItemConfig);
-        } else if (0 < stackItems.length) {
-          const newRowItem = rootItem.layoutManager.createContentItem({type: 'row'}, rootItem);
-          rootItem.replaceChild(stackItems[0], newRowItem);
-          newRowItem.addChild(stackItems[0]);
-          newRowItem.addChild(newItemConfig);
-        } else {
-          rootItem.addChild({type: 'row', content: [newItemConfig]});
+        if( newItemConfig ) {
+          const rootItem: any = this._layoutObj.root;
+          const rowItems: any[] = rootItem.getItemsByType('row');
+          const colItems: any[] = rootItem.getItemsByType('column');
+          const stackItems: any[] = rootItem.getItemsByType('stack');
+          if (0 < rowItems.length) {
+            rowItems[0].addChild(newItemConfig);
+          } else if (0 < colItems.length) {
+            colItems[0].addChild(newItemConfig);
+          } else if (0 < stackItems.length) {
+            const newRowItem = rootItem.layoutManager.createContentItem({type: 'row'}, rootItem);
+            rootItem.replaceChild(stackItems[0], newRowItem);
+            newRowItem.addChild(stackItems[0]);
+            newRowItem.addChild(newItemConfig);
+          } else {
+            rootItem.addChild({type: 'row', content: [newItemConfig]});
+          }
         }
       });
       this.updateLayoutSize();
@@ -1235,7 +1240,9 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
    * @param {Widget} item
    */
   public setDragSource(element: any, item: Widget) {
-    (this._layoutObj) && (this._layoutObj.createDragSource($(element), this._getLayoutComponentConfByWidget(item)));
+    if( !!element && !!item ) {
+      (this._layoutObj) && (this._layoutObj.createDragSource($(element), this._getLayoutComponentConfByWidget(item)));
+    }
   } // function - setDragSource
 
   /**
@@ -1412,10 +1419,9 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
       }, []);
 
       boardInfo.timeRanges = [];
-
-
       const procCandidate: ((callback) => void)[] = timestampFields.map( fieldInfo => {
         return (callback) => {
+          // 시간 필터의 범위값을 알기 위해서 조회함
           this.datasourceService.getCandidateForTimestamp(fieldInfo, boardInfo).then(rangeResult => {
             if (rangeResult) {
               const timeRangeInfo = {
