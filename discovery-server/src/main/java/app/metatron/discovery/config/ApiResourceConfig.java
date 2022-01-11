@@ -23,9 +23,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 
-import de.codecentric.boot.admin.jackson.ApplicationDeserializer;
-import de.codecentric.boot.admin.model.Application;
-
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.envers.boot.internal.EnversService;
 import org.hibernate.event.service.spi.EventListenerRegistry;
@@ -389,7 +386,6 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
 
     //add deserializer for managements
     SimpleModule simpleModule = new SimpleModule("SimpleModule", Version.unknownVersion());
-    simpleModule.addDeserializer(Application.class, new ApplicationDeserializer());
 
     Hibernate5Module hibernate5Module = new Hibernate5Module();
     hibernate5Module.disable(Hibernate5Module.Feature.USE_TRANSIENT_ANNOTATION);

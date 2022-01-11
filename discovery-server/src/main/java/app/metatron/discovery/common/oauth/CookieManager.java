@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.common.oauth;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.WebUtils;
 
 import javax.servlet.http.Cookie;
@@ -28,7 +29,9 @@ public class CookieManager {
   public final static String PERMISSIONS = "PERMISSION";
   public final static String CURRENT_WORKSPACE = "CURRENT_WORKSPACE";
   public final static String MY_WORKSPACE = "MY_WORKSPACE";
-
+  public final static String COOKIE_OPTION = "%s=%s; Max-age=%d; Path=/; %s";
+  public final static String COOKIE_OPTION_DOMAIN = "%s=%s; Max-age=%d; Path=/; %s; Domain=%s";
+  public final static String COOKIE_OPTION_SAME_SITE = "SameSite=None; Secure";
 
   public final static int DEFAULT_EXPIRY = 60*60*24;
 
@@ -38,6 +41,22 @@ public class CookieManager {
 
   public static void addCookie(String key, String value, int expiry, HttpServletResponse response) {
     addCookie(key, value, expiry, false, response);
+  }
+
+  public static void addCookie(String key, String value, String domain, HttpServletResponse response, boolean setHeader) {
+    String cookieOption;
+
+    if(StringUtils.isNotEmpty(domain)) {
+      cookieOption = String.format(COOKIE_OPTION_DOMAIN, key, value, DEFAULT_EXPIRY, COOKIE_OPTION_SAME_SITE, domain);
+    }else {
+      cookieOption = String.format(COOKIE_OPTION, key, value, DEFAULT_EXPIRY, COOKIE_OPTION_SAME_SITE);
+    }
+
+    if (setHeader) {
+      response.setHeader("Set-Cookie", cookieOption);
+    } else {
+      response.addHeader("Set-Cookie", cookieOption);
+    }
   }
 
   public static void addCookie(String key, String value, int expiry, boolean isHttpOnly, HttpServletResponse response) {

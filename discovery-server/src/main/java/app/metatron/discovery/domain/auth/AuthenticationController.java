@@ -164,12 +164,13 @@ public class AuthenticationController {
   @RequestMapping(value = "/sso", method = RequestMethod.POST)
   public ResponseEntity<?> setSSO(@RequestParam("token") String token, @RequestParam("type") String type,
                              @RequestParam("refreshToken") String refreshToken, @RequestParam("userId") String userId,
+                              @RequestParam(value = "domain", required = false) String domain,
                              @RequestParam("forwardUrl") String forwardUrl, HttpServletResponse response) {
 
-    CookieManager.addCookie(CookieManager.ACCESS_TOKEN, token, response);
-    CookieManager.addCookie(CookieManager.TOKEN_TYPE, type, response);
-    CookieManager.addCookie(CookieManager.REFRESH_TOKEN, refreshToken, response);
-    CookieManager.addCookie(CookieManager.LOGIN_ID, userId, response);
+    CookieManager.addCookie(CookieManager.ACCESS_TOKEN, token, domain, response, true);
+    CookieManager.addCookie(CookieManager.TOKEN_TYPE, type, domain, response, false);
+    CookieManager.addCookie(CookieManager.REFRESH_TOKEN, refreshToken, domain, response, false);
+    CookieManager.addCookie(CookieManager.LOGIN_ID, userId, domain, response, false);
 
     User user = userService.findUser(userId);
     Set<Permission> perms =  user.getPermissions();
@@ -181,7 +182,7 @@ public class AuthenticationController {
           }
         });
     }
-    CookieManager.addCookie(CookieManager.PERMISSIONS, String.join( "==", arrPerm ), response);
+    CookieManager.addCookie(CookieManager.PERMISSIONS, String.join( "==", arrPerm ), domain, response, false);
 
     response.setHeader("P3P","CP=\"IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT\"");
 

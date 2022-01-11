@@ -17,7 +17,6 @@ package app.metatron.discovery.config;
 import app.metatron.discovery.common.revision.CustomEnversRevisionRepositoryFactoryBean;
 import app.metatron.discovery.common.web.CommonLocalVariableFilter;
 import app.metatron.discovery.common.web.LogbackMdcFilter;
-import de.codecentric.boot.admin.config.EnableAdminServer;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
@@ -42,7 +41,6 @@ import javax.sql.DataSource;
     , repositoryFactoryBeanClass = CustomEnversRevisionRepositoryFactoryBean.class
 )
 @EnableEntityLinks
-@EnableAdminServer
 @ComponentScan(basePackages = {"app.metatron.discovery"})
 public class MainApplicationConfig {
 
