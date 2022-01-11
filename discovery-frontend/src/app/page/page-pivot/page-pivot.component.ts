@@ -1356,11 +1356,10 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
   public onSetGranularity(discontinuous: boolean, unit: string, byUnit?: string) {
 
     // disabled된 granularity 선택시 return
-    if (this.editingField.granularityList &&
+    if (!this.isNullOrUndefined(this.editingField.granularityList) &&
       -1 !== this.editingField.granularityList.indexOf(unit)) {
       return;
     }
-
     this.editingField.format = new Format();
     this.editingField.format.type = String(UIFormatType.TIME_CONTINUOUS);
     this.editingField.format.discontinuous = discontinuous;
@@ -1368,6 +1367,9 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     if (discontinuous) {
       this.editingField.format.byUnit = ByTimeUnit[byUnit];
     }
+
+    this.editingField.granularity = TimeUnit[unit];
+    this.editingField.segGranularity = TimeUnit[unit];
 
     this.changePivot(EventType.GRANULARITY);
   }
@@ -1596,7 +1598,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
     const $this = $(event.currentTarget);
     // this.$editFieldLayer.show();
-    console.log('openFieldSetting', this.$editFieldLayer.width(), $this.offset());
+    // console.log('openFieldSetting', this.$editFieldLayer.width(), $this.offset());
 
     if ($this.offset().left > $(window).width() / 2) {
       this.$editFieldLayer.css(
