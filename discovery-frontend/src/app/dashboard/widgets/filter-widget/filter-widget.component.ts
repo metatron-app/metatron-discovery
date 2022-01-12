@@ -274,7 +274,8 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
    */
   public getFilter(): Filter {
     const conf: FilterWidgetConfiguration = this.widget.configuration as FilterWidgetConfiguration;
-    const filter: Filter = _.cloneDeep(conf.filter);
+    const filterInfo = DashboardUtil.getBoardFilter(this.dashboard, conf.filter.dataSource, conf.filter.field);
+    const filter: Filter = _.cloneDeep(filterInfo);
     if (FilterUtil.isTimeFilter(filter)) {
       this._setTimeFilterStatus(filter as TimeFilter);
     }
@@ -456,20 +457,22 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
   public setTimeRangeFilter() {
 
     const conf: FilterWidgetConfiguration = this.widget.configuration as FilterWidgetConfiguration;
-    if (FilterUtil.isTimeFilter(conf.filter)) {
+    const filterInfo = DashboardUtil.getBoardFilter(this.dashboard, conf.filter.dataSource, conf.filter.field);
+    const cloneFilter: TimeFilter = _.cloneDeep(filterInfo) as TimeFilter;
+    if (FilterUtil.isTimeFilter(cloneFilter)) {
 
-      if (FilterUtil.isTimeRelativeFilter(conf.filter)) {
-        if (this.isNullOrUndefined(conf.filter['baseType'])) {
-          conf.filter['baseType'] = TimeRelativeBaseType.TODAY;
+      if (FilterUtil.isTimeRelativeFilter(cloneFilter)) {
+        if (this.isNullOrUndefined(cloneFilter['baseType'])) {
+          cloneFilter['baseType'] = TimeRelativeBaseType.TODAY;
         }
 
         const target = this.dashboard.timeRanges.find(info =>
-          info.dataSource.engineName == conf.filter.dataSource &&
-          info.fieldName == conf.filter.field);
+          info.dataSource.engineName == cloneFilter.dataSource &&
+          info.fieldName == cloneFilter.field);
 
-        conf.filter['latestTime'] = (target) ? target.maxTime : (moment().format('YYYY-MM-DDTHH:mm:ss') + '.000Z');
+        cloneFilter['latestTime'] = (target) ? target.maxTime : (moment().format('YYYY-MM-DDTHH:mm:ss') + '.000Z');
       }
-      const filter: TimeFilter = FilterUtil.convertRelativeToInterval(conf.filter as TimeFilter, this.dashboard);
+      const filter: TimeFilter = FilterUtil.convertRelativeToInterval(cloneFilter as TimeFilter, this.dashboard);
       this.filter = filter;
       this.widget.configuration.filter = filter;
       this._setTimeFilterStatus(filter as TimeFilter);
@@ -482,7 +485,8 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
    */
   public setTimeRelativeFilter() {
     const conf: FilterWidgetConfiguration = this.widget.configuration as FilterWidgetConfiguration;
-    let filter: TimeRelativeFilter = _.cloneDeep(conf.filter) as TimeRelativeFilter;
+    const filterInfo = DashboardUtil.getBoardFilter(this.dashboard, conf.filter.dataSource, conf.filter.field);
+    let filter: TimeRelativeFilter = _.cloneDeep(filterInfo) as TimeRelativeFilter;
     if (FilterUtil.isTimeFilter(filter)) {
       filter.clzField = DashboardUtil.getFieldByName(this.dashboard, filter.dataSource, filter.field);
       filter = FilterUtil.getTimeRelativeFilter(filter.clzField, filter.timeUnit, 'general');
@@ -888,7 +892,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
    * @private
    */
   private _initializeFilterWidget(widgetInfo: FilterWidget): void {
-    this.widget = widgetInfo;
+    this.widget = _.cloneDeep(widgetInfo);
     this.dashboard = this.widget.dashBoard;
     const filter: Filter = this.getFilter();
 
