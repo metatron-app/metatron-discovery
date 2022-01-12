@@ -830,7 +830,7 @@ export class FilterUtil {
     if(!timeFilter.intervals && dashboard && dashboard.timeRanges && dashboard.timeRanges.length) {
       const target = dashboard.timeRanges.find(info =>
         info.dataSource.engineName == field.dataSource &&
-        info.fieldName == field.logicalName);
+        info.fieldName == field.originalName);
 
       (timeFilter as TimeRangeFilter).intervals = [
         FilterUtil.getDateTimeFormat(target.minTime, timeUnit)
