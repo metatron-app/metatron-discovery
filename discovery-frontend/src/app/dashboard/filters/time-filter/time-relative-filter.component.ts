@@ -196,7 +196,7 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
 
     if( this.isNullOrUndefined(target)) {
       const filterDs = this.dashboard.dataSources.find(ds => ds.engineName == tempFilter.dataSource);
-      const dsField = filterDs.fields.find(fieldInfo => fieldInfo.logicalName == tempFilter.field);
+      const dsField = filterDs.fields.find(fieldInfo => fieldInfo.originalName == tempFilter.field );
 
       const targetField = {dsInfo: filterDs, field: dsField};
       // 필터 생성 페이지일 경우 target 값이 없으므로 한번 더 체크
