@@ -4133,12 +4133,12 @@ export class PageViewComponent extends AbstractPopupComponent implements OnInit,
       let filter = cloneQuery.filters[idx];
       if (FilterUtil.isTimeFilter(filter)){
         // latest date 가 기준날일 경우 날짜 설정
-        if (filter.baseType == TimeRelativeBaseType.LATEST_TIME && this.isNullOrUndefined(filter.latestTime)){
+        if (filter.baseType == TimeRelativeBaseType.LATEST_TIME){
           const target = this.widget.dashBoard.timeRanges.find(info =>
             info.dataSource.engineName == filter.dataSource &&
             info.fieldName == filter.field);
 
-          filter['latestTime'] = (target) ? target.maxTime : (moment().format('YYYY-MM-DDTHH:mm:ss') + '.000Z');
+          filter['uiLatestTime'] = (target) ? target.maxTime : (moment().format('YYYY-MM-DDTHH:mm:ss') + '.000Z');
         }
       }
       filter = FilterUtil.convertRelativeToInterval(filter, this.widget.dashBoard);
