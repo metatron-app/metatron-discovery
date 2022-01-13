@@ -101,7 +101,7 @@ public class BoardConfigurationTest {
                             Lists.newArrayList("EARLIEST_DATETIME/2018-05-18",
                                                "2018-05-19/2018-05-20",
                                                "2018-05-22/LATEST_DATETIME"), null, null),
-        new TimeRelativeFilter("time4", "ref1", "DAY", null, "PREVIOUS", 2, "Asia/Seoul", null, "TODAY", null)
+        new TimeRelativeFilter("time4", "ref1", "DAY", null, "PREVIOUS", 2, "Asia/Seoul", null, "TODAY")
     );
 
     InclusionFilter inFilter = new InclusionFilter();
