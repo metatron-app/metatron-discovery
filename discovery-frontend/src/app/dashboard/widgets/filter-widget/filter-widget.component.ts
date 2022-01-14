@@ -470,7 +470,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
           info.dataSource.engineName == cloneFilter.dataSource &&
           info.fieldName == cloneFilter.field);
 
-        cloneFilter['latestTime'] = (target) ? target.maxTime : (moment().format('YYYY-MM-DDTHH:mm:ss') + '.000Z');
+        cloneFilter['uiLatestTime'] = (target) ? target.maxTime : (moment().format('YYYY-MM-DDTHH:mm:ss') + '.000Z');
       }
       const filter: TimeFilter = FilterUtil.convertRelativeToInterval(cloneFilter as TimeFilter, this.dashboard);
       this.filter = filter;

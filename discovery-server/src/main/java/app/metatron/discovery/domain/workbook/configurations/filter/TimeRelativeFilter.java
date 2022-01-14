@@ -42,8 +42,6 @@ public class TimeRelativeFilter extends TimeFilter {
 
   RelativeBaseType baseType;
 
-  String latestTime;
-
   public TimeRelativeFilter() {
     // Empty Constructor
   }
@@ -57,15 +55,13 @@ public class TimeRelativeFilter extends TimeFilter {
                             @JsonProperty("value") Integer value,
                             @JsonProperty("timeZone") String timeZone,
                             @JsonProperty("locale") String locale,
-                            @JsonProperty("baseType") String baseType,
-                            @JsonProperty("latestTime") String latestTime) {
+                            @JsonProperty("baseType") String baseType) {
     super(field, ref, timeUnit, null, null, timeZone, locale);
 
     this.relTimeUnit = EnumUtils.getUpperCaseEnum(TimeFieldFormat.TimeUnit.class, relTimeUnit);
     this.tense = EnumUtils.getUpperCaseEnum(Tense.class, tense, Tense.CURRENT);
     this.value = (value == null || value < 1) ? 1 : value;
     this.baseType =  EnumUtils.getUpperCaseEnum(RelativeBaseType.class, baseType);
-    this.latestTime = latestTime;
   }
 
   @Override
@@ -89,8 +85,7 @@ public class TimeRelativeFilter extends TimeFilter {
         && value == compareFilter.getValue()
         && timeUnit == compareFilter.getTimeUnit()
         && relTimeUnit == compareFilter.getTimeUnit()
-        && baseType == compareFilter.getBaseType()
-        && latestTime == compareFilter.getLatestTime() ) {
+        && baseType == compareFilter.getBaseType() ) {
       return true;
     }
 
@@ -182,8 +177,6 @@ public class TimeRelativeFilter extends TimeFilter {
   }
 
   public RelativeBaseType getBaseType() { return baseType; }
-
-  public String getLatestTime() { return latestTime; }
 
   @Override
   public String toString() {

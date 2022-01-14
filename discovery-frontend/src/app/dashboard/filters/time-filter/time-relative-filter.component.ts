@@ -202,16 +202,16 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
       // 필터 생성 페이지일 경우 target 값이 없으므로 한번 더 체크
       this.datasourceService.getCandidateForTimestamp(targetField, this.dashboard).then(rangeResult => {
         if(rangeResult){
-          tempFilter.latestTime = rangeResult.maxTime;
+          tempFilter.uiLatestTime = rangeResult.maxTime;
         } else {
-          tempFilter.latestTime = (moment().format('YYYY-MM-DDTHH:mm:ss') + '.000Z');
+          tempFilter.uiLatestTime = (moment().format('YYYY-MM-DDTHH:mm:ss') + '.000Z');
         }
         this.targetFilter = tempFilter;
         (isBroadcast) && (this.changeEvent.emit(this.targetFilter));
         this.safelyDetectChanges();
       });
     }else {
-      tempFilter.latestTime = target.maxTime;
+      tempFilter.uiLatestTime = target.maxTime;
       this.targetFilter = tempFilter;
       (isBroadcast) && (this.changeEvent.emit(this.targetFilter));
       this.safelyDetectChanges();
@@ -293,7 +293,7 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
     }
 
     // 날짜 설정
-    const baseTime = this.targetFilter.baseType == 'TODAY' ? moment() : moment(this.targetFilter.latestTime);
+    const baseTime = this.targetFilter.baseType == 'TODAY' ? moment() : moment(this.targetFilter.uiLatestTime);
     const objDate = _.cloneDeep(baseTime);
     let strPreview: string;
 

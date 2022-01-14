@@ -505,7 +505,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     ));
 
     TimeRelativeFilter relativeFilter = new TimeRelativeFilter("OrderDate", null, "year", null,
-            TimeRelativeFilter.Tense.PREVIOUS.name(), 6, "Asia/Seoul", null, "TODAY", null);
+            TimeRelativeFilter.Tense.PREVIOUS.name(), 6, "Asia/Seoul", null, "TODAY");
     //    TimeRelativeFilter relativeFilter = new TimeRelativeFilter("ShipDate", null, "year", null, TimeRelativeFilter.Tense.PREVIOUS.name(), 6, null);
 
     List<Filter> filters = Lists.newArrayList(
