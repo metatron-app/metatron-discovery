@@ -13,36 +13,43 @@ expect.extend({toMatchImageSnapshot})
 
 describe('sample dashboard testing', () =>{
 
-  let borwser;
-  let page;
+  let cookies;
+  let browser;
 
   beforeAll(async () => {
+
+    console.log( '>>>>>>>> beforeAll' );
 
     browser = await puppeteer.launch({
       headless:false
     });
 
-    page = await browser.newPage();
-    await page.goto('http://localhost:4200/app/v2/user/login');
+    const loginPage = await browser.newPage();
+    await loginPage.goto('http://localhost:4200/app/v2/user/login');
 
     // login
     const adminId = 'admin';
     const adminPwd = 'admin';
 
-    await page.type('#loginId', adminId);
-    await page.type('#loginPwd', adminPwd);
+    await loginPage.type('#loginId', adminId);
+    await loginPage.type('#loginPwd', adminPwd);
 
-    await page.click('.ddp-btn'); // login button
+    await loginPage.click('.ddp-btn'); // login button
+    await loginPage.waitForResponse(response => {
+      // console.log( '>>>>>>> response url - ' + response.url() + ' / status - ' + response.status() );
+      return response.status() === 200 && response.url().includes('/api/workspaces/my');
+    });
 
-    await page.waitForNavigation();
+    // console.log( '>>>>>>>> before get cookie');
+
+    // Get cookies
+    cookies = await loginPage.cookies('http://localhost:4200');
+
+    // console.log( '>>>>>>>> after get cookie - ' + JSON.stringify( cookies ) );
+
+    await loginPage.close();
 
   });
-
-  beforeEach(()=> {
-    // 로그인 쿠키 처리
-
-
-  })
 
   it('timer Test', async ()=> {
     console.log('==== TIMER TEST');
@@ -57,25 +64,29 @@ describe('sample dashboard testing', () =>{
     console.log('=== END OF TIMER TEST');
   });
 
-  it('Sample 1 Test', async () => {
+  it('Load grid dashboard test', async () => {
 
-    console.log('==== START TEST 1');
-    //workspce로 이동
-    // await page.goto('http://localhost:4200/app/v2/workbook/1964be68-a5a0-4cb5-a8b7-bc4579b5b90d');
+    console.log('==== START : Load grid dashboard test');
 
-    // await page.click('.ddp-btn-type-popup'); // popup close button
+    // Use cookies in other tab or browser
+    const page = await browser.newPage();
+    await page.setViewport({ width: 1280, height: 800 })
+    await page.setCookie(...cookies);
+    await page.goto('http://localhost:4200/app/v2/workbook/1964be68-a5a0-4cb5-a8b7-bc4579b5b90d');
+    await page.waitForSelector('.ddp-box-widget .pivot-view > .pivot-view-body > .pivot-view-wrap');
 
     // 화면 캡쳐 및 비교
     const testImage = await page.screenshot({fullPage: true});
-    // expect(testImage).toMatchImageSnapshot(setSampleConfig('filename'));
-    // expect(testImage).toMatchImageSnapshot({path:'./__image_snapshots__/example.png'});
-    console.log('//----- End of Sample 1 --');
+    expect(testImage).toMatchImageSnapshot(setSampleConfig('grid-board'));
+    console.log('==== END : Load grid dashboard test');
+
+    await page.close();
   });
 
   afterAll(async () => {
-    // await browser.close();
+    console.log( '>>>>>>>> afterAll' );
+    await browser.close();
   });
-
 });
 
 it('basic test', () => {
