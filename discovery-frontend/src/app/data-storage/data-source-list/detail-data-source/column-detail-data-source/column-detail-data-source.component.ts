@@ -49,8 +49,9 @@ import {DataSourceCreateService, TypeFilterObject} from '../../../service/data-s
 import {TimezoneService} from '../../../service/timezone.service';
 import {EditFilterDataSourceComponent} from '../edit-filter-data-source.component';
 import {EditConfigSchemaComponent} from './edit-config-schema.component';
-import mapboxgl from 'mapbox-gl'
+import mapboxgl, {GeoJSONSource} from 'mapbox-gl'
 import {CommonService} from "@common/service/common.service";
+import {QueryParam} from "@domain/dashboard/dashboard";
 
 declare let echarts: any;
 
@@ -115,7 +116,15 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
   // search text keyword
   public searchTextKeyword: string;
 
+  // variables for Map
   public showMap: boolean = true;
+  public map: any;
+  public mapData: any;
+  public mapCoordinates: any[] = [];
+  public lowerCorner: string = "-123.96192510882254 -6.625295837755658";
+  public upperCorner: string = "-72.47331158279502 83.43162717579065";
+  public zoomLevel: number = 2;
+  public initialFlag: boolean = true;
 
   @Output()
   public changeDatasource: EventEmitter<any> = new EventEmitter();
@@ -176,6 +185,11 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
     }
   }
 
+
+  public ngAfterViewInit() {
+    super.ngAfterViewInit();
+
+  }
 
   /**
    * Change search text keyword and update filtered column list
@@ -432,9 +446,11 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
         // update covariance chart
         this._updateCovarianceChart(engineName);
       }
+    } else if (this.isGeoType(field)){
 
-      // type 체크 필요
+      this.initialFlag = true;
       this._renderMap();
+
     }
   }
 
@@ -979,80 +995,14 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
 
   private _renderMap() {
     this._commonService.getProperties('mapbox').then((accesstoken) => {
+      // accesstoken = 'pk.eyJ1IjoiZWx0cmlueSIsImEiOiJjanF6OG5oaDQwMDI4NDlueWhjdHB3eHRjIn0.kDLQfa4ITrAniE6m4_aeBw';
       if (accesstoken != '') {
         this._commonService.setProperties('mapbox', accesstoken);
         this._commonService.retrieveMapboxToken(accesstoken).then((result) => {
           if (result.code === 'TokenValid') {
             mapboxgl.accessToken = accesstoken;
-            const map = new mapboxgl.Map({
-              container: 'map', // container ID
-              style: 'mapbox://styles/mapbox/light-v10', // style URL
-              center: [-68.137343, 45.137451], // starting position
-              zoom: 5 // starting zoom
-            });
+             this._loadAndDrawMap();
 
-            // geojson 데이터 로드 필요
-
-            map.on('load', () => {
-// Add a data source containing GeoJSON data.
-              map.addSource('maine', {
-                'type': 'geojson',
-                'data': {
-                  'type': 'Feature',
-                  'geometry': {
-                    'type': 'Polygon',
-// These coordinates outline Maine.
-                    'coordinates': [
-                      [
-                        [-67.13734, 45.13745],
-                        [-66.96466, 44.8097],
-                        [-68.03252, 44.3252],
-                        [-69.06, 43.98],
-                        [-70.11617, 43.68405],
-                        [-70.64573, 43.09008],
-                        [-70.75102, 43.08003],
-                        [-70.79761, 43.21973],
-                        [-70.98176, 43.36789],
-                        [-70.94416, 43.46633],
-                        [-71.08482, 45.30524],
-                        [-70.66002, 45.46022],
-                        [-70.30495, 45.91479],
-                        [-70.00014, 46.69317],
-                        [-69.23708, 47.44777],
-                        [-68.90478, 47.18479],
-                        [-68.2343, 47.35462],
-                        [-67.79035, 47.06624],
-                        [-67.79141, 45.70258],
-                        [-67.13734, 45.13745]
-                      ]
-                    ]
-                  }
-                }
-              });
-
-// Add a new layer to visualize the polygon.
-              map.addLayer({
-                'id': 'maine',
-                'type': 'fill',
-                'source': 'maine', // reference the data source
-                'layout': {},
-                'paint': {
-                  'fill-color': '#0080ff', // blue color fill
-                  'fill-opacity': 0.5
-                }
-              });
-// Add a black outline around the polygon.
-              map.addLayer({
-                'id': 'outline',
-                'type': 'line',
-                'source': 'maine',
-                'layout': {},
-                'paint': {
-                  'line-color': '#000',
-                  'line-width': 3
-                }
-              });
-            });
           } else {
             console.error('invalid Token');
             this.showMap = false;
@@ -1064,4 +1014,142 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
       }
     });
   }
+
+  private _loadAndDrawMap(){
+
+    // call API
+    const params = new QueryParam();
+    params.dataSource.name = this.datasource.engineName;
+    params.dataSource.engineName = this.datasource.engineName;
+    params.dataSource.type = 'default';
+    params.limits = {limit: 20000, sort: null};
+
+    const filter = {
+      type: 'spatial_bbox',
+      dataSource: params.dataSource.engineName,
+      field: 'location',
+      lowerCorner: this.lowerCorner,
+      upperCorner: this.upperCorner
+    }
+
+    params.filters = [filter];
+    this.loadingShow();
+
+    this.datasourceService.getDatasourceQuery(params).then((result: MapLocation[]) => {
+      this.mapCoordinates = [];
+
+      result.forEach(item => {
+        this.mapCoordinates.push([item.longitude, item.latitude]);
+      });
+
+      const features = result.map(item => {
+        return {
+          'type': 'Feature',
+          'geometry' : {
+            'type': 'Point',
+            'coordinates' : [item.longitude, item.latitude]
+          }
+        }
+      });
+
+     if (this.initialFlag){
+
+       // if(this.map){
+        //   this.map.remove(); // remove an already existing map
+        // }
+
+        if(!this.map) {
+
+          this.map = new mapboxgl.Map({
+            container: 'map', // container ID
+            style: 'mapbox://styles/mapbox/light-v10', // style URL
+            center: this.mapCoordinates[0], // starting position
+            zoom: this.zoomLevel // starting zoom
+          });
+
+          // geojson 데이터 로드 필요
+          this.map.on('load', () => {
+// Add a data source containing GeoJSON data.
+            this.map.addSource('category', {
+              type: 'geojson',
+              data: {
+                type: 'FeatureCollection',
+                features: features
+              }
+            });
+
+            // Add a symbol layer
+            this.map.addLayer({
+              id: 'map',
+              type: 'circle',
+              source: 'category',
+              layout: {},
+              paint: {
+                'circle-color': 'rgba(137,84,191, 0.5)',
+                'circle-radius': 5
+              }
+            });
+
+            this.map.on('zoomend', () => {
+              this._resetLocation();
+            });
+
+            this.map.on('moveend', () => {
+              this._resetLocation();
+            });
+          }); // End of Load
+
+          setTimeout(() => {
+            this._createMapPopup();
+          }, 500);
+        }
+      } else {
+       (this.map.getSource('category') as GeoJSONSource).setData({
+          type: 'FeatureCollection',
+          features: features
+        });
+     }
+     this.loadingHide();
+    });
+  }
+
+  private _createMapPopup(){
+    const popup = new mapboxgl.Popup({
+      closeButton: false,
+      closeOnClick: false
+    });
+
+    this.map.on('mouseover', 'map', (e) => {
+
+      const lng = e.lngLat.lng.toFixed(4);
+      const lat = e.lngLat.lat.toFixed(4);
+      const popupHtml = '<div>' +
+        '<div><p class="map-popup-title">Geo Info</p></div>' +
+        '<div><p class="map-popup-location">' +lng +', '+ lat + '</p></div></div>'
+
+      popup.setLngLat(e.lngLat).setHTML(popupHtml).addTo(this.map);
+    })
+
+    this.map.on('mouseleave', 'map', () => {
+      popup.remove();
+    });
+  }
+
+  private _resetLocation() {
+    let bounds = this.map.getBounds().getSouthWest();
+    this.lowerCorner = bounds.lng + ' ' +  bounds.lat;
+
+    bounds = this.map.getBounds().getNorthEast();
+    this.upperCorner = bounds.lng + ' ' + bounds.lat;
+
+    this.zoomLevel = this.map.getZoom();
+    this.initialFlag = false;
+    this._loadAndDrawMap();
+  }
+}
+
+export class MapLocation {
+  latitude: string;
+  longitude: string;
+  location: string;
 }

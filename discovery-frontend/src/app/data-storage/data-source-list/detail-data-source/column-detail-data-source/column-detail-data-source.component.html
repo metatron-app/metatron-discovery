@@ -12,6 +12,7 @@
   ~ limitations under the License.
   -->
 
+
 <!-- tab contents -->
 <div class="ddp-ui-tab-contents ddp-full">
   <!-- search bar -->
@@ -487,6 +488,7 @@
           <!-- //value list -->
         </ng-container>
         <!-- //not LINKED source -->
+
         <!-- table detail -->
         <div class="ddp-wrap-table-detail" [style.display]="!isLinkedTypeSource(datasource) && (selectedField.role === FIELD_ROLE.MEASURE || selectedField.logicalType === LOGICAL_TYPE.TIMESTAMP) ? 'block' : 'none'">
           <!-- histogram -->
@@ -537,10 +539,13 @@
           <!-- //Covariance -->
         </div>
         <!-- //table detail -->
-
-        <div id="map" style="height: 300px;" *ngIf="showMap">
+        <div class="ddp-wrap-table-detail" [style.display]="isGeoType(selectedField) && showMap ? 'block' : 'none'">
+          <label class="ddp-label-detail">Map</label>
+          <div class="ddp-ui-detail-in" [style]="'margin-top:10px'">
+            <div id="map" style="height: 350px;">
+            </div>
+          </div>
         </div>
-
       </div>
     </div>
     <!-- //datadetail -->

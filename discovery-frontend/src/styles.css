@@ -37,3 +37,25 @@ input:-webkit-autofill {
 
 html.sys-embed-board,
 html.sys-embed-board body {min-width:600px !important; }
+
+
+.mapboxgl-map {
+  position:relative;
+}
+.mapboxgl-popup {
+  position: absolute;
+  top:0;
+  color:#cccccc;
+}
+
+.mapboxgl-popup-content{
+  background-color: rgba(31,31,31,0.86);
+}
+
+.mapboxgl-popup-content .map-popup-title{
+  color:#cccccc;
+}
+
+.mapboxgl-popup-content .map-popup-location{
+  color:white;
+}

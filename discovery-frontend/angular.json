@@ -45,12 +45,13 @@
               "src/assets/css/lib/tui/tui-editor.css",
               "src/assets/css/lib/tui/tui-editor-contents.css",
               "src/assets/css/lib/tui/tui-color-picker.css",
+              "node_modules/mapbox-gl/dist/mapbox-gl.css",
               "src/styles.css",
               "src/assets/css/lib/golden-layout/goldenlayout-base.css",
               "src/assets/css/lib/golden-layout/goldenlayout-light-theme.css",
               "node_modules/air-datepicker/dist/css/datepicker.css",
               "src/lib/openlayers/ol.css",
-              "src/assets/css/metatron.css"
+              "src/assets/css/metatron.css",
             ],
             "scripts": [
               "node_modules/codemirror/lib/codemirror.js",
