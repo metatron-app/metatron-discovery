@@ -11,14 +11,14 @@ function setSampleConfig(filename){
 
 expect.extend({toMatchImageSnapshot})
 
-describe('sample dashboard testing', () =>{
+describe('simple dashboard testing', () =>{
 
   let cookies;
   let browser;
 
   beforeAll(async () => {
 
-    console.log( '>>>>>>>> beforeAll' );
+    // console.log( '>>>>>>>> beforeAll' );
 
     browser = await puppeteer.launch({
       headless:false
@@ -51,22 +51,9 @@ describe('sample dashboard testing', () =>{
 
   });
 
-  it('timer Test', async ()=> {
-    console.log('==== TIMER TEST');
-    jest.useFakeTimers();
+  it('Load grid dashboard', async () => {
 
-    setTimeout(async ()=>{
-      console.log('timer');
-    }, 3000);
-
-    jest.runAllTimers();
-
-    console.log('=== END OF TIMER TEST');
-  });
-
-  it('Load grid dashboard test', async () => {
-
-    console.log('==== START : Load grid dashboard test');
+    // console.log('==== START : Load grid dashboard test');
 
     // Use cookies in other tab or browser
     const page = await browser.newPage();
@@ -78,19 +65,15 @@ describe('sample dashboard testing', () =>{
     // 화면 캡쳐 및 비교
     const testImage = await page.screenshot({fullPage: true});
     expect(testImage).toMatchImageSnapshot(setSampleConfig('grid-board'));
-    console.log('==== END : Load grid dashboard test');
+    // console.log('==== END : Load grid dashboard test');
 
     await page.close();
   });
 
   afterAll(async () => {
-    console.log( '>>>>>>>> afterAll' );
+    // console.log( '>>>>>>>> afterAll' );
     await browser.close();
   });
-});
-
-it('basic test', () => {
-  expect(true).toBe(true);
 });
 
 
