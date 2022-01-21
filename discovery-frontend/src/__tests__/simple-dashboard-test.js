@@ -64,7 +64,7 @@ describe('simple dashboard testing', () =>{
 
     // 화면 캡쳐 및 비교
     const testImage = await page.screenshot({fullPage: true});
-    expect(testImage).toMatchImageSnapshot(setSampleConfig('grid-board'));
+    expect(testImage).toMatchImageSnapshot(setSampleConfig('simple-board-test'));
     // console.log('==== END : Load grid dashboard test');
 
     await page.close();
@@ -75,5 +75,3 @@ describe('simple dashboard testing', () =>{
     await browser.close();
   });
 });
-
-

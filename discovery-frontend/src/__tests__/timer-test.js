@@ -12,5 +12,3 @@ describe('timer testing', () =>{
     // console.log('=== END OF TIMER TEST');
   });
 });
-
-
