@@ -25,7 +25,7 @@ describe('simple dashboard testing', () =>{
     });
 
     const loginPage = await browser.newPage();
-    await loginPage.goto('http://localhost:4200/app/v2/user/login');
+    await loginPage.goto('http://t1-discovery.metatron.bundang10f.io/app/v2/user/login');
 
     // login
     const adminId = 'admin';
@@ -43,7 +43,7 @@ describe('simple dashboard testing', () =>{
     // console.log( '>>>>>>>> before get cookie');
 
     // Get cookies
-    cookies = await loginPage.cookies('http://localhost:4200');
+    cookies = await loginPage.cookies('http://t1-discovery.metatron.bundang10f.io');
 
     // console.log( '>>>>>>>> after get cookie - ' + JSON.stringify( cookies ) );
 
@@ -59,7 +59,7 @@ describe('simple dashboard testing', () =>{
     const page = await browser.newPage();
     await page.setViewport({ width: 1280, height: 800 })
     await page.setCookie(...cookies);
-    await page.goto('http://localhost:4200/app/v2/workbook/1964be68-a5a0-4cb5-a8b7-bc4579b5b90d');
+    await page.goto('http://t1-discovery.metatron.bundang10f.io/app/v2/workbook/1964be68-a5a0-4cb5-a8b7-bc4579b5b90d');
     await page.waitForSelector('.ddp-box-widget .pivot-view > .pivot-view-body > .pivot-view-wrap');
 
     // 화면 캡쳐 및 비교

@@ -3,7 +3,7 @@ const {toMatchImageSnapshot} = require('jest-image-snapshot');
 
 function setSampleConfig(filename){
   return {
-    failureThreshold:'1', // 허용 오차
+    failureThreshold:'2', // 허용 오차
     failureThresholdType:'pixel',
     customSnapshotIdentifier: filename
   }
@@ -101,6 +101,7 @@ describe('dashboard testing', () => {
     await page.hover( '.ddp-btn-widget' );
     await page.click( '.ddp-btn-widget .ddp-list-popup li:first-child' ); // click chart edit component
     await page.waitForSelector('li[data-name=OrderDate][data-source=dimension]', { visible: true });
+    await page.waitForTimeout(1000);
     await page.click( 'li[data-name=OrderDate][data-source=dimension]' );
     await page.click( 'li[data-name=Sales][data-source=measure]' );
     await page.click( '.ddp-list-chart-type li:nth-of-type(3)' );
@@ -119,6 +120,7 @@ describe('dashboard testing', () => {
     await page.hover( '.ddp-btn-widget' );
     await page.click( '.ddp-btn-widget .ddp-list-popup li:first-child' ); // click chart edit component
     await page.waitForSelector('li[data-name=OrderDate][data-source=dimension]', { visible: true });
+    await page.waitForTimeout(1000);
     await page.click( 'li[data-name=OrderDate][data-source=dimension]' );
     await page.click( 'li[data-name=Sales][data-source=measure]' );
     await page.click( '.ddp-list-chart-type li:nth-of-type(1)' );
