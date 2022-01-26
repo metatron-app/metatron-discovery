@@ -1382,23 +1382,7 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
       const timestampFields = boardInfo.dataSources.reduce((acc, dsInfo) => {
         acc.push(
           ...dsInfo.fields
-            .filter( fieldInfo => {
-              if( LogicalType.TIMESTAMP === fieldInfo.logicalType ) {
-                if( boardInfo.configuration.filters && boardInfo.configuration.filters.length ) {
-                  return !!boardInfo.configuration.filters.find( filter => {
-                    if( filter.field === fieldInfo.name && filter.dataSource === dsInfo.engineName ) {
-                      return FilterUtil.isTimeFilter(filter);
-                    } else {
-                      return false;
-                    }
-                  });
-                } else {
-                  return false;
-                }
-              } else {
-                return false;
-              }
-            })
+            .filter( fieldInfo => LogicalType.TIMESTAMP === fieldInfo.logicalType )
             .map( fieldInfo => {
               return {
                 dsInfo: dsInfo,
