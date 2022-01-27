@@ -207,6 +207,7 @@ export class QueryParam {
   public limits: QueryParamLimit;
   public preview: boolean;
   public metaQuery:boolean;
+  public resultFormat?: any;
 
   constructor() {
     this.dataSource = new BoardDataSource();

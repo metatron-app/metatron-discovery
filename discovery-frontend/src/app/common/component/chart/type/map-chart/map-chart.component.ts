@@ -241,6 +241,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
   public ngAfterViewInit(): void {
     this.chart = this.area;
     if (this._propMapConf) {
+
       const objConf = JSON.parse(this._propMapConf);
       if (objConf.baseMaps) {
         this._customMapLayers

@@ -52,6 +52,11 @@ import {EditConfigSchemaComponent} from './edit-config-schema.component';
 import mapboxgl, {GeoJSONSource} from 'mapbox-gl'
 import {CommonService} from "@common/service/common.service";
 import {QueryParam} from "@domain/dashboard/dashboard";
+import {SearchQueryRequest} from "@domain/datasource/data/search-query-request";
+import {Filter} from "@domain/workbook/configurations/filter/filter";
+import {CommonUtil} from "@common/util/common.util";
+import {Shelf, ShelfLayers} from "@domain/workbook/configurations/shelf/shelf";
+import {GeoField} from "@domain/workbook/configurations/field/geo-field";
 
 declare let echarts: any;
 
@@ -121,8 +126,8 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
   public map: any;
   public mapData: any;
   public mapCoordinates: any[] = [];
-  public lowerCorner: string = "-123.96192510882254 -6.625295837755658";
-  public upperCorner: string = "-72.47331158279502 83.43162717579065";
+  public lowerCorner: string = "-170 -85";
+  public upperCorner: string = "170 85";
   public zoomLevel: number = 2;
   public initialFlag: boolean = true;
 
@@ -436,6 +441,7 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
           .then((covariance) => {
             // set convariance data
             this.covarianceData[field.name] = covariance;
+
             // loading hide
             this.loadingHide();
             // update covariance chart
@@ -1020,19 +1026,84 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
     // call API
     const params = new QueryParam();
     params.dataSource.name = this.datasource.engineName;
-    params.dataSource.engineName = this.datasource.engineName;
+    params.dataSource.connType = 'ENGINE';
+    params.dataSource.id = this.datasource.id;
     params.dataSource.type = 'default';
+
     params.limits = {limit: 20000, sort: null};
+
+    const resultFormat = {
+      type: 'chart',
+      columnDelimeter:'―',
+      mode: 'map',
+      options: {
+        addMinMax: true,
+        showCategory: true,
+        showPercentage: true
+      }
+    };
 
     const filter = {
       type: 'spatial_bbox',
-      dataSource: params.dataSource.engineName,
-      field: 'location',
+      dataSource: params.dataSource.name,
+      field: this.selectedField.logicalName,
       lowerCorner: this.lowerCorner,
       upperCorner: this.upperCorner
     }
 
     params.filters = [filter];
+    params.resultFormat = resultFormat;
+
+    // ***** MultiPolygon & line 타입일 경우 druid 수정 후 밑에 해당 api 호출해야함.
+
+    // const shelf = new Shelf();
+    // const layerField = {
+    //   alias: this.selectedField.logicalName,
+    //   format: {type: 'geo'},
+    //   name: this.selectedField.logicalName,
+    //   type: 'dimension',
+    //   subType: 'STRING',
+    //   subRole: 'DIMENSION'
+    // };
+    //
+    // const layer: ShelfLayers = {
+    //   name: 'Layer1',
+    //   ref: this.datasource.engineName,
+    //   view: {
+    //     method:'h3',
+    //     precision: 12,
+    //     relayType: 'FIRST',
+    //     type:'abbr'
+    //   },
+    //   fields: [layerField as unknown as GeoField]
+    // };
+    //
+    // shelf.layers = [layer];
+    //
+    // const query: SearchQueryRequest = {
+    //   aliases: [],
+    //   analysis: undefined,
+    //   context: undefined,
+    //   pivot: undefined,
+    //   projections: [],
+    //   selectionFilters: [],
+    //   shelf: shelf,
+    //   userFields: [],
+    //   getDownloadFilters(): Filter[] {
+    //     return [];
+    //   },
+    //   dataSource:  params.dataSource,
+    //   filters: [filter as unknown as Filter],
+    //   limits: {limit:20000, sort: null},
+    //   resultFormat: resultFormat
+    // };
+    //
+    //
+    // const testQuery = this.makeSearchQueryParam(query);
+    // this.datasourceService.searchQuery(testQuery, null).then(result=> {
+    //
+    // });
+
     this.loadingShow();
 
     this.datasourceService.getDatasourceQuery(params).then((result: MapLocation[]) => {
@@ -1146,6 +1217,62 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
     this.initialFlag = false;
     this._loadAndDrawMap();
   }
+
+  /**
+   * 서버시에 필요없는 ui에서만 사용되는 파라미터 제거
+   */
+  private makeSearchQueryParam(cloneQuery): SearchQueryRequest {
+
+    // 선반 데이터 설정
+    if (cloneQuery.pivot) {
+      for (const field of _.concat(cloneQuery.pivot.columns, cloneQuery.pivot.rows, cloneQuery.pivot.aggregations)) {
+        delete field['field'];
+        delete field['currentPivot'];
+        delete field['granularity'];
+        delete field['segGranularity'];
+      }
+    }
+
+    // map - set shelf layers
+    if (cloneQuery.shelf && cloneQuery.shelf.layers && cloneQuery.shelf.layers.length > 0) {
+
+      cloneQuery.shelf.layers = _.remove(cloneQuery.shelf.layers, (layer) => {
+        return layer['fields'].length !== 0;
+      });
+
+      for (const layers of cloneQuery.shelf.layers) {
+        for (const layer of layers.fields) {
+          delete layer['field'];
+          delete layer['currentPivot'];
+          delete layer['granularity'];
+          delete layer['segGranularity'];
+        }
+      }
+
+      // spatial analysis
+      if (!_.isUndefined(cloneQuery.analysis)) {
+        if (cloneQuery.analysis.use === true) {
+          // 공간연산 사용
+          delete cloneQuery.analysis.operation.unit;
+          delete cloneQuery.analysis.layer;
+          delete cloneQuery.analysis.layerNum;
+          delete cloneQuery.analysis.use;
+        } else {
+          // 공간연산 미사용
+          delete cloneQuery.analysis;
+        }
+      }
+    }
+
+
+    // 값이 없는 측정값 필터 제거
+    cloneQuery.filters = cloneQuery.filters.filter(item => !(item.type === 'bound' && item['min'] === null));
+
+    cloneQuery.userFields = CommonUtil.objectToArray(cloneQuery.userFields);
+
+    return cloneQuery;
+  }
+
 }
 
 export class MapLocation {
