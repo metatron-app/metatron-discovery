@@ -29,7 +29,7 @@
           <label class="ddp-label-type">{{'msg.comm.usr.name.title' | translate}}</label>
           <div class="ddp-input-check">
             <span class="ddp-input-type">
-              <input type="text" [(ngModel)]="user.username" placeholder="{{'msg.comm.usr.name.title.ph' | translate}}"
+              <input type="text" id = 'loginId' [(ngModel)]="user.username" placeholder="{{'msg.comm.usr.name.title.ph' | translate}}"
                      (focus)="loginFailMsg='';" style="border-bottom:none;"/>
             </span>
             <em class="ddp-icon-error" (click)="user.username='';loginFailMsg='';" *ngIf="loginFailMsg"></em>
@@ -42,7 +42,7 @@
           <label class="ddp-label-type">{{'msg.comm.usr.pw.title' | translate}}</label>
           <div class="ddp-input-check">
             <span class="ddp-input-type">
-              <input #pwElm type="password" placeholder="{{'msg.comm.usr.pw.title.ph' | translate}}"
+              <input #pwElm id = 'loginPwd' type="password" placeholder="{{'msg.comm.usr.pw.title.ph' | translate}}"
                      [(ngModel)]="user.password" (keyup)="$event.keyCode == 13 ? checkIp() : null;"
                      (focus)="loginFailMsg='';" style="border-bottom:none;" />
             </span>
