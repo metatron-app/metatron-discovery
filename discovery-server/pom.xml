@@ -1201,7 +1201,7 @@
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
-      <version>42.0.0</version>
+      <version>42.2.25</version>
     </dependency>
 
     <!-- https://github.com/JSQLParser/JSqlParser -->
