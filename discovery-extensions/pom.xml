@@ -19,7 +19,6 @@
             </activation>
             <modules>
                 <module>mssql-connection</module>
-                <module>athena-connection</module>
             </modules>
         </profile>
         <profile>
