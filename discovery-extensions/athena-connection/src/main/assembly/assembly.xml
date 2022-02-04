@@ -7,8 +7,8 @@
 	<includeBaseDirectory>false</includeBaseDirectory>
 	<dependencySets>
 		<dependencySet>
-            <useProjectArtifact>false</useProjectArtifact>
-            <scope>runtime</scope>
+			<useProjectArtifact>false</useProjectArtifact>
+			<scope>runtime</scope>
 			<outputDirectory>lib</outputDirectory>
 			<includes>
 				<include>*:jar:*</include>
@@ -19,6 +19,13 @@
 		<fileSet>
 			<directory>target/plugin-classes</directory>
 			<outputDirectory>classes</outputDirectory>
+			<excludes>
+				<exclude>lib/**</exclude>
+			</excludes>
+		</fileSet>
+		<fileSet>
+			<directory>target/plugin-classes/lib</directory>
+			<outputDirectory>lib</outputDirectory>
 		</fileSet>
 	</fileSets>
 </assembly>

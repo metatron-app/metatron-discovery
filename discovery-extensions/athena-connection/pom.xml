@@ -122,13 +122,5 @@
             </plugin>
         </plugins>
     </build>
-    <dependencies>
-        <!-- Athena -->
-        <!-- https://mvnrepository.com/artifact/com.syncron.amazonaws/simba-athena-jdbc-driver -->
-        <dependency>
-            <groupId>com.syncron.amazonaws</groupId>
-            <artifactId>simba-athena-jdbc-driver</artifactId>
-            <version>2.0.2</version>
-        </dependency>
-    </dependencies>
+
 </project>

@@ -5,11 +5,33 @@ Athena Connection Extension
 ==================================
 Connection Extension for AWS Athena with JDBC.
 
-The Athena JDBC Driver version used is 2.0.2.
-
 For more information, refer to the JDBC Driver Documentation section of the page below.
 
 https://docs.aws.amazon.com/athena/latest/ug/connect-with-jdbc.html
+
+
+How to Compile Athena JDBC Plugin
+==================================
+Step 1. Download the JDBC driver from the link below.
+----------------------------------
+As of writing the guide, the JdbcDriver version is 2.0.27.
+
+Web Page : https://docs.aws.amazon.com/athena/latest/ug/connect-with-jdbc.html
+
+Archived JDBC Driver Link in Page : https://s3.amazonaws.com/athena-downloads/drivers/JDBC/SimbaAthenaJDBC-2.0.27.1000/AthenaJDBC42_2.0.27.1000.jar
+
+
+Step 2. copy it under athena-connection/src/main/resources/lib.
+----------------------------------
+```
+cp AthenaJDBC42_2.0.27.1000.jar metatron-discovery/discovery-extensions/athena-connection/src/main/resources/lib/
+``` 
+
+Step 3. Execute maven build.
+----------------------------------
+```
+mvn -P extensions-all clean install
+``` 
 
 
 How to connect Athena via JDBC
@@ -20,7 +42,7 @@ There are various ways to configure connection URL.
 
 See the following page for a detailed configure guide.
 
-https://s3.amazonaws.com/athena-downloads/drivers/JDBC/SimbaAthenaJDBC_2.0.2/docs/Simba+Athena+JDBC+Driver+Install+and+Configuration+Guide.pdf
+https://s3.amazonaws.com/athena-downloads/drivers/JDBC/SimbaAthenaJDBC-2.0.27.1000/doc/Simba+Athena+JDBC+Connector+Install+and+Configuration+Guide.pdf
 
 Sample using endpoint URL can be configured as below.
 
