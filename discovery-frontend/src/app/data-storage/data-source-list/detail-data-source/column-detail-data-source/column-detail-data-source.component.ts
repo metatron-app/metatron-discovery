@@ -13,8 +13,10 @@
  */
 
 import * as _ from 'lodash';
+import mapboxgl, {GeoJSONSource} from 'mapbox-gl';
 import {isUndefined} from 'util';
 import {
+  AfterViewInit,
   Component,
   ElementRef,
   EventEmitter,
@@ -49,14 +51,8 @@ import {DataSourceCreateService, TypeFilterObject} from '../../../service/data-s
 import {TimezoneService} from '../../../service/timezone.service';
 import {EditFilterDataSourceComponent} from '../edit-filter-data-source.component';
 import {EditConfigSchemaComponent} from './edit-config-schema.component';
-import mapboxgl, {GeoJSONSource} from 'mapbox-gl'
-import {CommonService} from "@common/service/common.service";
-import {QueryParam} from "@domain/dashboard/dashboard";
-import {SearchQueryRequest} from "@domain/datasource/data/search-query-request";
-import {Filter} from "@domain/workbook/configurations/filter/filter";
-import {CommonUtil} from "@common/util/common.util";
-import {Shelf, ShelfLayers} from "@domain/workbook/configurations/shelf/shelf";
-import {GeoField} from "@domain/workbook/configurations/field/geo-field";
+import {CommonService} from '@common/service/common.service';
+import {QueryParam} from '@domain/dashboard/dashboard';
 
 declare let echarts: any;
 
@@ -67,7 +63,7 @@ declare let echarts: any;
   selector: 'column-detail-datasource',
   templateUrl: './column-detail-data-source.component.html'
 })
-export class ColumnDetailDataSourceComponent extends AbstractComponent implements OnInit, OnChanges, OnDestroy {
+export class ColumnDetailDataSourceComponent extends AbstractComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
 
   @ViewChild('histogram')
   private _histogram: ElementRef;
@@ -126,8 +122,8 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
   public map: any;
   public mapData: any;
   public mapCoordinates: any[] = [];
-  public lowerCorner: string = "-170 -85";
-  public upperCorner: string = "170 85";
+  public lowerCorner: string = '-170 -85';
+  public upperCorner: string = '170 85';
   public zoomLevel: number = 2;
   public initialFlag: boolean = true;
 
@@ -193,7 +189,6 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
 
   public ngAfterViewInit() {
     super.ngAfterViewInit();
-
   }
 
   /**
@@ -1115,10 +1110,10 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
 
       const features = result.map(item => {
         return {
-          'type': 'Feature',
-          'geometry' : {
-            'type': 'Point',
-            'coordinates' : [item.longitude, item.latitude]
+          type: 'Feature',
+          geometry : {
+            type: 'Point',
+            coordinates : [item.longitude, item.latitude]
           }
         }
       });
@@ -1221,57 +1216,57 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
   /**
    * 서버시에 필요없는 ui에서만 사용되는 파라미터 제거
    */
-  private makeSearchQueryParam(cloneQuery): SearchQueryRequest {
-
-    // 선반 데이터 설정
-    if (cloneQuery.pivot) {
-      for (const field of _.concat(cloneQuery.pivot.columns, cloneQuery.pivot.rows, cloneQuery.pivot.aggregations)) {
-        delete field['field'];
-        delete field['currentPivot'];
-        delete field['granularity'];
-        delete field['segGranularity'];
-      }
-    }
-
-    // map - set shelf layers
-    if (cloneQuery.shelf && cloneQuery.shelf.layers && cloneQuery.shelf.layers.length > 0) {
-
-      cloneQuery.shelf.layers = _.remove(cloneQuery.shelf.layers, (layer) => {
-        return layer['fields'].length !== 0;
-      });
-
-      for (const layers of cloneQuery.shelf.layers) {
-        for (const layer of layers.fields) {
-          delete layer['field'];
-          delete layer['currentPivot'];
-          delete layer['granularity'];
-          delete layer['segGranularity'];
-        }
-      }
-
-      // spatial analysis
-      if (!_.isUndefined(cloneQuery.analysis)) {
-        if (cloneQuery.analysis.use === true) {
-          // 공간연산 사용
-          delete cloneQuery.analysis.operation.unit;
-          delete cloneQuery.analysis.layer;
-          delete cloneQuery.analysis.layerNum;
-          delete cloneQuery.analysis.use;
-        } else {
-          // 공간연산 미사용
-          delete cloneQuery.analysis;
-        }
-      }
-    }
-
-
-    // 값이 없는 측정값 필터 제거
-    cloneQuery.filters = cloneQuery.filters.filter(item => !(item.type === 'bound' && item['min'] === null));
-
-    cloneQuery.userFields = CommonUtil.objectToArray(cloneQuery.userFields);
-
-    return cloneQuery;
-  }
+  // private makeSearchQueryParam(cloneQuery): SearchQueryRequest {
+  //
+  //   // 선반 데이터 설정
+  //   if (cloneQuery.pivot) {
+  //     for (const field of _.concat(cloneQuery.pivot.columns, cloneQuery.pivot.rows, cloneQuery.pivot.aggregations)) {
+  //       delete field['field'];
+  //       delete field['currentPivot'];
+  //       delete field['granularity'];
+  //       delete field['segGranularity'];
+  //     }
+  //   }
+  //
+  //   // map - set shelf layers
+  //   if (cloneQuery.shelf && cloneQuery.shelf.layers && cloneQuery.shelf.layers.length > 0) {
+  //
+  //     cloneQuery.shelf.layers = _.remove(cloneQuery.shelf.layers, (layer) => {
+  //       return layer['fields'].length !== 0;
+  //     });
+  //
+  //     for (const layers of cloneQuery.shelf.layers) {
+  //       for (const layer of layers.fields) {
+  //         delete layer['field'];
+  //         delete layer['currentPivot'];
+  //         delete layer['granularity'];
+  //         delete layer['segGranularity'];
+  //       }
+  //     }
+  //
+  //     // spatial analysis
+  //     if (!_.isUndefined(cloneQuery.analysis)) {
+  //       if (cloneQuery.analysis.use === true) {
+  //         // 공간연산 사용
+  //         delete cloneQuery.analysis.operation.unit;
+  //         delete cloneQuery.analysis.layer;
+  //         delete cloneQuery.analysis.layerNum;
+  //         delete cloneQuery.analysis.use;
+  //       } else {
+  //         // 공간연산 미사용
+  //         delete cloneQuery.analysis;
+  //       }
+  //     }
+  //   }
+  //
+  //
+  //   // 값이 없는 측정값 필터 제거
+  //   cloneQuery.filters = cloneQuery.filters.filter(item => !(item.type === 'bound' && item['min'] === null));
+  //
+  //   cloneQuery.userFields = CommonUtil.objectToArray(cloneQuery.userFields);
+  //
+  //   return cloneQuery;
+  // }
 
 }
 
