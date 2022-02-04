@@ -52,7 +52,6 @@ import {TimezoneService} from '../../../service/timezone.service';
 import {EditFilterDataSourceComponent} from '../edit-filter-data-source.component';
 import {EditConfigSchemaComponent} from './edit-config-schema.component';
 import {CommonService} from '@common/service/common.service';
-import {QueryParam} from '@domain/dashboard/dashboard';
 
 declare let echarts: any;
 
@@ -996,13 +995,12 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
 
   private _renderMap() {
     this._commonService.getProperties('mapbox').then((accesstoken) => {
-      // accesstoken = 'pk.eyJ1IjoiZWx0cmlueSIsImEiOiJjanF6OG5oaDQwMDI4NDlueWhjdHB3eHRjIn0.kDLQfa4ITrAniE6m4_aeBw';
       if (accesstoken != '') {
         this._commonService.setProperties('mapbox', accesstoken);
         this._commonService.retrieveMapboxToken(accesstoken).then((result) => {
           if (result.code === 'TokenValid') {
             mapboxgl.accessToken = accesstoken;
-             this._loadAndDrawMap();
+            this._loadAndDrawMap();
 
           } else {
             console.error('invalid Token');
@@ -1018,143 +1016,106 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
 
   private _loadAndDrawMap(){
 
-    // call API
-    const params = new QueryParam();
-    params.dataSource.name = this.datasource.engineName;
-    params.dataSource.connType = 'ENGINE';
-    params.dataSource.id = this.datasource.id;
-    params.dataSource.type = 'default';
-
-    params.limits = {limit: 20000, sort: null};
-
-    const resultFormat = {
-      type: 'chart',
-      columnDelimeter:'―',
-      mode: 'map',
-      options: {
-        addMinMax: true,
-        showCategory: true,
-        showPercentage: true
-      }
-    };
-
-    const filter = {
-      type: 'spatial_bbox',
-      dataSource: params.dataSource.name,
-      field: this.selectedField.logicalName,
-      lowerCorner: this.lowerCorner,
-      upperCorner: this.upperCorner
-    }
-
-    params.filters = [filter];
-    params.resultFormat = resultFormat;
-
-    // ***** MultiPolygon & line 타입일 경우 druid 수정 후 밑에 해당 api 호출해야함.
-
-    // const shelf = new Shelf();
-    // const layerField = {
-    //   alias: this.selectedField.logicalName,
-    //   format: {type: 'geo'},
-    //   name: this.selectedField.logicalName,
-    //   type: 'dimension',
-    //   subType: 'STRING',
-    //   subRole: 'DIMENSION'
-    // };
-    //
-    // const layer: ShelfLayers = {
-    //   name: 'Layer1',
-    //   ref: this.datasource.engineName,
-    //   view: {
-    //     method:'h3',
-    //     precision: 12,
-    //     relayType: 'FIRST',
-    //     type:'abbr'
-    //   },
-    //   fields: [layerField as unknown as GeoField]
-    // };
-    //
-    // shelf.layers = [layer];
-    //
-    // const query: SearchQueryRequest = {
-    //   aliases: [],
-    //   analysis: undefined,
-    //   context: undefined,
-    //   pivot: undefined,
-    //   projections: [],
-    //   selectionFilters: [],
-    //   shelf: shelf,
-    //   userFields: [],
-    //   getDownloadFilters(): Filter[] {
-    //     return [];
-    //   },
-    //   dataSource:  params.dataSource,
-    //   filters: [filter as unknown as Filter],
-    //   limits: {limit:20000, sort: null},
-    //   resultFormat: resultFormat
-    // };
-    //
-    //
-    // const testQuery = this.makeSearchQueryParam(query);
-    // this.datasourceService.searchQuery(testQuery, null).then(result=> {
-    //
-    // });
-
     this.loadingShow();
 
-    this.datasourceService.getDatasourceQuery(params).then((result: MapLocation[]) => {
-      this.mapCoordinates = [];
+    const param: any = {};
 
-      result.forEach(item => {
-        this.mapCoordinates.push([item.longitude, item.latitude]);
-      });
+    if (this.selectedField.logicalType === LogicalType.GEO_POINT) {
+      param.query = 'SELECT geom_transform(geom_fromWKT(concat(\'POINT (\', "lon", \' \', "lat",\')\')), 4326, 4326) as geom FROM ' + this.datasource.engineName;
+    } else {
+      param.query = 'SELECT geom_transform(geom_fromWKT(' + this.selectedField.logicalName + '), 4326, 4326) as geom FROM ' + this.datasource.engineName;
+    }
 
-      const features = result.map(item => {
-        return {
-          type: 'Feature',
-          geometry : {
-            type: 'Point',
-            coordinates : [item.longitude, item.latitude]
-          }
-        }
-      });
-
-     if (this.initialFlag){
-
-       // if(this.map){
-        //   this.map.remove(); // remove an already existing map
-        // }
+    this.datasourceService.getDatasourceQueryGeojson(param).then((result) => {
+      if (this.initialFlag){
 
         if(!this.map) {
+          let coordinates = [];
+          if (this.selectedField.logicalType === LogicalType.GEO_POINT) {
+            for (let i = 0; i < result.features.length; i++) {
+              coordinates.push(result.features[i].geometry.coordinates);
+            }
+          } else if (this.selectedField.logicalType === LogicalType.GEO_POLYGON) {
+            for (let i = 0; i < result.features.length; i++) {
+              for (let j = 0; j < result.features.length; j++) {
+                coordinates.push(result.features[i].geometry.geometries[0].coordinates[0][j]);
+              }
+            }
+            //center = result.features[0].geometry.geometries[0].coordinates[0][0];
+          } else {
+            for (let i = 0; i < result.features.length; i++) {
+              for (let j = 0; j < result.features.length; j++) {
+                coordinates.push(result.features[i].geometry.coordinates[j]);
+              }
+            }
+          }
+
+          // Create a 'LngLatBounds' with both corners at the first coordinate.
+          const bounds = new mapboxgl.LngLatBounds(
+            coordinates[0],
+            coordinates[0]
+          );
+
+          // Extend the 'LngLatBounds' to include every coordinate in the bounds result.
+          for (const coord of coordinates) {
+            bounds.extend(coord);
+          }
 
           this.map = new mapboxgl.Map({
             container: 'map', // container ID
-            style: 'mapbox://styles/mapbox/light-v10', // style URL
-            center: this.mapCoordinates[0], // starting position
-            zoom: this.zoomLevel // starting zoom
+            style: 'mapbox://styles/mapbox/light-v10',
+            bounds: bounds
           });
 
           // geojson 데이터 로드 필요
           this.map.on('load', () => {
-// Add a data source containing GeoJSON data.
-            this.map.addSource('category', {
+            this.map.addSource('geodata', {
               type: 'geojson',
-              data: {
-                type: 'FeatureCollection',
-                features: features
-              }
+              data: result
             });
 
-            // Add a symbol layer
-            this.map.addLayer({
-              id: 'map',
-              type: 'circle',
-              source: 'category',
-              layout: {},
-              paint: {
-                'circle-color': 'rgba(137,84,191, 0.5)',
-                'circle-radius': 5
-              }
-            });
+            if (this.selectedField.logicalType === LogicalType.GEO_POINT) {
+              // Add a symbol layer
+              this.map.addLayer({
+                id: 'map',
+                type: 'circle',
+                source: 'geodata',
+                layout: {},
+                paint: {
+                  'circle-color': 'rgb(99, 68, 173)',
+                  'circle-radius': 5
+                }
+              });
+            }
+
+            if (this.selectedField.logicalType === LogicalType.GEO_POLYGON) {
+              // Add a new layer to visualize the polygon.
+              this.map.addLayer({
+                id: 'maine',
+                type: 'fill',
+                source: 'geodata', // reference the data source
+                layout: {},
+                paint: {
+                  'fill-color': 'rgb(99, 68, 173)', // blue color fill
+                  'fill-opacity': 0.5
+                }
+              });
+            }
+
+            if (this.selectedField.logicalType === LogicalType.GEO_LINE) {
+              // Add a black outline around the polygon.
+              this.map.addLayer({
+                id: 'outline',
+                type: 'line',
+                source: 'geodata',
+                layout: {},
+                paint: {
+                  'line-color': 'rgb(99, 68, 173)',
+                  'line-width': 3
+                }
+              });
+            }
+
 
             this.map.on('zoomend', () => {
               this._resetLocation();
@@ -1170,13 +1131,11 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
           }, 500);
         }
       } else {
-       (this.map.getSource('category') as GeoJSONSource).setData({
-          type: 'FeatureCollection',
-          features: features
-        });
-     }
-     this.loadingHide();
+        (this.map.getSource('geodata') as GeoJSONSource).setData(result);
+      }
+      this.loadingHide();
     });
+
   }
 
   private _createMapPopup(){
@@ -1190,11 +1149,11 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
       const lng = e.lngLat.lng.toFixed(4);
       const lat = e.lngLat.lat.toFixed(4);
       const popupHtml = '<div>' +
-        '<div><p class="map-popup-title">Geo Info</p></div>' +
+        '<div><p class="map-popup-title">' + this.selectedField.name + '</p></div>' +
         '<div><p class="map-popup-location">' +lng +', '+ lat + '</p></div></div>'
 
       popup.setLngLat(e.lngLat).setHTML(popupHtml).addTo(this.map);
-    })
+    });
 
     this.map.on('mouseleave', 'map', () => {
       popup.remove();
@@ -1213,65 +1172,4 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
     this._loadAndDrawMap();
   }
 
-  /**
-   * 서버시에 필요없는 ui에서만 사용되는 파라미터 제거
-   */
-  // private makeSearchQueryParam(cloneQuery): SearchQueryRequest {
-  //
-  //   // 선반 데이터 설정
-  //   if (cloneQuery.pivot) {
-  //     for (const field of _.concat(cloneQuery.pivot.columns, cloneQuery.pivot.rows, cloneQuery.pivot.aggregations)) {
-  //       delete field['field'];
-  //       delete field['currentPivot'];
-  //       delete field['granularity'];
-  //       delete field['segGranularity'];
-  //     }
-  //   }
-  //
-  //   // map - set shelf layers
-  //   if (cloneQuery.shelf && cloneQuery.shelf.layers && cloneQuery.shelf.layers.length > 0) {
-  //
-  //     cloneQuery.shelf.layers = _.remove(cloneQuery.shelf.layers, (layer) => {
-  //       return layer['fields'].length !== 0;
-  //     });
-  //
-  //     for (const layers of cloneQuery.shelf.layers) {
-  //       for (const layer of layers.fields) {
-  //         delete layer['field'];
-  //         delete layer['currentPivot'];
-  //         delete layer['granularity'];
-  //         delete layer['segGranularity'];
-  //       }
-  //     }
-  //
-  //     // spatial analysis
-  //     if (!_.isUndefined(cloneQuery.analysis)) {
-  //       if (cloneQuery.analysis.use === true) {
-  //         // 공간연산 사용
-  //         delete cloneQuery.analysis.operation.unit;
-  //         delete cloneQuery.analysis.layer;
-  //         delete cloneQuery.analysis.layerNum;
-  //         delete cloneQuery.analysis.use;
-  //       } else {
-  //         // 공간연산 미사용
-  //         delete cloneQuery.analysis;
-  //       }
-  //     }
-  //   }
-  //
-  //
-  //   // 값이 없는 측정값 필터 제거
-  //   cloneQuery.filters = cloneQuery.filters.filter(item => !(item.type === 'bound' && item['min'] === null));
-  //
-  //   cloneQuery.userFields = CommonUtil.objectToArray(cloneQuery.userFields);
-  //
-  //   return cloneQuery;
-  // }
-
-}
-
-export class MapLocation {
-  latitude: string;
-  longitude: string;
-  location: string;
 }
