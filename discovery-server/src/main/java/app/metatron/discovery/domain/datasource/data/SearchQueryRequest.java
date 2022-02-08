@@ -70,9 +70,11 @@ import app.metatron.discovery.domain.workbook.configurations.Limit;
 import app.metatron.discovery.domain.workbook.configurations.Pivot;
 import app.metatron.discovery.domain.workbook.configurations.analysis.Analysis;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DataSource;
+import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
 import app.metatron.discovery.domain.workbook.configurations.field.ExpressionField;
 import app.metatron.discovery.domain.workbook.configurations.field.Field;
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
+import app.metatron.discovery.domain.workbook.configurations.field.TimestampField;
 import app.metatron.discovery.domain.workbook.configurations.field.UserDefinedField;
 import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.Shelf;
@@ -335,6 +337,9 @@ public class SearchQueryRequest extends AbstractQueryRequest implements QueryReq
         // follow ui rule
         field.setAlias(((MeasureField) field).getUserDefinedAlias());
         this.projections.add(field);
+      } else if(field instanceof TimestampField
+          && app.metatron.discovery.domain.datasource.Field.FieldRole.DIMENSION.equals(((TimestampField) field).getSubRole())) {
+          this.projections.add(new DimensionField(field.getName(), field.getAlias(), field.getRef(), field.getFormat()));
       } else {
         this.projections.add(field);
       }

@@ -35,6 +35,8 @@ public class TimestampField extends Field {
 
   FieldFormat format;
 
+  app.metatron.discovery.domain.datasource.Field.FieldRole subRole;
+
   public TimestampField() {
   }
 
@@ -82,6 +84,10 @@ public class TimestampField extends Field {
 
   public Granularity getGranularity() {
     return granularity;
+  }
+
+  public app.metatron.discovery.domain.datasource.Field.FieldRole getSubRole() {
+    return subRole;
   }
 
   @JsonIgnore
