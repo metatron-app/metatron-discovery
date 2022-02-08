@@ -111,6 +111,12 @@ export class DatasourceService extends AbstractService {
     return this.post(url, options);
   }
 
+  public getDatasourceQueryGeojson(options: any) {
+    const url = this.API_URL + 'datasources/query/sql/geojson';
+
+    return this.post(url, options);
+  }
+
   /**
    * 데이터 소스간 유사도 정보를 가져옵니다. similarity 가 높은 순으로 리스트 형태로 전달합니다.
    * @param {string} dataSourceName

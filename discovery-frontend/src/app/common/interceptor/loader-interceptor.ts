@@ -27,7 +27,7 @@ export class LoaderInterceptor implements HttpInterceptor {
     if (showLoading) {
       this.totalRequests += 1
     }
-    if (request.responseType === 'json') {
+    if (request.responseType === 'json' && !this.isExternalRequest(request.url)) {
       const jsonHeaders = request.headers.append('x-requested-with', 'XMLHttpRequest');
       request = request.clone({headers: jsonHeaders})
     }
@@ -53,5 +53,9 @@ export class LoaderInterceptor implements HttpInterceptor {
     if (this.totalRequests > 0) {
       this.totalRequests -= 1
     }
+  }
+
+  private isExternalRequest(url: string): boolean {
+    return url.indexOf('api.mapbox.com') > -1;
   }
 }

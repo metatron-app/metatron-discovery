@@ -25,6 +25,8 @@ export class CommonService extends AbstractService {
 
   public static extensions: Extension[] = [];
 
+  private _properties: any = {};
+
   constructor(protected injector: Injector) {
     super(injector);
   }
@@ -59,4 +61,24 @@ export class CommonService extends AbstractService {
       .then((result) => saveAs(result, 'metatronDiscovery.user.manual.pdf'));
 
   } // function - downloadManual
+
+  public getProperties(type: string): Promise<any> {
+    if (this._properties[type] == undefined) {
+      return this.get(this.API_URL + `properties/${type}`);
+    } else {
+      return new Promise<string>((resolve, _reject) => {
+        resolve(this._properties[type]);
+      });
+    }
+  }
+
+  public retrieveMapboxToken(token): Promise<any> {
+    return this.http.get(`https://api.mapbox.com/tokens/v2?access_token=${token}`)
+      .toPromise();
+  }
+
+  public setProperties(type: string, property: any) {
+    this._properties[type] = property;
+  }
+
 }
