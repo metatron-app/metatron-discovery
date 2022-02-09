@@ -61,7 +61,7 @@
         <lucene.version>5.5.5</lucene.version>
 
         <!-- Cache -->
-        <infinispan.version>9.0.0.CR2</infinispan.version>
+        <infinispan.version>11.0.6.Final</infinispan.version>
 
         <!-- Templelet engine -->
         <thymeleaf.version>3.0.2.RELEASE</thymeleaf.version>
