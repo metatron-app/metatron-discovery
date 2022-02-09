@@ -193,6 +193,8 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
    */
   @HostListener('window:beforeunload', ['$event'])
   public beforeUnloadHandler(event) {
+    this.disconnectWebSocket();
+
     this.execBeforeUnload();
     if (this.useUnloadConfirm) {
       const confirmationMessage: string = this.translateService.instant('msg.comm.ui.beforeunload');
