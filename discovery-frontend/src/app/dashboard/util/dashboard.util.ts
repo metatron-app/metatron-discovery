@@ -380,7 +380,7 @@ export class DashboardUtil {
           }
           acc = acc.concat(
             totalFilters
-              .filter((item: Filter) => (item.dataSource === relDsEngineName || (relDsType === 'LINK' && relDsEngineName.startsWith(item.dataSource + '_')) && item.field === relField))
+              .filter((item: Filter) => ((item.dataSource === relDsEngineName || (relDsType === 'LINK' && relDsEngineName.startsWith(item.dataSource + '_'))) && item.field === relField))
               .map((item: Filter) => {
                 item.dataSource = engineName;
                 item.field = srcField;
