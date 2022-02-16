@@ -546,9 +546,14 @@
                });
     },
     showConfirm: function (title, desc, done, showCancel) {
-      $('#confirm-close').unbind('click').bind('click', function() {
-        $('.popup_common').removeClass('is-show');
-      })
+      if (done === 'showAccessLog') {
+        $('#confirm-close').hide();
+      } else {
+        $('#confirm-close').unbind('click').bind('click', function () {
+          $('.popup_common').removeClass('is-show');
+        })
+      }
+
       if (showCancel) {
         $('#confirm-cancel').show();
         $('#confirm-cancel').unbind('click').bind('click', function() {
