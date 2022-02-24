@@ -198,46 +198,46 @@ public class WidgetService {
   private String getFilterType(Filter filter) {
     String filterClass = filter.getClass().getName();
     String className = filterClass.substring(filterClass.lastIndexOf(".") + 1);
-    switch (className) {
-      case "InclusionFilter":
-        return "include";
-      case "TopNFilter":
-        return "topn";
-      case "IntervalFilter":
-        return "interval";
-      case "TimestampFilter":
-        return "timestamp";
-      case "TimeAllFilter":
-        return "time_all";
-      case "TimeListFilter":
-        return "time_list";
-      case "TimeRelativeFilter":
-        return "time_relative";
-      case "TimeRangeFilter":
-        return "time_range";
-      case "TimeSingleFilter":
-        return "time_single";
-      case "SpatialBboxFilter":
-        return "spatial_bbox";
-      case "SpatialPointFilter":
-        return "spatial_point";
-      case "SpatialShapeFilter":
-        return "spatial_shape";
-      case "RegExprFilter":
-        return "regexpr";
-      case "ExpressionFilter":
-        return "expr";
-      case "LikeFilter":
-        return "like";
-      case "BoundFilter":
-        return "bound";
-      case "MeasureInequalityFilter":
-        return "measure_inequality";
-      case "MeasurePositionFilter":
-        return "measure_position";
-      case "WildCardFilter":
-        return "wildcard";
+    if (filter instanceof InclusionFilter) {
+      return "include";
+    } else if (filter instanceof TopNFilter) {
+      return "topn";
+    } else if (filter instanceof IntervalFilter) {
+      return "interval";
+    } else if (filter instanceof TimestampFilter) {
+      return "timestamp";
+    } else if (filter instanceof TimeAllFilter) {
+      return "time_all";
+    } else if (filter instanceof TimeListFilter) {
+      return "time_list";
+    } else if (filter instanceof TimeRelativeFilter) {
+      return "time_relative";
+    } else if (filter instanceof TimeRangeFilter) {
+      return "time_range";
+    } else if (filter instanceof TimeSingleFilter) {
+      return "time_single";
+    } else if (filter instanceof SpatialBboxFilter) {
+      return "spatial_bbox";
+    } else if (filter instanceof SpatialPointFilter) {
+      return "spatial_point";
+    } else if (filter instanceof SpatialShapeFilter) {
+      return "spatial_shape";
+    } else if (filter instanceof RegExprFilter) {
+      return "regexpr";
+    } else if (filter instanceof ExpressionFilter) {
+      return "expr";
+    } else if (filter instanceof LikeFilter) {
+      return "like";
+    } else if (filter instanceof BoundFilter) {
+      return "bound";
+    } else if (filter instanceof MeasureInequalityFilter) {
+      return "measure_inequality";
+    } else if (filter instanceof MeasurePositionFilter) {
+      return "measure_position";
+    } else if (filter instanceof WildCardFilter) {
+      return "wildcard";
+    } else {
+      throw new MetatronException("no matching type (" + className + ")");
     }
-    throw new MetatronException("no matching type (" + className + ")");
   }
 }
