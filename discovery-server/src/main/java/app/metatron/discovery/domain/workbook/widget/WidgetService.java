@@ -28,6 +28,7 @@ import java.util.List;
 import javax.transaction.Transactional;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.domain.datasource.DataSourceRepository;
 import app.metatron.discovery.domain.datasource.DataSourceService;
 import app.metatron.discovery.domain.datasource.DataSourceTemporary;
@@ -36,6 +37,7 @@ import app.metatron.discovery.domain.workbook.configurations.datasource.DataSour
 import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
 import app.metatron.discovery.domain.workbook.configurations.datasource.MultiDataSource;
 import app.metatron.discovery.domain.workbook.configurations.datasource.SingleDataSource;
+import app.metatron.discovery.domain.workbook.configurations.filter.*;
 import app.metatron.discovery.domain.workbook.configurations.widget.FilterWidgetConfiguration;
 import app.metatron.discovery.domain.workbook.configurations.widget.PageWidgetConfiguration;
 
@@ -67,9 +69,10 @@ public class WidgetService {
 
     HashMap widgetConfiguration = (HashMap) GlobalObjectMapper.readValue(widget.getConfiguration());
     if ("page".equals(widgetConfiguration.get("type"))) {
-      if (((PageWidgetConfiguration)widget.convertConfiguration()).getFields() != null) {
+      PageWidgetConfiguration pageWidgetConfiguration = (PageWidgetConfiguration)widget.convertConfiguration();
+      if (pageWidgetConfiguration.getFields() != null) {
         List fieldList = Lists.newArrayList();
-        ((PageWidgetConfiguration)widget.convertConfiguration()).getFields().forEach(userDefinedField -> {
+        pageWidgetConfiguration.getFields().forEach(userDefinedField -> {
           if (userDefinedField.getDataSource().equals(fromDataSource.getEngineName())) {
             userDefinedField.setDataSource(toDataSource.getEngineName());
           }
@@ -79,7 +82,20 @@ public class WidgetService {
         });
         widgetConfiguration.put("fields", fieldList);
       }
-      DataSource widgetDataSource = ((PageWidgetConfiguration)widget.convertConfiguration()).getDataSource();
+      if (pageWidgetConfiguration.getFilters() != null) {
+        List filterList = Lists.newArrayList();
+        pageWidgetConfiguration.getFilters().forEach(filter -> {
+          if (filter.getDataSource().equals(fromDataSource.getEngineName())) {
+            filter.setDataSource(toDataSource.getEngineName());
+          }
+          HashMap filterMap = (HashMap) GlobalObjectMapper.readValue(GlobalObjectMapper.writeValueAsString(filter));
+          filterMap.put("type", getFilterType(filter));
+          filterList.add(filterMap);
+        });
+        widgetConfiguration.put("filters", filterList);
+      }
+
+      DataSource widgetDataSource = pageWidgetConfiguration.getDataSource();
       widgetConfiguration.put("dataSource", GlobalObjectMapper.readValue(
           GlobalObjectMapper.writeValueAsString(
               changeDataSource(fromDataSource, toDataSource, widgetDataSource))));
@@ -177,5 +193,51 @@ public class WidgetService {
       }
     }
     return dataSource;
+  }
+
+  private String getFilterType(Filter filter) {
+    String filterClass = filter.getClass().getName();
+    String className = filterClass.substring(filterClass.lastIndexOf(".") + 1);
+    switch (className) {
+      case "InclusionFilter":
+        return "include";
+      case "TopNFilter":
+        return "topn";
+      case "IntervalFilter":
+        return "interval";
+      case "TimestampFilter":
+        return "timestamp";
+      case "TimeAllFilter":
+        return "time_all";
+      case "TimeListFilter":
+        return "time_list";
+      case "TimeRelativeFilter":
+        return "time_relative";
+      case "TimeRangeFilter":
+        return "time_range";
+      case "TimeSingleFilter":
+        return "time_single";
+      case "SpatialBboxFilter":
+        return "spatial_bbox";
+      case "SpatialPointFilter":
+        return "spatial_point";
+      case "SpatialShapeFilter":
+        return "spatial_shape";
+      case "RegExprFilter":
+        return "regexpr";
+      case "ExpressionFilter":
+        return "expr";
+      case "LikeFilter":
+        return "like";
+      case "BoundFilter":
+        return "bound";
+      case "MeasureInequalityFilter":
+        return "measure_inequality";
+      case "MeasurePositionFilter":
+        return "measure_position";
+      case "WildCardFilter":
+        return "wildcard";
+    }
+    throw new MetatronException("no matching type (" + className + ")");
   }
 }
