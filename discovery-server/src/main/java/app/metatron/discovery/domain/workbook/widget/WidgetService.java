@@ -20,6 +20,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -29,9 +30,12 @@ import javax.transaction.Transactional;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.exception.MetatronException;
+import app.metatron.discovery.domain.datasource.DataSourceProjections;
 import app.metatron.discovery.domain.datasource.DataSourceRepository;
 import app.metatron.discovery.domain.datasource.DataSourceService;
 import app.metatron.discovery.domain.datasource.DataSourceTemporary;
+import app.metatron.discovery.domain.mdm.MetadataProjections;
+import app.metatron.discovery.domain.mdm.MetadataRepository;
 import app.metatron.discovery.domain.workbook.DashBoard;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DataSource;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
@@ -40,6 +44,7 @@ import app.metatron.discovery.domain.workbook.configurations.datasource.SingleDa
 import app.metatron.discovery.domain.workbook.configurations.filter.*;
 import app.metatron.discovery.domain.workbook.configurations.widget.FilterWidgetConfiguration;
 import app.metatron.discovery.domain.workbook.configurations.widget.PageWidgetConfiguration;
+import app.metatron.discovery.util.ProjectionUtils;
 
 @Component
 public class WidgetService {
@@ -53,7 +58,16 @@ public class WidgetService {
   DataSourceRepository dataSourceRepository;
 
   @Autowired
+  MetadataRepository metadataRepository;
+
+  @Autowired
   DataSourceService dataSourceService;
+
+  @Autowired
+  ProjectionFactory projectionFactory;
+
+  DataSourceProjections dataSourceProjections = new DataSourceProjections();
+  MetadataProjections metadataProjections = new MetadataProjections();
 
   @Transactional
   public Widget copy(Widget widget, DashBoard parent, boolean addPrefix) {
@@ -94,7 +108,21 @@ public class WidgetService {
         });
         widgetConfiguration.put("filters", filterList);
       }
-
+      HashMap chartConfiguration = (HashMap) widgetConfiguration.get("chart");
+      if (chartConfiguration.get("dataSource") != null) {
+        HashMap dataSourceMap = (HashMap) chartConfiguration.get("dataSource");
+        if (fromDataSource.getEngineName().equals(dataSourceMap.get("engineName"))) {
+          HashMap toDataSourceMap = (HashMap) GlobalObjectMapper.readValue(
+              GlobalObjectMapper.writeValueAsString(ProjectionUtils.toResource(projectionFactory,
+                                                                               dataSourceProjections.getProjectionByName("forDetailView"),
+                                                                               toDataSource)));
+          toDataSourceMap.put("uiMetaData",
+                              ProjectionUtils.toListResource(projectionFactory,
+                                                             metadataProjections.getProjectionByName("forItemView"),
+                                                             metadataRepository.findBySource(toDataSource.getId(), null, null)).get(0));
+          chartConfiguration.put("dataSource", toDataSourceMap);
+        }
+      }
       DataSource widgetDataSource = pageWidgetConfiguration.getDataSource();
       widgetConfiguration.put("dataSource", GlobalObjectMapper.readValue(
           GlobalObjectMapper.writeValueAsString(
