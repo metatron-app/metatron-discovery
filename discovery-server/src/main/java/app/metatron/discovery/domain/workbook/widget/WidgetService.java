@@ -20,6 +20,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -28,16 +29,22 @@ import java.util.List;
 import javax.transaction.Transactional;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.common.exception.MetatronException;
+import app.metatron.discovery.domain.datasource.DataSourceProjections;
 import app.metatron.discovery.domain.datasource.DataSourceRepository;
 import app.metatron.discovery.domain.datasource.DataSourceService;
 import app.metatron.discovery.domain.datasource.DataSourceTemporary;
+import app.metatron.discovery.domain.mdm.MetadataProjections;
+import app.metatron.discovery.domain.mdm.MetadataRepository;
 import app.metatron.discovery.domain.workbook.DashBoard;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DataSource;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
 import app.metatron.discovery.domain.workbook.configurations.datasource.MultiDataSource;
 import app.metatron.discovery.domain.workbook.configurations.datasource.SingleDataSource;
+import app.metatron.discovery.domain.workbook.configurations.filter.*;
 import app.metatron.discovery.domain.workbook.configurations.widget.FilterWidgetConfiguration;
 import app.metatron.discovery.domain.workbook.configurations.widget.PageWidgetConfiguration;
+import app.metatron.discovery.util.ProjectionUtils;
 
 @Component
 public class WidgetService {
@@ -51,7 +58,16 @@ public class WidgetService {
   DataSourceRepository dataSourceRepository;
 
   @Autowired
+  MetadataRepository metadataRepository;
+
+  @Autowired
   DataSourceService dataSourceService;
+
+  @Autowired
+  ProjectionFactory projectionFactory;
+
+  DataSourceProjections dataSourceProjections = new DataSourceProjections();
+  MetadataProjections metadataProjections = new MetadataProjections();
 
   @Transactional
   public Widget copy(Widget widget, DashBoard parent, boolean addPrefix) {
@@ -67,9 +83,10 @@ public class WidgetService {
 
     HashMap widgetConfiguration = (HashMap) GlobalObjectMapper.readValue(widget.getConfiguration());
     if ("page".equals(widgetConfiguration.get("type"))) {
-      if (((PageWidgetConfiguration)widget.convertConfiguration()).getFields() != null) {
+      PageWidgetConfiguration pageWidgetConfiguration = (PageWidgetConfiguration)widget.convertConfiguration();
+      if (pageWidgetConfiguration.getFields() != null) {
         List fieldList = Lists.newArrayList();
-        ((PageWidgetConfiguration)widget.convertConfiguration()).getFields().forEach(userDefinedField -> {
+        pageWidgetConfiguration.getFields().forEach(userDefinedField -> {
           if (userDefinedField.getDataSource().equals(fromDataSource.getEngineName())) {
             userDefinedField.setDataSource(toDataSource.getEngineName());
           }
@@ -79,7 +96,34 @@ public class WidgetService {
         });
         widgetConfiguration.put("fields", fieldList);
       }
-      DataSource widgetDataSource = ((PageWidgetConfiguration)widget.convertConfiguration()).getDataSource();
+      if (pageWidgetConfiguration.getFilters() != null) {
+        List filterList = Lists.newArrayList();
+        pageWidgetConfiguration.getFilters().forEach(filter -> {
+          if (filter.getDataSource().equals(fromDataSource.getEngineName())) {
+            filter.setDataSource(toDataSource.getEngineName());
+          }
+          HashMap filterMap = (HashMap) GlobalObjectMapper.readValue(GlobalObjectMapper.writeValueAsString(filter));
+          filterMap.put("type", getFilterType(filter));
+          filterList.add(filterMap);
+        });
+        widgetConfiguration.put("filters", filterList);
+      }
+      HashMap chartConfiguration = (HashMap) widgetConfiguration.get("chart");
+      if (chartConfiguration.get("dataSource") != null) {
+        HashMap dataSourceMap = (HashMap) chartConfiguration.get("dataSource");
+        if (fromDataSource.getEngineName().equals(dataSourceMap.get("engineName"))) {
+          HashMap toDataSourceMap = (HashMap) GlobalObjectMapper.readValue(
+              GlobalObjectMapper.writeValueAsString(ProjectionUtils.toResource(projectionFactory,
+                                                                               dataSourceProjections.getProjectionByName("forDetailView"),
+                                                                               toDataSource)));
+          toDataSourceMap.put("uiMetaData",
+                              ProjectionUtils.toListResource(projectionFactory,
+                                                             metadataProjections.getProjectionByName("forItemView"),
+                                                             metadataRepository.findBySource(toDataSource.getId(), null, null)).get(0));
+          chartConfiguration.put("dataSource", toDataSourceMap);
+        }
+      }
+      DataSource widgetDataSource = pageWidgetConfiguration.getDataSource();
       widgetConfiguration.put("dataSource", GlobalObjectMapper.readValue(
           GlobalObjectMapper.writeValueAsString(
               changeDataSource(fromDataSource, toDataSource, widgetDataSource))));
@@ -177,5 +221,51 @@ public class WidgetService {
       }
     }
     return dataSource;
+  }
+
+  private String getFilterType(Filter filter) {
+    String filterClass = filter.getClass().getName();
+    String className = filterClass.substring(filterClass.lastIndexOf(".") + 1);
+    if (filter instanceof InclusionFilter) {
+      return "include";
+    } else if (filter instanceof TopNFilter) {
+      return "topn";
+    } else if (filter instanceof IntervalFilter) {
+      return "interval";
+    } else if (filter instanceof TimestampFilter) {
+      return "timestamp";
+    } else if (filter instanceof TimeAllFilter) {
+      return "time_all";
+    } else if (filter instanceof TimeListFilter) {
+      return "time_list";
+    } else if (filter instanceof TimeRelativeFilter) {
+      return "time_relative";
+    } else if (filter instanceof TimeRangeFilter) {
+      return "time_range";
+    } else if (filter instanceof TimeSingleFilter) {
+      return "time_single";
+    } else if (filter instanceof SpatialBboxFilter) {
+      return "spatial_bbox";
+    } else if (filter instanceof SpatialPointFilter) {
+      return "spatial_point";
+    } else if (filter instanceof SpatialShapeFilter) {
+      return "spatial_shape";
+    } else if (filter instanceof RegExprFilter) {
+      return "regexpr";
+    } else if (filter instanceof ExpressionFilter) {
+      return "expr";
+    } else if (filter instanceof LikeFilter) {
+      return "like";
+    } else if (filter instanceof BoundFilter) {
+      return "bound";
+    } else if (filter instanceof MeasureInequalityFilter) {
+      return "measure_inequality";
+    } else if (filter instanceof MeasurePositionFilter) {
+      return "measure_position";
+    } else if (filter instanceof WildCardFilter) {
+      return "wildcard";
+    } else {
+      throw new MetatronException("no matching type (" + className + ")");
+    }
   }
 }
