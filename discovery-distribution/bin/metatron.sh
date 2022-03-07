@@ -141,8 +141,9 @@ function check_if_process_is_alive() {
 function foreground() {
 
   initialize_default_directories
-
+  echo "JAVA_OPTS: ${JAVA_OPTS}"
   echo "METATRON_CLASSPATH: ${METATRON_CLASSPATH_OVERRIDES}:${CLASSPATH}"
+  echo "METATRON_OPTION: ${METATRON_OPTION}"
 
   $METATRON_RUNNER $JAVA_OPTS -cp "${METATRON_CLASSPATH_OVERRIDES}:${CLASSPATH}" $METATRON_MAIN $METATRON_OPTION
 }

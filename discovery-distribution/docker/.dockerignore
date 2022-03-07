@@ -1,0 +1,5 @@
+doc/
+src/
+conf/
+pom.xml
+.gitignore
