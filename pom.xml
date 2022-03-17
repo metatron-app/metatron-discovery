@@ -807,13 +807,13 @@
         <repository>
             <id>hortonworks-maven2-release-repository</id>
             <name>Hortonworks Maven release repository</name>
-            <url>http://repo.hortonworks.com/content/repositories/releases/</url>
+            <url>https://repo.hortonworks.com/content/repositories/releases/</url>
         </repository>
 
         <repository>
             <id>hortonworks-groups-public-repo</id>
             <name>Hortonworks Groups Public Repository</name>
-            <url>http://repo.hortonworks.com/content/groups/public</url>
+            <url>https://repo.hortonworks.com/content/groups/public</url>
         </repository>
 
         <repository>
