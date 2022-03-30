@@ -142,7 +142,7 @@ public class UserRestIntegrationTest extends AbstractRestIntegrationTest {
   @Test
   @OAuthRequest(username = "polaris", value = {"SYSTEM_USER"})
   @Sql("/sql/test_mail_user.sql")
-  public void resetPassword() {
+  public void resetPassword() throws InterruptedException {
 
     Map<String, Object> reqMap = Maps.newHashMap();
     reqMap.put("email" , testEmail);
@@ -159,6 +159,8 @@ public class UserRestIntegrationTest extends AbstractRestIntegrationTest {
       .statusCode(HttpStatus.SC_NO_CONTENT)
       .log().all();
     // @formatter:on
+
+    Thread.sleep(5000);
   }
 
   /**

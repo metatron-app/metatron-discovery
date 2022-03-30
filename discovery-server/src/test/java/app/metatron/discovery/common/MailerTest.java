@@ -35,6 +35,8 @@ public class MailerTest extends AbstractIntegrationTest {
     String mailTo = "kyungtaak@gmail.com";
 
     mailer.sendEmail(Lists.newArrayList(mailTo), "test subject", "test content", false, false);
+
+    Thread.sleep(5000);
   }
 
 }
