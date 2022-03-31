@@ -43,7 +43,7 @@
 
         <!-- SpringFramework -->
         <spring.version>4.3.13.RELEASE</spring.version>
-        <spring.boot.version>1.5.9.RELEASE</spring.boot.version>
+        <spring.boot.version>2.5.12</spring.boot.version>
         <spring.boot.admin.version>1.5.6</spring.boot.admin.version>
         <spring.data.version>1.10.5.RELEASE</spring.data.version>
         <spring.data.rest.version>2.6.8.RELEASE</spring.data.rest.version>
