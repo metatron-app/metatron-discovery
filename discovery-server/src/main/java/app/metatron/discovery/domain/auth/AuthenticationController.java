@@ -600,7 +600,7 @@ public class AuthenticationController {
       additionalInformation.put("passApprove", oauthClientInformation.getPassApprove());
     }
     if (oauthClientInformation.getClientBaseUrl() != null) {
-      additionalInformation.put("clientBaseUrl", oauthClientInformation.getPassApprove());
+      additionalInformation.put("clientBaseUrl", oauthClientInformation.getClientBaseUrl());
     }
   }
 
