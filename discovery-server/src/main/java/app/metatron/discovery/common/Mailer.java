@@ -101,6 +101,7 @@ public class Mailer {
     String logoPath = (String) clientInfo.getOrDefault("logoFilePath", "/assets/images/mail/icon_logo.png");
     String title = (String) clientInfo.getOrDefault("clientName", this.title);
     String serviceUrl = (String) clientInfo.getOrDefault("clientBaseUrl", metatronProperties.getMail().getBaseUrl());
+    boolean defaultTpl = client == null ? true : false;
 
     Context context = new Context();
     context.setVariable("user", user);
@@ -109,6 +110,7 @@ public class Mailer {
     context.setVariable("title", title);
     context.setVariable("baseUrl", metatronProperties.getMail().getBaseUrl());
     context.setVariable("serviceUrl", serviceUrl);
+    context.setVariable("defaultTpl", defaultTpl);
 
     String templateName;
     if(isAdmin) {
