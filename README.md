@@ -123,6 +123,14 @@ To access Metatron Discovery, go to [http://localhost:8180](http://localhost:818
 ### Using REST API
 Metatron support RESTful APIs. Please refer to the following details [how to using the REST API](.github/USE_REST_API.md)
 
+### Dockerize Metatron Discovery
+After completing the build, you can create a docker image.
+<pre><code>$ cd discovery-distribution
+$ docker build -t {image name}:{image tag} -f docker/Dockerfile
+</code></pre>
+
+:exclamation: Note that there must be only one package in the target directory.
+
 Problems & Suggestions
 ----------------------------
 This project welcomes contributions and suggestions. If you encounter any bugs or want to request new features, feel free to open an [GitHub Issue](https://github.com/metatron-app/metatron-discovery/issues) in the repo so that the community can find resolutions for it. Or reports bug to our [discussion forum](https://metatron.app/discussion/). Although, please check before you raise an issue. That is please make sure someone else hasn’t already created an issue for the same topic.
