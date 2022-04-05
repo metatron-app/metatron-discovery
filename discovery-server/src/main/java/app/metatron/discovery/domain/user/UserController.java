@@ -14,43 +14,6 @@
 
 package app.metatron.discovery.domain.user;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import com.querydsl.core.types.Predicate;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.Period;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.projection.ProjectionFactory;
-import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
-import org.springframework.data.rest.webmvc.RepositoryRestController;
-import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-
 import app.metatron.discovery.common.CommonLocalVariable;
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.Mailer;
@@ -72,6 +35,39 @@ import app.metatron.discovery.domain.workspace.Workspace;
 import app.metatron.discovery.domain.workspace.WorkspaceMemberRepository;
 import app.metatron.discovery.domain.workspace.WorkspaceService;
 import app.metatron.discovery.util.AuthUtils;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.querydsl.core.types.Predicate;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.joda.time.Period;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.projection.ProjectionFactory;
+import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
+import org.springframework.data.rest.webmvc.RepositoryRestController;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.provider.ClientDetails;
+import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import static app.metatron.discovery.domain.user.UserService.DuplicatedTarget.EMAIL;
 import static app.metatron.discovery.domain.user.UserService.DuplicatedTarget.USERNAME;
@@ -125,6 +121,9 @@ public class UserController {
 
   @Autowired
   UserService userService;
+
+  @Autowired
+  JdbcClientDetailsService jdbcClientDetailsService;
 
   @Autowired
   Mailer mailer;
@@ -540,11 +539,14 @@ public class UserController {
   }
 
   /**
-   * @param additionalInfo
+   * reset password (include sending temporary password by email)
+   *
+   * @param additionalInfo email, client id
+   * @param locale  Browser locale
    * @return
    */
   @RequestMapping(path = "/users/password/reset", method = RequestMethod.POST)
-  public ResponseEntity<?> resetPassword(@RequestBody Map<String, Object> additionalInfo) {
+  public ResponseEntity<?> resetPassword(@RequestBody Map<String, Object> additionalInfo, Locale locale) {
 
     if (!additionalInfo.containsKey("email")) {
       throw new BadRequestException("E-mail address required");
@@ -572,7 +574,13 @@ public class UserController {
       isAdmin = true;
     }
 
-    mailer.sendPasswordResetMail(user, temporaryPassword, isAdmin);
+    ClientDetails client = null;
+    String clientId = (String) additionalInfo.getOrDefault("clientId", "");
+    if(StringUtils.isNotEmpty(clientId)) {
+      client = jdbcClientDetailsService.loadClientByClientId(clientId);
+    }
+
+    mailer.sendPasswordResetMail(user, client, temporaryPassword, isAdmin, locale);
 
     return ResponseEntity.noContent().build();
   }

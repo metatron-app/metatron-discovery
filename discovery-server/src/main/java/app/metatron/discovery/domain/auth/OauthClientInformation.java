@@ -67,6 +67,11 @@ public class OauthClientInformation implements Serializable {
    */
   Boolean passApprove;
 
+  /**
+   * Client service url (Use password reset mail)
+   */
+  String clientBaseUrl;
+
   public String getRedirectUri() {
     return redirectUri;
   }
@@ -189,5 +194,13 @@ public class OauthClientInformation implements Serializable {
 
   public void setPassApprove(Boolean passApprove) {
     this.passApprove = passApprove;
+  }
+
+  public String getClientBaseUrl() {
+    return clientBaseUrl;
+  }
+
+  public void setClientBaseUrl(String clientBaseUrl) {
+    this.clientBaseUrl = clientBaseUrl;
   }
 }

@@ -599,6 +599,9 @@ public class AuthenticationController {
     if (oauthClientInformation.getPassApprove() != null) {
       additionalInformation.put("passApprove", oauthClientInformation.getPassApprove());
     }
+    if (oauthClientInformation.getClientBaseUrl() != null) {
+      additionalInformation.put("clientBaseUrl", oauthClientInformation.getClientBaseUrl());
+    }
   }
 
   private void logoutProcess(HttpServletRequest request, HttpServletResponse response) {
