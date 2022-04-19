@@ -41,6 +41,7 @@ import app.metatron.discovery.domain.datasource.ingestion.file.JsonFileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.file.OrcFileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.file.ParquetFileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.rule.DiscardNullRule;
 import app.metatron.discovery.domain.datasource.ingestion.rule.EvaluationRule;
 import app.metatron.discovery.domain.datasource.ingestion.rule.IngestionRule;
 import app.metatron.discovery.domain.datasource.ingestion.rule.ReplaceNullRule;
@@ -244,6 +245,8 @@ public class AbstractSpecBuilder {
           throw new DataSourceIngestionException("[Building Spec] : The datetime format does not match the value to be replaced.", e);
         }
 
+      } else if (rule instanceof DiscardNullRule) {
+        timestampSpec.setMissingValue(null);
       }
     }
 
