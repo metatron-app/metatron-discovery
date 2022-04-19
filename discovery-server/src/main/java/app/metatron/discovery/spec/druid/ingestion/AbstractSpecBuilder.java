@@ -246,7 +246,7 @@ public class AbstractSpecBuilder {
         }
 
       } else if (rule instanceof DiscardNullRule) {
-        timestampSpec.setMissingValue(null);
+        timestampSpec.setReplaceWrongColumn(false);
       }
     }
 
