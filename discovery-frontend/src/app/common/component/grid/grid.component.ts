@@ -187,7 +187,13 @@ export class GridComponent implements AfterViewInit, OnDestroy {
           // } else {
           //   obj.push(column[headerName]);
           // }
-          obj.push('"' + column[headerName] + '"');
+          let value = column[headerName];
+          if (typeof value === 'string') {
+            if (value.indexOf("\"") > -1) {
+              value = value.replace(/\"/g, "\"\"");
+            }
+          }
+          obj.push('"' + value + '"');
         });
         rows.push(obj.join(','));
       });
