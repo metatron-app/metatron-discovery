@@ -98,6 +98,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                  response.getDetails());
 
     if(printStackTrace) {
+      LOGGER.error(ExceptionUtils.getStackTrace(ex));
       ex.printStackTrace();
     }
 

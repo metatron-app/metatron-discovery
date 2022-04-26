@@ -21,6 +21,8 @@ import com.google.common.collect.Sets;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -57,6 +59,8 @@ import app.metatron.discovery.domain.workbook.widget.WidgetService;
 
 @Component
 public class DashBoardService {
+
+  private static Logger LOGGER = LoggerFactory.getLogger(DashBoardService.class);
 
   @Autowired
   ImageService imageService;
@@ -325,8 +329,11 @@ public class DashBoardService {
         }
       });
     } else if (dataSource instanceof DefaultDataSource || dataSource instanceof SingleDataSource) {
-      if (fromDataSource.getName().equals(dataSource.getName()) || fromDataSource.getEngineName().equals(dataSource.getName())
+      if (fromDataSource == null
+          || fromDataSource.getName().equals(dataSource.getName())
+          || fromDataSource.getEngineName().equals(dataSource.getName())
           || (dataSource.getTemporary() && dataSource.getId().equals(fromDataSource.getId()))) {
+        LOGGER.info("changeDatasource : dashboardDataSource({}), fromDataSource({})", dataSource.getName(), fromDataSource.getEngineName());
         dataSource.setConnType(toDataSource.getConnType());
         dataSource.setId(toDataSource.getId());
         if (DataSource.ConnectionType.LINK.equals(toDataSource.getConnType())) {

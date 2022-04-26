@@ -195,6 +195,7 @@ public class RestExceptionHandler extends AbstractExceptionHandler {
       LOGGER.error("[API:{}] {} {}: {}", ((ServletWebRequest) webRequest).getRequest().getRequestURI(),
                    code == null ? "" : code.getCode(), message, details);
       if(printStackTrace) {
+        LOGGER.error(ExceptionUtils.getStackTrace(exception));
         exception.printStackTrace();
       }
 

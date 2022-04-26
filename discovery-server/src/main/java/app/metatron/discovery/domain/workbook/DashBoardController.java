@@ -275,18 +275,34 @@ public class DashBoardController {
 
   @RequestMapping(path = "/dashboards/{dashboardId}/dataSource/change", method = RequestMethod.POST)
   ResponseEntity<?> changeDatasource(@PathVariable("dashboardId") String dashboardId,
-                                     @RequestParam("fromDataSourceId") String fromDataSourceId,
+                                     @RequestParam(value = "fromDataSourceId", required = false) String fromDataSourceId,
                                      @RequestParam("toDataSourceId") String toDataSourceId) {
-    LOGGER.info("DashboardId({}), fromDataSourceId({}), toDataSourceId({})", dashboardId, fromDataSourceId, toDataSourceId);
+    LOGGER.info("changeDatasource : DashboardId({}), fromDataSourceId({}), toDataSourceId({})", dashboardId, fromDataSourceId, toDataSourceId);
 
     DashBoard dashBoard = dashboardRepository.findOne(dashboardId);
     if (dashBoard == null) {
       throw new ResourceNotFoundException(dashboardId);
     }
-    app.metatron.discovery.domain.datasource.DataSource fromDataSource
-        = dataSourceRepository.findOne(fromDataSourceId);
-    if (fromDataSource == null) {
-      throw new ResourceNotFoundException(fromDataSourceId);
+
+    if (dashBoard.getDataSources().size() > 1 && fromDataSourceId == null) {
+      throw new ResourceNotFoundException("changeDatasource : Multi Datasource need fromDataSourceId");
+    }
+
+    boolean forcedChange = dashBoard.getDataSources().size() == 1;
+
+    app.metatron.discovery.domain.datasource.DataSource fromDataSource = null;
+    if (fromDataSourceId != null) {
+        fromDataSource = dataSourceRepository.findOne(fromDataSourceId);
+      if (fromDataSource == null) {
+        throw new ResourceNotFoundException(fromDataSourceId);
+      }
+
+      LOGGER.info("changeDatasource : fromDatasource EngineName : {}", fromDataSource.getEngineName());
+
+      if (!dashBoard.getDataSources().contains(fromDataSource)) {
+        LOGGER.error("changeDatasource : Datasource({}) is not registered", fromDataSourceId);
+        throw new BadRequestException("changeDatasource : Datasource is not registered");
+      }
     }
 
     app.metatron.discovery.domain.datasource.DataSource toDataSource
@@ -295,39 +311,41 @@ public class DashBoardController {
       throw new ResourceNotFoundException(toDataSourceId);
     }
 
-    if (!dashBoard.getDataSources().contains(fromDataSource)) {
-      LOGGER.error("Datasource({}) is not registered", fromDataSourceId);
-      throw new BadRequestException("Datasource is not registered");
-    }
-
     if (dashBoard.getDataSources().contains(toDataSource)) {
-      LOGGER.error("Datasource({}) already registered", toDataSourceId);
-      throw new BadRequestException("Datasource already registered");
+      LOGGER.error("changeDatasource : Datasource({}) already registered", toDataSourceId);
+      throw new BadRequestException("changeDatasource : Datasource already registered");
     }
 
-    LOGGER.info("Dashboard({})' before datasource : {}", dashBoard.getId(), dashBoard.getDataSources().toString());
+    LOGGER.info("changeDatasource : Dashboard({})' before datasource : {}", dashBoard.getId(), dashBoard.getDataSources().toString());
     Set<app.metatron.discovery.domain.datasource.DataSource> dashboardDataSources = Sets.newHashSet();
-    dashBoard.getDataSources().forEach(dataSource -> {
-      if (dataSource.getEngineName().equals(fromDataSource.getEngineName())) {
-        dashboardDataSources.add(toDataSource);
-      } else {
-        dashboardDataSources.add(dataSource);
-      }
-    });
+    if (forcedChange) {
+      dashboardDataSources.add(toDataSource);
+    } else {
+      String fromDataSourceEngineName = fromDataSource.getEngineName();
+      dashBoard.getDataSources().forEach(dataSource -> {
+        if (dataSource.getEngineName().equals(fromDataSourceEngineName)) {
+          dashboardDataSources.add(toDataSource);
+        } else {
+          dashboardDataSources.add(dataSource);
+        }
+      });
+    }
+
     dashBoard.setDataSources(dashboardDataSources);
-    LOGGER.info("Dashboard({})' after datasource : {}", dashBoard.getId(), dashBoard.getDataSources().toString());
+    LOGGER.info("changeDatasource : Dashboard({})' after datasource : {}", dashBoard.getId(), dashBoard.getDataSources().toString());
 
     BoardConfiguration boardConfiguration = dashBoard.getConfigurationObject();
     DataSource boardDataSource = boardConfiguration.getDataSource();
 
-    LOGGER.info("Dashboard({})' before configuration : {}", dashBoard.getId(), dashBoard.getConfiguration());
+    LOGGER.info("changeDatasource : Dashboard({})' before configuration : {}", dashBoard.getId(), dashBoard.getConfiguration());
     boardConfiguration.setDataSource(
         dashBoardService.changeDataSource(fromDataSource, toDataSource, boardDataSource));
 
     List<Filter> dashboardFilterList = boardConfiguration.getFilters();
     if (dashboardFilterList != null) {
       for (Filter filter : dashboardFilterList) {
-        if (filter.getDataSource().equals(fromDataSource.getEngineName())) {
+        if (forcedChange || filter.getDataSource().equals(fromDataSource.getEngineName())) {
+          LOGGER.info("changeDatasource : filter({}), fromDataSource({})", filter.getDataSource(), fromDataSource.getEngineName());
           filter.setDataSource(toDataSource.getEngineName());
         }
       }
@@ -337,7 +355,8 @@ public class DashBoardController {
     List<UserDefinedField> userDefinedFieldList = boardConfiguration.getUserDefinedFields();
     if (userDefinedFieldList != null) {
       for(UserDefinedField userDefinedField : userDefinedFieldList) {
-        if (userDefinedField.getDataSource().equals(fromDataSource.getEngineName())) {
+        if (forcedChange || userDefinedField.getDataSource().equals(fromDataSource.getEngineName())) {
+          LOGGER.info("changeDatasource : userDefinedField({}), fromDataSource({})", userDefinedField.getDataSource(), fromDataSource.getEngineName());
           userDefinedField.setDataSource(toDataSource.getEngineName());
         }
       }
@@ -345,13 +364,13 @@ public class DashBoardController {
     boardConfiguration.setUserDefinedFields(userDefinedFieldList);
 
     String newBoardConfiguration = GlobalObjectMapper.writeValueAsString(boardConfiguration);
-    LOGGER.info("Dashboard({})' after configuration : {}", dashBoard.getId(), newBoardConfiguration);
+    LOGGER.info("changeDatasource : Dashboard({})' after configuration : {}", dashBoard.getId(), newBoardConfiguration);
     dashBoard.setConfiguration(newBoardConfiguration);
 
 
     List<String> widgetIds =  dashBoard.getWidgets().stream().map(widget -> widget.getId()).collect(Collectors.toList());
     for(String widgetId: widgetIds) {
-      widgetService.changeDataSource(widgetId, fromDataSource, toDataSource);
+      widgetService.changeDataSource(widgetId, fromDataSource, toDataSource, forcedChange);
     }
 
     dashboardRepository.saveAndFlush(dashBoard);

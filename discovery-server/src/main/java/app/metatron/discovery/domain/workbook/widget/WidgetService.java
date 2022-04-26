@@ -76,18 +76,21 @@ public class WidgetService {
 
   public Widget changeDataSource(String widgetId,
                                  app.metatron.discovery.domain.datasource.DataSource fromDataSource,
-                                 app.metatron.discovery.domain.datasource.DataSource toDataSource) {
+                                 app.metatron.discovery.domain.datasource.DataSource toDataSource,
+                                 boolean forceChanged) {
 
     Widget widget = widgetRepository.findOne(widgetId);
-    LOGGER.info("{}'s before configuration : {}", widget.getId(), widget.getConfiguration());
+    LOGGER.info("changeDatasource : {}'s before configuration : {}", widget.getId(), widget.getConfiguration());
 
     HashMap widgetConfiguration = (HashMap) GlobalObjectMapper.readValue(widget.getConfiguration());
     if ("page".equals(widgetConfiguration.get("type"))) {
       PageWidgetConfiguration pageWidgetConfiguration = (PageWidgetConfiguration)widget.convertConfiguration();
+      DataSource widgetDataSource = pageWidgetConfiguration.getDataSource();
       if (pageWidgetConfiguration.getFields() != null) {
         List fieldList = Lists.newArrayList();
         pageWidgetConfiguration.getFields().forEach(userDefinedField -> {
-          if (userDefinedField.getDataSource().equals(fromDataSource.getEngineName())) {
+          if (forceChanged || userDefinedField.getDataSource().equals(fromDataSource.getEngineName())) {
+            LOGGER.info("changeDatasource : userDefinedField({}), fromDataSource({})", userDefinedField.getDataSource(), fromDataSource.getEngineName());
             userDefinedField.setDataSource(toDataSource.getEngineName());
           }
           HashMap field = (HashMap) GlobalObjectMapper.readValue(GlobalObjectMapper.writeValueAsString(userDefinedField));
@@ -99,7 +102,8 @@ public class WidgetService {
       if (pageWidgetConfiguration.getFilters() != null) {
         List filterList = Lists.newArrayList();
         pageWidgetConfiguration.getFilters().forEach(filter -> {
-          if (filter.getDataSource().equals(fromDataSource.getEngineName())) {
+          if (forceChanged || filter.getDataSource().equals(fromDataSource.getEngineName())) {
+            LOGGER.info("changeDatasource : filter({}), fromDataSource({})", filter.getDataSource(), fromDataSource.getEngineName());
             filter.setDataSource(toDataSource.getEngineName());
           }
           HashMap filterMap = (HashMap) GlobalObjectMapper.readValue(GlobalObjectMapper.writeValueAsString(filter));
@@ -111,28 +115,29 @@ public class WidgetService {
       HashMap chartConfiguration = (HashMap) widgetConfiguration.get("chart");
       if (chartConfiguration.get("dataSource") != null) {
         HashMap dataSourceMap = (HashMap) chartConfiguration.get("dataSource");
-        if (fromDataSource.getEngineName().equals(dataSourceMap.get("engineName"))) {
+        if (forceChanged || fromDataSource.getEngineName().equals(dataSourceMap.get("engineName"))) {
+          LOGGER.info("changeDatasource : widgetDataSource({}), fromDataSource({})", dataSourceMap.get("engineName"), fromDataSource.getEngineName());
           HashMap toDataSourceMap = (HashMap) GlobalObjectMapper.readValue(
               GlobalObjectMapper.writeValueAsString(ProjectionUtils.toResource(projectionFactory,
                                                                                dataSourceProjections.getProjectionByName("forDetailView"),
                                                                                toDataSource)));
           toDataSourceMap.put("uiMetaData",
-                              ProjectionUtils.toListResource(projectionFactory,
+                              ProjectionUtils.toResource(projectionFactory,
                                                              metadataProjections.getProjectionByName("forItemView"),
-                                                             metadataRepository.findBySource(toDataSource.getId(), null, null)).get(0));
+                                                             metadataRepository.findBySource(toDataSource.getId(), null, null).get(0)));
           chartConfiguration.put("dataSource", toDataSourceMap);
         }
       }
-      DataSource widgetDataSource = pageWidgetConfiguration.getDataSource();
+
       widgetConfiguration.put("dataSource", GlobalObjectMapper.readValue(
           GlobalObjectMapper.writeValueAsString(
-              changeDataSource(fromDataSource, toDataSource, widgetDataSource))));
+              changeDataSource(fromDataSource, toDataSource, widgetDataSource, forceChanged))));
       Lists.newArrayList("columns", "rows", "aggregations").forEach(type -> {
         List pivots = ((List)((HashMap)widgetConfiguration.get("pivot")).get(type));
         pivots.forEach(pivot -> {
           if (((HashMap)pivot).get("field") != null) {
             HashMap field = (HashMap)((HashMap)pivot).get("field");
-            if (fromDataSource.getId().equals(field.get("dsId"))) {
+            if (forceChanged || fromDataSource.getId().equals(field.get("dsId"))) {
               toDataSource.getFields().forEach(dataSourceField -> {
                 if (dataSourceField.getName().equals(field.get("name"))) {
                   field.put("id", dataSourceField.getId());
@@ -149,19 +154,21 @@ public class WidgetService {
       });
 
     } else if ("filter".equals(widgetConfiguration.get("type"))) {
-      if (((FilterWidgetConfiguration)widget.convertConfiguration()).getFilter().getDataSource().equals(fromDataSource.getEngineName())) {
+      if (forceChanged || ((FilterWidgetConfiguration)widget.convertConfiguration()).getFilter().getDataSource().equals(fromDataSource.getEngineName())) {
+        LOGGER.info("changeDatasource : filterWidgetDataSource({}), fromDataSource({})", ((FilterWidgetConfiguration)widget.convertConfiguration()).getFilter().getDataSource(), fromDataSource.getEngineName());
         ((HashMap)widgetConfiguration.get("filter")).put("dataSource", toDataSource.getEngineName());
       }
     }
 
     widget.setConfiguration(GlobalObjectMapper.writeValueAsString(widgetConfiguration));
-    LOGGER.info("{}'s after configuration : {}", widget.getId(), widget.getConfiguration());
+    LOGGER.info("changeDatasource : {}'s after configuration : {}", widget.getId(), widget.getConfiguration());
     return widgetRepository.saveAndFlush(widget);
   }
 
   private DataSource changeDataSource(app.metatron.discovery.domain.datasource.DataSource fromDataSource,
                                       app.metatron.discovery.domain.datasource.DataSource toDataSource,
-                                      DataSource dataSource) {
+                                      DataSource dataSource,
+                                      boolean forcedChange) {
     if (dataSource instanceof MultiDataSource) {
       List<DataSource> dataSourceList = Lists.newArrayList();
       ((MultiDataSource) dataSource).getDataSources().forEach((d -> {
@@ -198,8 +205,9 @@ public class WidgetService {
         }
       });
     } else if (dataSource instanceof DefaultDataSource || dataSource instanceof SingleDataSource) {
-      if (fromDataSource.getName().equals(dataSource.getName()) || fromDataSource.getEngineName().equals(dataSource.getName())
+      if (forcedChange || fromDataSource.getName().equals(dataSource.getName()) || fromDataSource.getEngineName().equals(dataSource.getName())
           || (dataSource.getTemporary() && dataSource.getId().equals(fromDataSource.getId()))) {
+        LOGGER.info("changeDatasource : pageWidgetDataSource({}), fromDataSource({})", dataSource.getName(), fromDataSource.getEngineName());
         dataSource.setConnType(toDataSource.getConnType());
         dataSource.setId(toDataSource.getId());
         if (app.metatron.discovery.domain.datasource.DataSource.ConnectionType.LINK.equals(toDataSource.getConnType())) {
