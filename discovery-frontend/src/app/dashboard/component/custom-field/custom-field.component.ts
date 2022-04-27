@@ -333,7 +333,9 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
   // 페이징처리
   public setFieldPage(page: number, type?: string) {
     this.orderingFields = [];
-    this.orderingFields = this.orderingFields.concat(this.fields).concat(this.customFields);
+    this.orderingFields.push(...this.fields);
+    if(this.customFields !== undefined)
+      this.orderingFields.push(...this.customFields);
 
     if (this.orderingMode !== 'DATA') {
       this.orderingFields = this.orderingFields.sort((a:Field, b:Field) => {
