@@ -276,7 +276,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
               this._getWorkbook().then(() => {
                 // 생성 후 체크가 모두 선택
                 this.selectedDatasources = this.datasources.map(ds => ds.id);
-                this.loadDashboardList(0, this._routeFragment);
+                this.loadDashboardList(0, this._routeFragment, true);
                 this.closeCreateDashboard();
               });
             } else {
