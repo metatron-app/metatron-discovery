@@ -2065,28 +2065,39 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
         // set tooltip position
         ////////////////////////////////////////////////////////
         if (this.uiOption.toolTip) {
-          // tooltip 에 보여질 정보 길이 설정 (해당 수에 따라 tooltip의 height가 변동 됨)
-          let yOffset = -80;
 
-          // tooltip info 에 보여줄 양에 따라 height 구하기
-          const sizeOfToolTipHeight = [];
-          if (!_.isUndefined(this.tooltipInfo.fields) && this.tooltipInfo.fields.length > 0) {
-            // column 이름은 있는데, column value가 없을 경우 사이즈 다를 수 있음
-            this.tooltipInfo.fields.forEach((field) => {
-              if (field['name'] != null && !_.isUndefined(field['name'])) {
-                sizeOfToolTipHeight.push(field['name']);
-              }
-              if (field['value'] != null && !_.isUndefined(field['value'])) {
-                sizeOfToolTipHeight.push(field['value']);
-              }
-            });
+          const mapSize = event.map.getSize();
+          const tooltipPos = event.pixel;
+
+          // tooltip 에 보여질 정보 길이 설정 (해당 수에 따라 tooltip의 height가 변동 됨)
+          let xOffset = 0;
+          let yOffset = 0;
+          // 툴팁 X 좌표가 지도 사이즈의 절반 이하로 내려가면 offset 계산 진행
+          if( tooltipPos[0] > mapSize[0]/2 ) {
+            xOffset = xOffset - 150;  // 툴팁의 가로 최대 사이즈가 150 으로 되어 있어 150 을 고정값으로 함
           }
-          if (sizeOfToolTipHeight.length > 0) {
-            // height 계산
-            yOffset = yOffset - (25 * (sizeOfToolTipHeight.length / 1.2));
+
+          // 툴팁 Y 좌표가 지도 사이즈의 절반 이하로 내려가면 offset 계산 진행
+          if( tooltipPos[1] > mapSize[1]/2 ) {
+            // tooltip info 에 보여줄 양에 따라 width / height 구하기
+            const sizeOfToolTipHeight = [];
+            if (!_.isUndefined(this.tooltipInfo.fields) && this.tooltipInfo.fields.length > 0) {
+              // column 이름은 있는데, column value가 없을 경우 사이즈 다를 수 있음
+              this.tooltipInfo.fields.forEach((field) => {
+                if (field['name'] != null && !_.isUndefined(field['name'])) {
+                  sizeOfToolTipHeight.push(field['name']);
+                }
+                if (field['value'] != null && !_.isUndefined(field['value'])) {
+                  sizeOfToolTipHeight.push(field['value']);
+                }
+              });
+            }
+            if (sizeOfToolTipHeight.length > 0) {
+              // height 계산
+              yOffset = -60 - (25 * (sizeOfToolTipHeight.length / 1.2));
+            }
           }
-          const offset = [-92, yOffset];
-          this.tooltipLayer.setOffset(offset);
+          this.tooltipLayer.setOffset([xOffset, yOffset]);
         }
         const toShowCoords = event.coordinate;
         if (_.eq(this.tooltipInfo.geometryType, String(MapGeometryType.LINE))) {
