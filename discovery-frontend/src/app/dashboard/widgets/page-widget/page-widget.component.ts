@@ -1220,6 +1220,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
    */
   private _setWidget(widget: PageWidget) {
 
+    const prevWidget = _.cloneDeep(this.widget);
     this.widget = _.extend(new PageWidget(), widget) as PageWidget;
     this.widgetConfiguration = this.widget.configuration as PageWidgetConfiguration;
     this.chartType = this.widgetConfiguration.chart.type.toString();
@@ -1239,6 +1240,11 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
       }
 
       if (ChartType.MAP === (this.widget.configuration as PageWidgetConfiguration).chart.type) {
+
+        if (prevWidget.configuration.filters != this.widgetConfiguration.filters) {
+          this.widgetConfiguration.chart['lowerCorner'] = null;
+          this.widgetConfiguration.chart['upperCorner'] = null;
+        }
 
         if ('default' === this.widgetConfiguration.dataSource.type) {
           // Pivot 내 누락된 필드 정보 설정
@@ -1481,7 +1487,8 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
         targetDs = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, boardConf.dataSource);
       }
 
-      if (this.isNullOrUndefined(this.widgetConfiguration.chart['lowerCorner']) && targetDs.summary) {
+      if ((this.isNullOrUndefined(this.widgetConfiguration.chart['lowerCorner']) || 0 === this.widgetConfiguration.filters.length)
+        && targetDs.summary) {
         this.widgetConfiguration.chart['lowerCorner'] = targetDs.summary['geoLowerCorner'];
         this.widgetConfiguration.chart['upperCorner'] = targetDs.summary['geoUpperCorner'];
       }
