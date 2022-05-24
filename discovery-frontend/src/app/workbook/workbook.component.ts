@@ -864,11 +864,12 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
           }
 
           if (selectedBoard) {
-            if( isNavigate ) {
-              this.moveToDashboard(selectedBoard);
-            } else {
-              this.loadAndSelectDashboard(selectedBoard);
-            }
+            this.loadAndSelectDashboard(selectedBoard);
+            // if( isNavigate ) {
+            //   this.moveToDashboard(selectedBoard);
+            // } else {
+            //   this.loadAndSelectDashboard(selectedBoard);
+            // }
           } else {
             if (this.dashboardPage.totalPages > this.dashboardPage.number + 1) {
               this.loadDashboardList(this.dashboardPage.number + 1, targetBoardId);
