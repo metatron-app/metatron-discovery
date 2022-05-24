@@ -864,12 +864,11 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
           }
 
           if (selectedBoard) {
-            this.loadAndSelectDashboard(selectedBoard);
-            // if( isNavigate ) {
-            //   this.moveToDashboard(selectedBoard);
-            // } else {
-            //   this.loadAndSelectDashboard(selectedBoard);
-            // }
+            if( isNavigate ) {
+              this.moveToDashboard(selectedBoard);
+            } else {
+              this.loadAndSelectDashboard(selectedBoard);
+            }
           } else {
             if (this.dashboardPage.totalPages > this.dashboardPage.number + 1) {
               this.loadDashboardList(this.dashboardPage.number + 1, targetBoardId);
@@ -1156,7 +1155,8 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       // this.loadAndSelectDashboard(dashboard);
       this.isFirstLoad = false;
       this.scrollLoc = document.querySelector('.ddp-ui-board-thumbview').scrollTop;
-      this.router.navigate(['/workbook/' + this.workbookId], {fragment: dashboard.id}).then();
+      this.loadAndSelectDashboard(dashboard);
+      //this.router.navigate(['/workbook/' + this.workbookId], {fragment: dashboard.id}).then();
     }
   } // func - moveToDashboard
 
