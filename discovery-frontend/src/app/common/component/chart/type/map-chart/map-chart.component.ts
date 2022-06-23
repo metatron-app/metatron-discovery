@@ -439,7 +439,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
     ////////////////////////////////////////////////////////
 
     // 엘리먼트 반영
-    this.changeDetect.detectChanges();
+    this.safelyDetectChanges();
 
     // Show data
     this.data.show = true;
@@ -685,9 +685,15 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
     ////////////////////////////////////////////////////////
     // Set attribution
     ////////////////////////////////////////////////////////
-    this.osmLayer.getSource().setAttributions(this.attribution());
-    this.cartoPositronLayer.getSource().setAttributions(this.attribution());
-    this.cartoDarkLayer.getSource().setAttributions(this.attribution());
+    if( this.osmLayer.getSource() ) {
+      this.osmLayer.getSource().setAttributions(this.attribution());
+    }
+    if( this.cartoPositronLayer.getSource() ) {
+      this.cartoPositronLayer.getSource().setAttributions(this.attribution());
+    }
+    if( this.cartoDarkLayer.getSource() ) {
+      this.cartoDarkLayer.getSource().setAttributions(this.attribution());
+    }
 
     ////////////////////////////////////////////////////////
     // Map style
@@ -921,7 +927,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
         }
       }
     }
-    this.changeDetect.detectChanges();
+    this.safelyDetectChanges();
 
     const overlayLayerId: string = 'layerId' + (layerIndex + 1);
 
@@ -1889,7 +1895,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
         && feature.getProperties()['layerNum'] === -5)) {
       // Disable tooltip
       this.tooltipInfo.enable = false;
-      this.changeDetect.detectChanges();
+      this.safelyDetectChanges();
       if (!_.isUndefined(this.tooltipLayer) && this.tooltipLayer.length > 0) {
         this.tooltipLayer.setPosition(undefined);
       }
@@ -3567,7 +3573,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
         }
       }
     }
-    this.changeDetect.detectChanges();
+    this.safelyDetectChanges();
 
     // Map data place fit
     if (this.drawByType === EventType.CHANGE_PIVOT && 'Infinity'.indexOf(source.getExtent()[0]) === -1 &&
@@ -3659,6 +3665,6 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
         this.layerMap[uiLayerIndex].layerValue = this.olmap.getLayers().getArray()[olmapForLoopLayerIndex];
       }
     }
-    this.changeDetect.detectChanges();
+    this.safelyDetectChanges();
   }
 }
