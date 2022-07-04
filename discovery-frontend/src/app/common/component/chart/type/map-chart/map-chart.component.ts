@@ -214,6 +214,33 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
     protected elementRef: ElementRef,
     protected injector: Injector) {
     super(elementRef, injector);
+    $( elementRef.nativeElement )
+      .delegate('.sys-marker', 'mouseenter', (event) => {
+        console.log( '>>>> mouseenter');
+        let $target = $( event.target );
+        if( !$target.hasClass('sys-marker') ) {
+          $target = $target.closest('.sys-marker');
+        }
+        $target.css({
+          'z-index' : 200
+        });
+        $target.find( '.ddp-map-tooltip' ).css({
+          'background-color' : 'background-color: rgba(78,28,85, 1);'
+        })
+      })
+      .delegate('.sys-marker', 'mouseleave', (event) => {
+        console.log( '>>>> mouseleave');
+        let $target = $( event.target );
+        if( !$target.hasClass('sys-marker') ) {
+          $target = $target.closest('.sys-marker');
+        }
+        $target.css({
+          'z-index' : 100
+        });
+        $target.find( '.ddp-map-tooltip' ).css({
+          'background-color' : 'background-color: rgba(78,28,85, 0.6);'
+        })
+      });
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -1274,13 +1301,28 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
     const $elm = $( this.markerEl.nativeElement );
     const newElm = $elm.clone();
     newElm.css({'display':'block'});
+
+    // 단일 데이터 추가
+    const $coord = newElm.find( '.sys-coord' );
+    if( 0 < this.shelf.layers[layerNum].fields.length ) {
+      const field = this.shelf.layers[layerNum].fields[0];
+      let tooltipVal = feature.get(field.name);
+      if (typeof (tooltipVal) === 'number') {
+        tooltipVal = FormatOptionConverter.getFormatValue(tooltipVal, this.getUiMapOption().valueFormat);
+      }
+      $coord.find( '.ddp-title' ).text( field.name );
+      $coord.find( '.ddp-det' ).text( tooltipVal );
+    }
+
+/*
+    // 좌표 추가 샘플
     const $coord = newElm.find( '.sys-coord' );
     $coord.find( '.ddp-det' ).text(
       ol.extent.getCenter(extent).map( coord => {
         return coord.toFixed(4);
       }).join(',')
     );
-
+    // 복수의 데이터 추가
     this.shelf.layers[layerNum].fields.forEach((field) => {
       let tooltipVal = feature.get(field.name);
       if (typeof (tooltipVal) === 'number') {
@@ -1291,6 +1333,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
       $newField.find( '.ddp-det' ).text( tooltipVal );
       $coord.after( $newField );
     });
+ */
 
     console.log( '>>>> feature.getProperties()', feature.getProperties());
 
@@ -1354,10 +1397,10 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
 
       if (isClustering === false || size <= 1) {
 
-        // if( 16 < this.olmap.getView().getZoom() ) {
-        //   this._addMakerLayer(feature, layerNum);
-        // }
-        this._addMakerLayer(feature, layerNum);
+        if( 12 < this.olmap.getView().getZoom() ) {
+          this._addMakerLayer(feature, layerNum);
+        }
+        // this._addMakerLayer(feature, layerNum);
 
         ////////////////////////////////////////////////////////
         // Color
