@@ -28,6 +28,9 @@ import {TooltipOptionConverter} from '@common/component/chart/option/converter/t
 })
 export class MapTooltipOptionComponent extends TooltipOptionComponent implements OnInit, OnDestroy {
 
+  // =+=+=+=+=+=+=+=+=+=+=+=+=+=+
+  // Tooltip
+  // =+=+=+=+=+=+=+=+=+=+=+=+=+=+
   // selected layer item list
   public selectedLayerItems: Field[] = [];
 
@@ -43,6 +46,24 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent implements
   // add column show / hide
   public addColumnShowFl: boolean = false;
 
+  // =+=+=+=+=+=+=+=+=+=+=+=+=+=+
+  // Marker
+  // =+=+=+=+=+=+=+=+=+=+=+=+=+=+
+  // total field list
+  public fields: Field[] = [];
+
+  // selected layer item list
+  public selectedMarkerItems: Field[] = [];
+
+  // search input
+  public markerSearchText: string;
+
+  // add column show / hide
+  public addMarkerColumnShowFl: boolean = false;
+
+  // =+=+=+=+=+=+=+=+=+=+=+=+=+=+
+  // Common
+  // =+=+=+=+=+=+=+=+=+=+=+=+=+=+
   public uiOption: UIMapOption;
 
   @Input('uiOption')
@@ -52,6 +73,10 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent implements
     }
     // Set
     this.uiOption = uiOption;
+
+    if( !this.uiOption.marker ) {
+      this.uiOption.marker = { columns: [], limit: 1000 };
+    }
   }
 
   public shelf: Shelf;
@@ -108,19 +133,24 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent implements
 
     this.selectedLayerItems = [];
     this.unselectedLayerItems = [];
+    this.fields = [];
 
     // 선반에는 있지만 displayColumns에 없으면 => unselected list에 설정
     _.each(uniqList, (field) => {
 
       const alias = ChartUtil.getAlias(field);
 
-      // selected list
       if (-1 !== this.uiOption.toolTip.displayColumns.indexOf(alias)) {
-
+        // selected list
         this.selectedLayerItems.push(field);
-        // unselected list
       } else {
+        // unselected list
         this.unselectedLayerItems.push(field);
+      }
+
+      this.fields.push(field);
+      if(this.uiOption.marker && -1 !== this.uiOption.marker.columns.indexOf(alias)) {
+        this.selectedMarkerItems.push(field);
       }
     });
   }
@@ -316,5 +346,91 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent implements
    */
   public returnDataValueName(item) {
     return ChartUtil.getAlias(item);
+  }
+
+
+  // =+=+=+=+=+=+=+=+=+=+=+=+=+=+
+  // Marker
+  // =+=+=+=+=+=+=+=+=+=+=+=+=+=+
+  public get filteredFieldsForMarker(): Field[] {
+    if( this.fields && this.fields.length ) {
+      return this.fields.filter(field => {
+        // 선택된 필드 제외
+        if( this.selectedLayerItems.length ) {
+          if( this.selectedMarkerItems.some(selectedField => {
+            return ChartUtil.getAggregationAlias(selectedField) === ChartUtil.getAggregationAlias(field)
+          }) ) {
+            return false;
+          }
+        }
+        // 검색어 필드 포함
+        if( '' !== this.markerSearchText ) {
+          return -1 !== field.name.indexOf(_.trim(this.markerSearchText));
+        } else {
+          return true;
+        }
+      });
+    } else {
+      return [];
+    }
+  }
+
+  /**
+   * delete selected field
+   */
+  public deleteSelectedMarkerField(_idx:number): void {
+
+    // delete field - 단일 선택이므로 선택 초기화함
+    this.selectedMarkerItems = [];
+
+    if( !this.uiOption.marker ) {
+      this.uiOption.marker = { columns: [], limit: 1000 };
+    }
+    this.uiOption.marker.columns = ChartUtil.returnNameFromField(this.selectedMarkerItems);
+
+    // set uiOption
+    this.apply();
+  }
+
+  /**
+   * toggle add marker column
+   */
+  public toggleAddMarkerColumn(): void {
+
+    event.stopPropagation();
+
+    this.addMarkerColumnShowFl = !this.addMarkerColumnShowFl;
+  }
+
+  /**
+   * set selected columns
+   */
+  public addMarkerColumn(item: Field): void {
+
+    event.stopPropagation();
+
+    this.selectedMarkerItems = [item];
+
+    // set name list in marker column
+    if( !this.uiOption.marker ) {
+      this.uiOption.marker = { columns: [], limit: 1000 };
+    }
+    this.uiOption.marker.columns = ChartUtil.returnNameFromField(this.selectedMarkerItems);
+
+    // set uiOption
+    this.apply();
+  }
+
+  /**
+   * init search column
+   */
+  public initSearchMarkerFields(): void {
+    event.stopPropagation();
+    this.markerSearchText = '';
+  }
+
+  public setMarkerLimit(): void {
+    this.uiOption = (_.extend({}, this.uiOption, { marker: this.uiOption.marker }));
+    this.apply();
   }
 }
