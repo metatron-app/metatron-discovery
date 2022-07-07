@@ -216,7 +216,6 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
     super(elementRef, injector);
     $( elementRef.nativeElement )
       .delegate('.sys-marker', 'mouseenter', (event) => {
-        console.log( '>>>> mouseenter');
         let $target = $( event.target );
         if( !$target.hasClass('sys-marker') ) {
           $target = $target.closest('.sys-marker');
@@ -229,7 +228,6 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
         })
       })
       .delegate('.sys-marker', 'mouseleave', (event) => {
-        console.log( '>>>> mouseleave');
         let $target = $( event.target );
         if( !$target.hasClass('sys-marker') ) {
           $target = $target.closest('.sys-marker');
@@ -1294,59 +1292,63 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
   };
 
   private _addMakerLayer(feature, layerNum) {
-    const extent = feature.getGeometry().getExtent();
 
-    console.log( '>>>>> feature', feature );
+    if(0 === this.getUiMapOption().marker.columns.length){
+      return;
+    } else {
+      const extent = feature.getGeometry().getExtent();
 
-    const $elm = $( this.markerEl.nativeElement );
-    const newElm = $elm.clone();
-    newElm.css({'display':'block'});
+      const $elm = $( this.markerEl.nativeElement );
+      const newElm = $elm.clone();
+      newElm.css({'display':'block'});
 
-    // 단일 데이터 추가
-    const $coord = newElm.find( '.sys-coord' );
-    if( 0 < this.shelf.layers[layerNum].fields.length ) {
-      const field = this.shelf.layers[layerNum].fields[0];
-      let tooltipVal = feature.get(field.name);
+      // console.log('>>> UiMapOption : ', this.getUiMapOption());
+
+      // 단일 데이터 추가
+      const $coord = newElm.find( '.sys-coord' );
+
+      const markerField = this.getUiMapOption().marker.columns[0]; // field name
+      let tooltipVal =  feature.get(markerField);
       if (typeof (tooltipVal) === 'number') {
         tooltipVal = FormatOptionConverter.getFormatValue(tooltipVal, this.getUiMapOption().valueFormat);
       }
-      $coord.find( '.ddp-title' ).text( field.name );
+      $coord.find( '.ddp-title' ).text( markerField );
       $coord.find( '.ddp-det' ).text( tooltipVal );
+
+      /*
+          // 좌표 추가 샘플
+          const $coord = newElm.find( '.sys-coord' );
+          $coord.find( '.ddp-det' ).text(
+            ol.extent.getCenter(extent).map( coord => {
+              return coord.toFixed(4);
+            }).join(',')
+          );
+          // 복수의 데이터 추가
+          this.shelf.layers[layerNum].fields.forEach((field) => {
+            let tooltipVal = feature.get(field.name);
+            if (typeof (tooltipVal) === 'number') {
+              tooltipVal = FormatOptionConverter.getFormatValue(tooltipVal, this.getUiMapOption().valueFormat);
+            }
+            const $newField = $coord.clone();
+            $newField.find( '.ddp-title' ).text( field.name );
+            $newField.find( '.ddp-det' ).text( tooltipVal );
+            $coord.after( $newField );
+          });
+       */
+
+      // console.log( '>>>> feature.getProperties()', feature.getProperties());
+
+      $elm.after( newElm );
+      const markerLayer = new ol.Overlay({
+        element: newElm.get(0),
+        positioning: 'top-center',
+        stopEvent: false,
+        id: 'marker_' + layerNum + '_' + StringUtil.random(5),
+        position: ol.extent.getCenter(extent)
+      });
+      this.olmap.addOverlay(markerLayer);
+      this._markerLayers.push( { layer : markerLayer, element : newElm } );
     }
-
-/*
-    // 좌표 추가 샘플
-    const $coord = newElm.find( '.sys-coord' );
-    $coord.find( '.ddp-det' ).text(
-      ol.extent.getCenter(extent).map( coord => {
-        return coord.toFixed(4);
-      }).join(',')
-    );
-    // 복수의 데이터 추가
-    this.shelf.layers[layerNum].fields.forEach((field) => {
-      let tooltipVal = feature.get(field.name);
-      if (typeof (tooltipVal) === 'number') {
-        tooltipVal = FormatOptionConverter.getFormatValue(tooltipVal, this.getUiMapOption().valueFormat);
-      }
-      const $newField = $coord.clone();
-      $newField.find( '.ddp-title' ).text( field.name );
-      $newField.find( '.ddp-det' ).text( tooltipVal );
-      $coord.after( $newField );
-    });
- */
-
-    console.log( '>>>> feature.getProperties()', feature.getProperties());
-
-    $elm.after( newElm );
-    const markerLayer = new ol.Overlay({
-      element: newElm.get(0),
-      positioning: 'top-center',
-      stopEvent: false,
-      id: 'marker_' + layerNum + '_' + StringUtil.random(5),
-      position: ol.extent.getCenter(extent)
-    });
-    this.olmap.addOverlay(markerLayer);
-    this._markerLayers.push( { layer : markerLayer, element : newElm } );
   }
 
   /**
@@ -2207,6 +2209,10 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
       }
     }
   };
+
+  // private markerFunction = (event) => {
+  //
+  // }
 
   // /**
   //  * create drag interaction (for selection filter)
