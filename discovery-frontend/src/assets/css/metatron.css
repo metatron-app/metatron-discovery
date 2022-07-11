@@ -97,3 +97,35 @@
   padding: 0 0 5px 0;
   text-align: center;
 }
+
+/****************************************************************************
+   Map Chart
+*************************************************************************/
+.sys-marker {
+  z-index:100;
+}
+.sys-marker:hover {
+  z-index:200000;
+}
+.sys-marker .ddp-ui-tooltip-info {
+  background-color: rgba(255, 255, 255, 0.6);
+  min-width: 100px;
+  display: block;
+  z-index: 10;
+  border: 1px solid #bbb;
+  border-radius: 10px;
+  left: -50px;
+  top: -50px;
+}
+.sys-marker:hover .ddp-ui-tooltip-info {
+  background-color: rgba(200, 200, 200, 1);
+}
+.sys-marker .ddp-ui-tooltip-info .ddp-title {
+  font-size:8px;
+  color: #555;
+}
+.sys-marker .ddp-ui-tooltip-info .ddp-det {
+  font-size:10px;
+  color: #333;
+  font-weight: bold;
+}

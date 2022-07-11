@@ -217,27 +217,13 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
     $( elementRef.nativeElement )
       .delegate('.sys-marker', 'mouseenter', (event) => {
         let $target = $( event.target );
-        if( !$target.hasClass('sys-marker') ) {
-          $target = $target.closest('.sys-marker');
-        }
-        $target.css({
-          'z-index' : 200
-        });
-        $target.find( '.ddp-map-tooltip' ).css({
-          'background-color' : 'background-color: rgba(78,28,85, 1);'
-        })
+        $target = $target.closest('.ol-overlay-container');
+        $target.css({ 'z-index' : 200 });
       })
       .delegate('.sys-marker', 'mouseleave', (event) => {
         let $target = $( event.target );
-        if( !$target.hasClass('sys-marker') ) {
-          $target = $target.closest('.sys-marker');
-        }
-        $target.css({
-          'z-index' : 100
-        });
-        $target.find( '.ddp-map-tooltip' ).css({
-          'background-color' : 'background-color: rgba(78,28,85, 0.6);'
-        })
+        $target = $target.closest('.ol-overlay-container');
+        $target.css({ 'z-index' : 15 });
       });
   }
 
@@ -1291,63 +1277,47 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
     }
   };
 
-  private _addMakerLayer(feature, layerNum) {
+  private _addMakerLayer(feature, features, layerNum, clusterSize?: string) {
 
     if(0 === this.getUiMapOption().marker.columns.length){
       return;
     } else {
-      const extent = feature.getGeometry().getExtent();
+      if( features && this.getUiMapOption().marker.limit >= features.length ) {
+        const extent = feature.getGeometry().getExtent();
 
-      const $elm = $( this.markerEl.nativeElement );
-      const newElm = $elm.clone();
-      newElm.css({'display':'block'});
+        const $elm = $( this.markerEl.nativeElement );
+        const newElm = $elm.clone();
+        newElm.css({ display : 'block' });
 
-      // console.log('>>> UiMapOption : ', this.getUiMapOption());
+        // console.log('>>> UiMapOption : ', this.getUiMapOption());
 
-      // 단일 데이터 추가
-      const $coord = newElm.find( '.sys-coord' );
+        // 단일 데이터 추가
+        const $coord = newElm.find( '.sys-coord' );
 
-      const markerField = this.getUiMapOption().marker.columns[0]; // field name
-      let tooltipVal =  feature.get(markerField);
-      if (typeof (tooltipVal) === 'number') {
-        tooltipVal = FormatOptionConverter.getFormatValue(tooltipVal, this.getUiMapOption().valueFormat);
+        if( clusterSize ) {
+          $coord.find( '.ddp-title' ).text( 'Count' );
+          $coord.find( '.ddp-det' ).text( clusterSize );
+        } else {
+          const markerField = this.getUiMapOption().marker.columns[0]; // field name
+          let tooltipVal =  feature.get(markerField);
+          if (typeof (tooltipVal) === 'number') {
+            tooltipVal = FormatOptionConverter.getFormatValue(tooltipVal, this.getUiMapOption().valueFormat);
+          }
+          $coord.find( '.ddp-title' ).text( markerField );
+          $coord.find( '.ddp-det' ).text( tooltipVal );
+        }
+
+        $elm.after( newElm );
+        const markerLayer = new ol.Overlay({
+          element: newElm.get(0),
+          positioning: 'top-center',
+          stopEvent: false,
+          id: 'marker_' + layerNum + '_' + StringUtil.random(5),
+          position: ol.extent.getCenter(extent)
+        });
+        this.olmap.addOverlay(markerLayer);
+        this._markerLayers.push( { layer : markerLayer, element : newElm } );
       }
-      $coord.find( '.ddp-title' ).text( markerField );
-      $coord.find( '.ddp-det' ).text( tooltipVal );
-
-      /*
-          // 좌표 추가 샘플
-          const $coord = newElm.find( '.sys-coord' );
-          $coord.find( '.ddp-det' ).text(
-            ol.extent.getCenter(extent).map( coord => {
-              return coord.toFixed(4);
-            }).join(',')
-          );
-          // 복수의 데이터 추가
-          this.shelf.layers[layerNum].fields.forEach((field) => {
-            let tooltipVal = feature.get(field.name);
-            if (typeof (tooltipVal) === 'number') {
-              tooltipVal = FormatOptionConverter.getFormatValue(tooltipVal, this.getUiMapOption().valueFormat);
-            }
-            const $newField = $coord.clone();
-            $newField.find( '.ddp-title' ).text( field.name );
-            $newField.find( '.ddp-det' ).text( tooltipVal );
-            $coord.after( $newField );
-          });
-       */
-
-      // console.log( '>>>> feature.getProperties()', feature.getProperties());
-
-      $elm.after( newElm );
-      const markerLayer = new ol.Overlay({
-        element: newElm.get(0),
-        positioning: 'top-center',
-        stopEvent: false,
-        id: 'marker_' + layerNum + '_' + StringUtil.random(5),
-        position: ol.extent.getCenter(extent)
-      });
-      this.olmap.addOverlay(markerLayer);
-      this._markerLayers.push( { layer : markerLayer, element : newElm } );
     }
   }
 
@@ -1399,10 +1369,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
 
       if (isClustering === false || size <= 1) {
 
-        if( 12 < this.olmap.getView().getZoom() ) {
-          this._addMakerLayer(feature, layerNum);
-        }
-        // this._addMakerLayer(feature, layerNum);
+        this._addMakerLayer(feature, styleData.features, layerNum);
 
         ////////////////////////////////////////////////////////
         // Color
@@ -1727,7 +1694,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
         // Cluster Style
         // featureColor = '#7E94DE';
 
-        this._addMakerLayer(feature, layerNum);
+        this._addMakerLayer(feature, styleData.features, layerNum, size.toString());
 
         const canvas = scope.featureEl.nativeElement;
         style = new ol.style.Style({
