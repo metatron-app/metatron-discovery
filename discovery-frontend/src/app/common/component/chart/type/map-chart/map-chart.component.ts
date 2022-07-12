@@ -1279,7 +1279,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
 
   private _addMakerLayer(feature, features, layerNum, clusterSize?: string) {
 
-    if(0 === this.getUiMapOption().marker.columns.length){
+    if(!this.getUiMapOption().marker || 0 === this.getUiMapOption().marker.columns.length){
       return;
     } else {
       if( features && this.getUiMapOption().marker.limit >= features.length ) {
