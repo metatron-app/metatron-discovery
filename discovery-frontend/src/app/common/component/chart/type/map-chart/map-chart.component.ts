@@ -923,12 +923,13 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
     }
     this.changeDetect.detectChanges();
 
-    const overlayLayerId: string = 'layerId' + (layerIndex + 1);
+    if( -1 < 'Infinity'.indexOf(source.getExtent()[0]) ) {
+      this.setUiExtent(this.olmap);
+    }
 
     // Map data place fit
-    if (((this.drawByType === EventType.CHART_TYPE || this.olmap.getOverlayById(overlayLayerId) == null)
-      && isLogicalType
-      && this.shelf.layers[layerIndex].fields[this.shelf.layers[layerIndex].fields.length - 1].field.logicalType != null) && 'Infinity'.indexOf(source.getExtent()[0]) === -1
+    if (( isLogicalType && this.shelf.layers[layerIndex].fields[this.shelf.layers[layerIndex].fields.length - 1].field.logicalType != null)
+      && 'Infinity'.indexOf(source.getExtent()[0]) === -1
       && (_.isUndefined(this.uiOption['layers'][layerIndex]['changeCoverage']) || this.uiOption['layers'][layerIndex]['changeCoverage'])) {
       this.olmap.getView().fit(source.getExtent());
     } else {
@@ -938,6 +939,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
         this.olmap.getView().setZoom(this.uiOption.chartZooms[0].count);
       }
     }
+
   }
 
   /**
@@ -2822,7 +2824,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
 
     if ((_.isUndefined(mapUIOption.lowerCorner) && _.isUndefined(mapUIOption.upperCorner)) || that.preZoomSize === 0 || that.isResize) {
       this.preZoomSize = mapUIOption.zoomSize;
-      this.setUiExtent(event);
+      this.setUiExtentByEvent(event);
       this.isResize = false;
       return;
     }
@@ -2844,7 +2846,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
       });
 
       // map ui lat, lng
-      this.setUiExtent(event);
+      this.setUiExtentByEvent(event);
       if (mapUIOption.upperCorner.indexOf('NaN') !== -1 || mapUIOption.lowerCorner.indexOf('NaN') !== -1 || isAllChangeCoverage) {
         // coverage value reset
         mapUIOption.layers.forEach((layer) => {
@@ -3250,10 +3252,17 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
   /**
    * current map ui lat, lng setting
    */
-  private setUiExtent(event) {
-    const mapUIOption = this.uiOption as UIMapOption;
+  private setUiExtentByEvent(event) {
     if (event) {
-      const map = event.map;
+      this.setUiExtent(event.map);
+    }
+  }
+
+  /**
+   * current map ui lat, lng setting
+   */
+  private setUiExtent(map) {
+      const mapUIOption = this.uiOption as UIMapOption;
       let mapExtent = map.getView().calculateExtent(map.getSize());
 
       // projection 값 체크
@@ -3272,7 +3281,6 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
       // 좌측 하단
       mapUIOption.lowerCorner = this.wrapLon(bottomLeft[0]) + ' ' + bottomLeft[1];
       // mapUIOption.lowerCorner = mapExtent[0] + ' ' + bottomLeft[1];  // EPSG 4326 좌표
-    }
   }
 
   /**
