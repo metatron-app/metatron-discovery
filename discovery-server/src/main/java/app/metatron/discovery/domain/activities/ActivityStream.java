@@ -271,6 +271,27 @@ public class ActivityStream implements MetatronDomain<Long> {
     this.orgCode = orgCode;
   }
 
+  @Override
+  public String toString() {
+    return "ActivityStream{" +
+            "id=" + id +
+            ", action=" + action +
+            ", actor='" + actor + '\'' +
+            ", actorType=" + actorType +
+            ", objectId='" + objectId + '\'' +
+            ", objectType=" + objectType +
+            ", objectContent='" + objectContent + '\'' +
+            ", targetId='" + targetId + '\'' +
+            ", targetType=" + targetType +
+            ", generatorType=" + generatorType +
+            ", generatorName='" + generatorName + '\'' +
+            ", publishedTime=" + publishedTime +
+            ", result='" + result + '\'' +
+            ", remoteHost='" + remoteHost + '\'' +
+            ", orgCode='" + orgCode + '\'' +
+            '}';
+  }
+
   public enum GeneratorType {
     UNKNOWN, WEBAPP, EXTENSIONS
   }

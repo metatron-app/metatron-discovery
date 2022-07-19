@@ -16,7 +16,10 @@ package app.metatron.discovery.domain.activities;
 
 import com.querydsl.core.types.Predicate;
 
+import org.apache.commons.beanutils.PropertyUtils;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -37,11 +40,16 @@ import app.metatron.discovery.util.AuthUtils;
 @Transactional(readOnly = true)
 public class ActivityStreamService {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(ActivityStreamService.class);
+
   @Autowired
   WorkspaceService workspaceService;
 
   @Autowired
   ActivityStreamRepository activityStreamRepository;
+
+  @Autowired
+  ActivityStreamConfiguration activityStreamConfiguration;
 
   @Transactional
   public ActivityStream addActivity(ActivityStreamV2 activity) {
@@ -99,8 +107,47 @@ public class ActivityStreamService {
     return pagedActivity;
   }
 
-  public ActivityStream addActivityStream(ActivityStream activityStream){
+  public ActivityStream addActivityStream(ActivityStream activityStream) {
+
+    LOGGER.debug("Add activity stream : {}", activityStream);
+
+    if(checkByExclusionConditions(activityStream)) {
+      LOGGER.debug("This activity are not saved by exclusion conditions : {}", activityStream);
+      return activityStream;
+    }
+
     return activityStreamRepository.save(activityStream);
+  }
+
+  public boolean checkByExclusionConditions(ActivityStream activityStream) {
+
+    if(activityStreamConfiguration == null || activityStreamConfiguration.getExcludes() == null) {
+      return false;
+    }
+
+    boolean judge = false;
+    for (Map<String, String> excludesCondition : activityStreamConfiguration.getExcludes()) {
+
+      for (String key : excludesCondition.keySet()) {
+        try {
+          Object value = PropertyUtils.getProperty(activityStream, key);
+          judge = excludesCondition.get(key).equals(value == null ? null : value.toString()) ? true : false;
+        } catch (Exception e) {
+          judge = false;
+        } finally {
+          if(!judge) {
+            break;
+          }
+        }
+      }
+
+      if(judge) {
+        LOGGER.debug("Exclude activity by this conditions: {}", excludesCondition);
+        break;
+      }
+    }
+
+    return judge;
   }
 
 
