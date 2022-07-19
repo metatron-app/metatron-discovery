@@ -799,8 +799,8 @@ export class DatasourceService extends AbstractService {
                 if (geoFieldArr[idx] > 1) {
                   layer.format = ({
                     type: FormatType.GEO_BOUNDARY.toString(),
-                    geoColumn: query.pivot.columns[0].field.name,
-                    descColumn: query.pivot.columns[0].field.name
+                    geoColumn: query.shelf.layers[idx].fields[0].name,
+                    descColumn: query.shelf.layers[idx].fields[0].name
                   } as GeoBoundaryFormat)
                 }
 
