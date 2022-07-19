@@ -131,7 +131,7 @@ public class ActivityStreamService {
       for (String key : excludesCondition.keySet()) {
         try {
           Object value = PropertyUtils.getProperty(activityStream, key);
-          judge = excludesCondition.get(key).equals(value == null ? null : value.toString()) ? true : false;
+          judge = excludesCondition.get(key).equals(value == null ? null : value.toString());
         } catch (Exception e) {
           judge = false;
         } finally {
