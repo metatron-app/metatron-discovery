@@ -54,7 +54,7 @@ import {Pivot} from '@domain/workbook/configurations/pivot';
 import {TimezoneService} from '../../data-storage/service/timezone.service';
 import {Shelf} from '@domain/workbook/configurations/shelf/shelf';
 import {RegExprFilter} from '@domain/workbook/configurations/filter/reg-expr-filter';
-// import {SpatialFilter} from '@domain/workbook/configurations/filter/spatial-filter';
+import {SpatialFilter} from '@domain/workbook/configurations/filter/spatial-filter';
 import {Criteria} from '@domain/datasource/criteria';
 import {TimeDateFilter} from '@domain/workbook/configurations/filter/time-date-filter';
 import {TimeListFilter} from '@domain/workbook/configurations/filter/time-list-filter';
@@ -742,17 +742,17 @@ export class DatasourceService extends AbstractService {
 
                 }
 
-                // if (!_.isUndefined(chart['lowerCorner']) && !_.isUndefined(chart['upperCorner'])
-                //   && chart['lowerCorner'].indexOf('NaN') === -1 && chart['upperCorner'].indexOf('NaN') === -1) {
-                //   const spatialFilter = new SpatialFilter();
-                //   spatialFilter.dataSource = query.shelf.layers[idx].ref;
-                //   // spatialFilter.ref = query.shelf.layers[idx].ref;
-                //   spatialFilter.field = layer.field.name;
-                //   // 최초 default 값 sales-geo 초기값으로 고정 (빈값일 경우 에러리턴)
-                //   spatialFilter.lowerCorner = chart['lowerCorner'];
-                //   spatialFilter.upperCorner = chart['upperCorner'];
-                //   query.filters.push(spatialFilter);
-                // }
+                if (!_.isUndefined(chart['lowerCorner']) && !_.isUndefined(chart['upperCorner'])
+                  && chart['lowerCorner'].indexOf('NaN') === -1 && chart['upperCorner'].indexOf('NaN') === -1) {
+                  const spatialFilter = new SpatialFilter();
+                  spatialFilter.dataSource = query.shelf.layers[idx].ref;
+                  // spatialFilter.ref = query.shelf.layers[idx].ref;
+                  spatialFilter.field = layer.field.name;
+                  // 최초 default 값 sales-geo 초기값으로 고정 (빈값일 경우 에러리턴)
+                  spatialFilter.lowerCorner = chart['lowerCorner'];
+                  spatialFilter.upperCorner = chart['upperCorner'];
+                  query.filters.push(spatialFilter);
+                }
 
               }
 

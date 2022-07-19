@@ -1439,6 +1439,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
 
     // 현재 위젯에서 발생시킨 필터정보 제외처리
     const currentSelectionFilters: Filter[] = this.changeExternalFilterList(selectionFilters);
+    const isChangedSelectionFilter: boolean = this._currentSelectionFilterString !== JSON.stringify(currentSelectionFilters);
 
     // Hierarchy View 설정
     if (this.parentWidget) {
@@ -1482,9 +1483,16 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
         targetDs = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, boardConf.dataSource);
       }
 
-      if (this.isNullOrUndefined(this.widgetConfiguration.chart['lowerCorner']) && targetDs.summary) {
-        this.widgetConfiguration.chart['lowerCorner'] = targetDs.summary['geoLowerCorner'];
-        this.widgetConfiguration.chart['upperCorner'] = targetDs.summary['geoUpperCorner'];
+      if( null == selectionFilters || 0 === selectionFilters.length ) {
+        if (this.isNullOrUndefined(this.widgetConfiguration.chart['lowerCorner']) && targetDs.summary) {
+          this.widgetConfiguration.chart['lowerCorner'] = targetDs.summary['geoLowerCorner'];
+          this.widgetConfiguration.chart['upperCorner'] = targetDs.summary['geoUpperCorner'];
+        }
+      } else {
+        if( isChangedSelectionFilter ) {
+          this.widgetConfiguration.chart['lowerCorner'] = undefined;
+          this.widgetConfiguration.chart['upperCorner'] = undefined;
+        }
       }
     }
 
@@ -1611,8 +1619,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
 
     // 차트 클리어 여부 판단
     const isClear: boolean = (this.chart && 'function' === typeof this.chart.clear
-      && (this._currentSelectionFilterString !== JSON.stringify(currentSelectionFilters)
-        || this._currentGlobalFilterString !== JSON.stringify(cloneGlobalFilters)));
+      && (isChangedSelectionFilter || this._currentGlobalFilterString !== JSON.stringify(cloneGlobalFilters)));
 
     // 필터 정보 저장
     this._currentSelectionFilters = currentSelectionFilters;

@@ -114,6 +114,8 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
   // previous zoom size
   private preZoomSize: number = 0;
 
+  private _isChangedZoom: boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -260,6 +262,19 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
         });
       }
     }
+
+    // 외부 필터 설정
+    this.subscriptions.push(
+      this.broadCaster.on<any>('SET_GLOBAL_FILTER').subscribe(() => {
+        this._isChangedZoom = false;
+      })
+    );
+    // 선택 필터 설정
+    this.subscriptions.push(
+      this.broadCaster.on<any>('SET_SELECTION_FILTER').subscribe(() => {
+        this._isChangedZoom = false;
+      })
+    );
   }
 
   // After Content Init
@@ -923,13 +938,10 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
     }
     this.changeDetect.detectChanges();
 
-    if( -1 < 'Infinity'.indexOf(source.getExtent()[0]) ) {
-      this.setUiExtent(this.olmap);
-    }
-
     // Map data place fit
-    if (( isLogicalType && this.shelf.layers[layerIndex].fields[this.shelf.layers[layerIndex].fields.length - 1].field.logicalType != null)
-      && 'Infinity'.indexOf(source.getExtent()[0]) === -1
+    if (
+      !this._isChangedZoom &&
+      (isLogicalType && this.shelf.layers[layerIndex].fields[this.shelf.layers[layerIndex].fields.length - 1].field.logicalType != null) && 'Infinity'.indexOf(source.getExtent()[0]) === -1
       && (_.isUndefined(this.uiOption['layers'][layerIndex]['changeCoverage']) || this.uiOption['layers'][layerIndex]['changeCoverage'])) {
       this.olmap.getView().fit(source.getExtent());
     } else {
@@ -2815,6 +2827,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
   private zoomFunction = (event) => {
 
     const that = this;
+
     // save current chart zoom
     this.uiOption.chartZooms = this.additionalSaveDataZoomRange();
 
@@ -2856,6 +2869,9 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
         });
         return;
       }
+
+      // 줌 변경
+      this._isChangedZoom = true;
 
       this.changeDrawEvent.emit();
     }
@@ -3555,7 +3571,9 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
     this.changeDetect.detectChanges();
 
     // Map data place fit
-    if (this.drawByType === EventType.CHANGE_PIVOT && 'Infinity'.indexOf(source.getExtent()[0]) === -1 &&
+    if (
+      !this._isChangedZoom &&
+      this.drawByType === EventType.CHANGE_PIVOT && 'Infinity'.indexOf(source.getExtent()[0]) === -1 &&
       (_.isUndefined(this.uiOption['layers'][this.getUiMapOption().layerNum]['changeCoverage']) || this.uiOption['layers'][this.getUiMapOption().layerNum]['changeCoverage'])) {
       this.olmap.getView().fit(source.getExtent());
     } else {
@@ -3565,6 +3583,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
         this.olmap.getView().setZoom(this.uiOption.chartZooms[0].count);
       }
     }
+
   }
 
 
