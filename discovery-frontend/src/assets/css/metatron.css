@@ -124,6 +124,9 @@
   font-size:8px;
   color: #555;
 }
+.sys-marker .ddp-ui-tooltip-info .ddp-tooltip-view {
+  left : 50px;
+}
 .sys-marker .ddp-ui-tooltip-info .ddp-det {
   font-size:10px;
   color: #333;
