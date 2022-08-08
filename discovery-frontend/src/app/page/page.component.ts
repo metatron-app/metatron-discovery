@@ -735,6 +735,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       }
 
       // 이미 들어가있는 선반을 찾는다.
+      let existGeoField: boolean = false;
       for (let num: number = 0; num < currentMapLayer.length; num++) {
         const field: AbstractField = currentMapLayer[num];
         if (field.name === targetField.name) {
@@ -744,6 +745,15 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
           alreadyIndex = num;
           break;
         }
+        if( this._isGeoField(field.field) ) {
+          existGeoField = true;
+        }
+      }
+
+      // 현재 좌표관련 필드가 있는데 또 배치하려고 하면 오류 발생
+      if( existGeoField && this._isGeoField(targetField)) {
+        Alert.warning(this.translateService.instant('msg.page.layer.multi.geo.shelf'));
+        return;
       }
 
       // dimension
@@ -4329,6 +4339,19 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       shelf: shelf,
       eventType: EventType.MAP_SPATIAL_ANALYSIS
     });
+  }
+
+  /**
+   * 좌표 필드 여부 반환
+   * @param field 필드 정보
+   * @private
+   */
+  private _isGeoField(field: Field): boolean {
+    if( field ) {
+      return LogicalType.GEO_POINT === field.logicalType || LogicalType.GEO_LINE === field.logicalType || LogicalType.GEO_POLYGON === field.logicalType
+    } else {
+      return false;
+    }
   }
 
 }
