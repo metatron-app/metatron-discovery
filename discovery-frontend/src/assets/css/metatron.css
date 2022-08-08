@@ -97,3 +97,26 @@
   padding: 0 0 5px 0;
   text-align: center;
 }
+
+/****************************************************************************
+   Map Chart
+*************************************************************************/
+.map-btn-toggle {
+  display: inline-block;
+  position: absolute;
+  z-index: 2;
+  margin-top: 10px;
+  margin-left: 40px;
+  padding: 0;
+  color: #fff;
+  font-size: 1.14em;
+  font-weight: 700;
+  text-decoration: none;
+  text-align: center;
+  height: 1.375em;
+  width: 1.375em;
+  line-height: .4em;
+  background-color: rgba(0,60,136,.5);
+  border: none;
+  border-radius: 2px;
+}

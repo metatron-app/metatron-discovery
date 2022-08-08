@@ -199,6 +199,9 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
   // resize 이벤트
   public isResize: boolean = false;
 
+  // 데이터 조회 여부
+  public isLoadData: boolean = true;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -517,6 +520,13 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
 
     if (!this.isPage) {
       this.legendInfo.showFl = !this.legendInfo.showFl;
+    }
+  }
+
+  public toggleLoadData(): void {
+    this.isLoadData = !this.isLoadData;
+    if( this.isLoadData ) {
+      this.changeDrawEvent.emit();
     }
   }
 
@@ -2884,7 +2894,9 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
         return;
       }
 
-      this.changeDrawEvent.emit();
+      if( this.isLoadData ) {
+        this.changeDrawEvent.emit();
+      }
     }
 
     // TODO selection (drag end)
