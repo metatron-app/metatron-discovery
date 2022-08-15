@@ -3612,6 +3612,7 @@
     "msg.page.common.font.color.default": "По умолчанию",
     "msg.page.common.symbol.transparency": "Прозрачность символа",
     "msg.page.common.grid.add.remark": "Добавить замечание",
+    "msg.page.common.grid.add.rownum": "Добавить номер строки",
     "msg.page.common.grid.enter.remark": "Замечание",
     "msg.page.common.grid.enter.position": "Позиция",
     "msg.page.common.grid.enter.position.top.right": "Вверху справа",
