@@ -3638,6 +3638,7 @@
   "msg.page.common.font.color.default": "기본",
   "msg.page.common.symbol.transparency": "기호 투명도",
   "msg.page.common.grid.add.remark": "설명 추가",
+  "msg.page.common.grid.add.rownum": "줄 번호 추가",
   "msg.page.common.grid.enter.remark": "설명 입력",
   "msg.page.common.grid.enter.position": "설명 위치",
   "msg.page.common.grid.enter.position.top.right": "상단 우측",

@@ -2785,6 +2785,7 @@
   "msg.page.common.font.color.default": "默认",
   "msg.page.common.symbol.transparency": "记号透明度",
   "msg.page.common.grid.add.remark": "添加说明",
+  "msg.page.common.grid.add.rownum": "添加行号",
   "msg.page.common.grid.enter.remark": "输入说明",
   "msg.page.common.grid.enter.position": "说明位置",
   "msg.page.common.grid.enter.position.top.right": "右上方",

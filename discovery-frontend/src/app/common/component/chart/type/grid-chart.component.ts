@@ -621,6 +621,22 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
         }
       }
 
+      if(this.uiOption.rownum && this.uiOption.dataType === GridViewType.PIVOT) {
+        if( data.rows ) {
+          data.rows = data.rows.map( (row,idx) => row + '―' + idx );
+        }
+        if( data.columns ) {
+          data.columns.forEach( col => {
+            col.categoryName.map( (name,idx) => name + '―' + idx );
+            col.seriesName.map( (name,idx) => name + '―' + idx );
+          });
+        }
+
+        // Grid Model
+        ( this.gridModel.yProperties ) || ( this.gridModel.yProperties = [] );
+        this.gridModel.yProperties = this.gridModel.yProperties.concat([{name: 'No'}]);
+      }
+
       // 원본보기에서 Alias 적용 - S
       if( this.uiOption.dataType === GridViewType.MASTER ) {
         const fieldAliasMap: {[key:string]:string} = {};

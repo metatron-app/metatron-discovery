@@ -3658,6 +3658,7 @@
   "msg.page.common.font.color.default": "Default",
   "msg.page.common.symbol.transparency": "Symbol Transparency",
   "msg.page.common.grid.add.remark": "Add Remark",
+  "msg.page.common.grid.add.rownum": "Add row number",
   "msg.page.common.grid.enter.remark": "Remark",
   "msg.page.common.grid.enter.position": "Position",
   "msg.page.common.grid.enter.position.top.right": "Top-Right",

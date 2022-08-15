@@ -1485,6 +1485,20 @@ export class CommonOptionComponent extends BaseOptionComponent implements OnInit
   }
 
   /**
+   * 그리드 줄 번호 추가
+   */
+  public addRowNum(): void {
+    const uiOption = (this.uiOption as UIGridChart);
+
+    // rownum 설정 변경
+    uiOption.rownum = !uiOption.rownum;
+
+    this.uiOption = (_.extend({}, this.uiOption, {rownum: uiOption.rownum}) as UIOption);
+
+    this.update();
+  }
+
+  /**
    * grid - 설명 라벨 설정시
    */
   public changeRemarkLabel(param: Annotation): void {
