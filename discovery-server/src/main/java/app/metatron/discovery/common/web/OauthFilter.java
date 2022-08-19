@@ -67,6 +67,8 @@ public class OauthFilter implements Filter {
                   .authenticate(new PreAuthenticatedAuthenticationToken(loginToken.getValue(), ""));
           SecurityContextHolder.getContext().setAuthentication(authentication);
           LOGGER.info("authentication is {}", authentication);
+          // 자동로그인 방지
+          CookieManager.removeAllToken(res);
         } catch (OAuth2Exception e) {
           LOGGER.error(e.getSummary());
           req.getRequestDispatcher("/api/oauth/client/login").forward(request, response);
