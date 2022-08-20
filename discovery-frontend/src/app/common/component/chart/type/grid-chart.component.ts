@@ -41,6 +41,7 @@ import * as _ from 'lodash';
 import {UIChartColorByCell} from '../option/ui-option';
 import {TotalValueStyle, UIGridChart} from '../option/ui-option/ui-grid-chart';
 import {UIChartColorGradationByCell} from '../option/ui-option/ui-color';
+import {AggregationType} from '@domain/workbook/configurations/field/measure-field';
 
 declare let pivot: any;
 
@@ -619,6 +620,35 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
           }
         }
       }
+
+      // 원본보기에서 Alias 적용 - S
+      if( this.uiOption.dataType === GridViewType.MASTER ) {
+        const fieldAliasMap: {[key:string]:string} = {};
+        this.pivot.columns.forEach(col => {
+          fieldAliasMap[col.name] = col.alias ? col.alias : col.fieldAlias ? col.fieldAlias : col.name;
+        });
+        this.pivot.rows.forEach(row => {
+          fieldAliasMap[row.name] = row.alias ? row.alias : row.fieldAlias ? row.fieldAlias : row.name;
+        });
+        this.pivot.aggregations.forEach(aggr => {
+          if( aggr.alias ) {
+            if( Object.keys(AggregationType).some( aggrType => aggr.alias.includes(aggrType) ) ) {
+              fieldAliasMap[aggr.name] = aggr.fieldAlias ? aggr.fieldAlias : aggr.name;
+            } else {
+              fieldAliasMap[aggr.name] = aggr.alias;
+            }
+          } else {
+            fieldAliasMap[aggr.name] = aggr.fieldAlias ? aggr.fieldAlias : aggr.name;
+          }
+        });
+
+        data.forEach( dataItem => {
+          if( fieldAliasMap[dataItem.COLUMNS] ) {
+            dataItem.COLUMNS = fieldAliasMap[dataItem.COLUMNS];
+          }
+        });
+      }
+      // 원본보기에서 Alias 적용 - E
 
       this.chart.initialize(data, this.gridModel);
     } catch (e) {
