@@ -3388,6 +3388,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
             dimension.alias = field.name;
             dimension.expr = field.expr;
             dimension.ref = field.ref;
+            dimension.dataSource = field.dataSource;
 
             this.dimensions.push(dimension);
           } else if (field.role === FieldRole.MEASURE) {
@@ -3401,6 +3402,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
             measure.expr = field.expr;
             measure.ref = field.ref;
             measure.aggregated = field.aggregated;
+            measure.dataSource = field.dataSource;
             this.measures.push(measure);
           }
         });

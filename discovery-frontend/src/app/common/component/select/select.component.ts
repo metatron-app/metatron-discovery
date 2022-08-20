@@ -253,16 +253,20 @@ export class SelectComponent extends AbstractComponent implements OnInit, OnDest
           break;
       }
     } else {
-      switch (item.field.logicalType.toString()) {
-        case 'INTEGER' :
-          iconClass = 'ddp-icon-measure-sharp';
-          break;
-        case 'DOUBLE' :
-          iconClass = 'ddp-icon-measure-sharp';
-          break;
-        default :
-          iconClass = 'ddp-icon-measure-sharp';
-          break;
+      if( item.field.logicalType ) {
+        switch (item.field.logicalType.toString()) {
+          case 'INTEGER' :
+            iconClass = 'ddp-icon-measure-sharp';
+            break;
+          case 'DOUBLE' :
+            iconClass = 'ddp-icon-measure-sharp';
+            break;
+          default :
+            iconClass = 'ddp-icon-measure-sharp';
+            break;
+        }
+      } else {
+        iconClass = 'ddp-icon-measure-sharp';
       }
     }
     return iconClass;
