@@ -621,21 +621,23 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
         }
       }
 
+      // 그리드 줄 번호 옵션에 의한 강제 줄 번호 추가 - S
       if(this.uiOption.rownum && this.uiOption.dataType === GridViewType.PIVOT) {
         if( data.rows ) {
-          data.rows = data.rows.map( (row,idx) => row + '―' + idx );
+          data.rows = data.rows.map( (row,idx) => ( idx + 1 ) + '―' + row );
         }
         if( data.columns ) {
           data.columns.forEach( col => {
-            col.categoryName.map( (name,idx) => name + '―' + idx );
-            col.seriesName.map( (name,idx) => name + '―' + idx );
+            col.categoryName.map( (name,idx) => ( idx + 1 ) + '―' + name );
+            col.seriesName.map( (name,idx) => ( idx + 1 ) + '―' + name );
           });
         }
 
         // Grid Model
         ( this.gridModel.yProperties ) || ( this.gridModel.yProperties = [] );
-        this.gridModel.yProperties = this.gridModel.yProperties.concat([{name: 'No'}]);
+        this.gridModel.yProperties = [{name: 'No'}].concat(this.gridModel.yProperties);
       }
+      // 그리드 줄 번호 옵션에 의한 강제 줄 번호 추가 - E
 
       // 원본보기에서 Alias 적용 - S
       if( this.uiOption.dataType === GridViewType.MASTER ) {
