@@ -237,7 +237,7 @@
                                       <input #minInput
                                              [ngStyle]="{'visibility' : null == item.fixMin ? 'hidden' : 'visible'}"
                                              type="text" class="ddp-input-typebasic ddp-txt-right"
-                                             [ngModel]="item['gt']"
+                                             [(ngModel)]="item['gt']"
                                              (focus)="item['minInputShow'] = true;"
                                              (blur)="item['minInputShow'] = false;"
                                              (keyup.enter)="changeRangeMinInput(item, rangeIndex, layerIndex)">

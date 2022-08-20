@@ -216,8 +216,8 @@
                       <input #minInput type="text" class="ddp-input-typebasic ddp-txt-right"
                              [ngStyle]="{'visibility' : null == item.fixMin ? 'hidden' : 'visible'}"
                              [(ngModel)]="item.gt"
-                             (mouseenter)="item['minInputShow'] = true;"
-                             (mouseleave)="item['minInputShow'] = false;"
+                             (focus)="item['minInputShow'] = true;"
+                             (blur)="item['minInputShow'] = false;"
                              (keyup.enter)="changeRangeMinInput(item, index)">
                       <!-- tooltip -->
                       <div class="ddp-ui-tooltip-info">
@@ -241,8 +241,8 @@
                       <input #maxInput type="text" class="ddp-input-typebasic ddp-txt-right"
                              [ngStyle]="{'visibility' : null == item.fixMax ? 'hidden' : 'visible'}"
                              [(ngModel)]="item.lte"
-                             (mouseenter)="item['maxInputShow'] = true;"
-                             (mouseleave)="item['maxInputShow'] = false;"
+                             (focus)="item['maxInputShow'] = true;"
+                             (blur)="item['maxInputShow'] = false;"
                              (keyup.enter)="changeRangeMaxInput(item, index)">
                       <!-- tooltip -->
                       <div class="ddp-ui-tooltip-info">
