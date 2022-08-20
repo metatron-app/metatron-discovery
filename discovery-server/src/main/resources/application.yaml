@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: local,h2-default-db,logging-console-debug,scheduling #, initial #, bcrypt-encoder, encode-password-initial, datasource-filter-sample
+    active: local,h2-default-db,logging-console-debug,scheduling, initial #, bcrypt-encoder, encode-password-initial, datasource-filter-sample
   application:
     name: ${METATRON_NAME:metatron}
   datasource:
@@ -378,6 +378,12 @@ polaris:
   mobile:
     resource-path: classpath:resource-mobile/
     client-id: polaris_client
+  activity_stream:
+    excludes:
+      -
+        action: ARRIVE
+        remoteHost: 0:0:0:0:0:0:0:1
+        objectId : polaris_trusted
 
 ---
 # (mysql DB 생성 script)

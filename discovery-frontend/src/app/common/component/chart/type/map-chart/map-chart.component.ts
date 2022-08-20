@@ -117,8 +117,10 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
 
   // previous zoom size
   private preZoomSize: number = 0;
-
+  
   private _markerLayers: { layer : any, element : any}[] = [];
+
+  private _isChangedZoom: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -277,6 +279,19 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
         });
       }
     }
+
+    // 외부 필터 설정
+    this.subscriptions.push(
+      this.broadCaster.on<any>('SET_GLOBAL_FILTER').subscribe(() => {
+        this._isChangedZoom = false;
+      })
+    );
+    // 선택 필터 설정
+    this.subscriptions.push(
+      this.broadCaster.on<any>('SET_SELECTION_FILTER').subscribe(() => {
+        this._isChangedZoom = false;
+      })
+    );
   }
 
   // After Content Init
@@ -456,7 +471,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
     ////////////////////////////////////////////////////////
 
     // 엘리먼트 반영
-    this.changeDetect.detectChanges();
+    this.safelyDetectChanges();
 
     // Show data
     this.data.show = true;
@@ -702,9 +717,15 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
     ////////////////////////////////////////////////////////
     // Set attribution
     ////////////////////////////////////////////////////////
-    this.osmLayer.getSource().setAttributions(this.attribution());
-    this.cartoPositronLayer.getSource().setAttributions(this.attribution());
-    this.cartoDarkLayer.getSource().setAttributions(this.attribution());
+    if( this.osmLayer.getSource() ) {
+      this.osmLayer.getSource().setAttributions(this.attribution());
+    }
+    if( this.cartoPositronLayer.getSource() ) {
+      this.cartoPositronLayer.getSource().setAttributions(this.attribution());
+    }
+    if( this.cartoDarkLayer.getSource() ) {
+      this.cartoDarkLayer.getSource().setAttributions(this.attribution());
+    }
 
     ////////////////////////////////////////////////////////
     // Map style
@@ -940,14 +961,12 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
         }
       }
     }
-    this.changeDetect.detectChanges();
-
-    const overlayLayerId: string = 'layerId' + (layerIndex + 1);
+    this.safelyDetectChanges();
 
     // Map data place fit
-    if (((this.drawByType === EventType.CHART_TYPE || this.olmap.getOverlayById(overlayLayerId) == null)
-      && isLogicalType
-      && this.shelf.layers[layerIndex].fields[this.shelf.layers[layerIndex].fields.length - 1].field.logicalType != null) && 'Infinity'.indexOf(source.getExtent()[0]) === -1
+    if (
+      !this._isChangedZoom &&
+      (isLogicalType && this.shelf.layers[layerIndex].fields[this.shelf.layers[layerIndex].fields.length - 1].field.logicalType != null) && 'Infinity'.indexOf(source.getExtent()[0]) === -1
       && (_.isUndefined(this.uiOption['layers'][layerIndex]['changeCoverage']) || this.uiOption['layers'][layerIndex]['changeCoverage'])) {
       this.olmap.getView().fit(source.getExtent());
     } else {
@@ -957,6 +976,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
         this.olmap.getView().setZoom(this.uiOption.chartZooms[0].count);
       }
     }
+
   }
 
   /**
@@ -1966,7 +1986,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
         && feature.getProperties()['layerNum'] === -5)) {
       // Disable tooltip
       this.tooltipInfo.enable = false;
-      this.changeDetect.detectChanges();
+      this.safelyDetectChanges();
       if (!_.isUndefined(this.tooltipLayer) && this.tooltipLayer.length > 0) {
         this.tooltipLayer.setPosition(undefined);
       }
@@ -2142,28 +2162,51 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
         // set tooltip position
         ////////////////////////////////////////////////////////
         if (this.uiOption.toolTip) {
-          // tooltip 에 보여질 정보 길이 설정 (해당 수에 따라 tooltip의 height가 변동 됨)
-          let yOffset = -80;
 
-          // tooltip info 에 보여줄 양에 따라 height 구하기
-          const sizeOfToolTipHeight = [];
-          if (!_.isUndefined(this.tooltipInfo.fields) && this.tooltipInfo.fields.length > 0) {
-            // column 이름은 있는데, column value가 없을 경우 사이즈 다를 수 있음
-            this.tooltipInfo.fields.forEach((field) => {
-              if (field['name'] != null && !_.isUndefined(field['name'])) {
-                sizeOfToolTipHeight.push(field['name']);
-              }
-              if (field['value'] != null && !_.isUndefined(field['value'])) {
-                sizeOfToolTipHeight.push(field['value']);
-              }
-            });
+          const mapSize = event.map.getSize();
+          const tooltipPos = event.pixel;
+
+          // tooltip 에 보여질 정보 길이 설정 (해당 수에 따라 tooltip의 height가 변동 됨)
+          let xOffset = 0;
+          let yOffset = 0;
+
+          console.log( '>>> ', tooltipPos, mapSize );
+
+          // 툴팁 X 좌표가 지도 사이즈의 절반 이하로 내려가면 offset 계산 진행
+          if( tooltipPos[0] > mapSize[0]/2 ) {
+
+            console.log( '>>>>>> x offset' );
+
+            xOffset = xOffset - 150;  // 툴팁의 가로 최대 사이즈가 150 으로 되어 있어 150 을 고정값으로 함
           }
-          if (sizeOfToolTipHeight.length > 0) {
-            // height 계산
-            yOffset = yOffset - (25 * (sizeOfToolTipHeight.length / 1.2));
+
+          // 툴팁 Y 좌표가 지도 사이즈의 절반 이하로 내려가면 offset 계산 진행
+          if( tooltipPos[1] > mapSize[1]/2 ) {
+
+            yOffset = -70;
+
+            console.log( '>>>>>> y offset' );
+
+            // tooltip info 에 보여줄 양에 따라 width / height 구하기
+            const sizeOfToolTipHeight = [];
+            if (!_.isUndefined(this.tooltipInfo.fields) && this.tooltipInfo.fields.length > 0) {
+              // column 이름은 있는데, column value가 없을 경우 사이즈 다를 수 있음
+              this.tooltipInfo.fields.forEach((field) => {
+                if (field['name'] != null && !_.isUndefined(field['name'])) {
+                  sizeOfToolTipHeight.push(field['name']);
+                }
+                if (field['value'] != null && !_.isUndefined(field['value'])) {
+                  sizeOfToolTipHeight.push(field['value']);
+                }
+              });
+            }
+
+            if (sizeOfToolTipHeight.length > 0) {
+              // height 계산
+              yOffset = yOffset - (25 * (sizeOfToolTipHeight.length / 1.2));
+            }
           }
-          const offset = [-92, yOffset];
-          this.tooltipLayer.setOffset(offset);
+          this.tooltipLayer.setOffset([xOffset, yOffset]);
         }
         const toShowCoords = event.coordinate;
         if (_.eq(this.tooltipInfo.geometryType, String(MapGeometryType.LINE))) {
@@ -2894,6 +2937,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
   private zoomFunction = (event) => {
 
     const that = this;
+
     // save current chart zoom
     this.uiOption.chartZooms = this.additionalSaveDataZoomRange();
 
@@ -2903,7 +2947,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
 
     if ((_.isUndefined(mapUIOption.lowerCorner) && _.isUndefined(mapUIOption.upperCorner)) || that.preZoomSize === 0 || that.isResize) {
       this.preZoomSize = mapUIOption.zoomSize;
-      this.setUiExtent(event);
+      this.setUiExtentByEvent(event);
       this.isResize = false;
       return;
     }
@@ -2925,7 +2969,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
       });
 
       // map ui lat, lng
-      this.setUiExtent(event);
+      this.setUiExtentByEvent(event);
       if (mapUIOption.upperCorner.indexOf('NaN') !== -1 || mapUIOption.lowerCorner.indexOf('NaN') !== -1 || isAllChangeCoverage) {
         // coverage value reset
         mapUIOption.layers.forEach((layer) => {
@@ -2935,6 +2979,9 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
         });
         return;
       }
+
+      // 줌 변경
+      this._isChangedZoom = true;
 
       this.changeDrawEvent.emit();
     }
@@ -3331,10 +3378,17 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
   /**
    * current map ui lat, lng setting
    */
-  private setUiExtent(event) {
-    const mapUIOption = this.uiOption as UIMapOption;
+  private setUiExtentByEvent(event) {
     if (event) {
-      const map = event.map;
+      this.setUiExtent(event.map);
+    }
+  }
+
+  /**
+   * current map ui lat, lng setting
+   */
+  private setUiExtent(map) {
+      const mapUIOption = this.uiOption as UIMapOption;
       let mapExtent = map.getView().calculateExtent(map.getSize());
 
       // projection 값 체크
@@ -3353,7 +3407,6 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
       // 좌측 하단
       mapUIOption.lowerCorner = this.wrapLon(bottomLeft[0]) + ' ' + bottomLeft[1];
       // mapUIOption.lowerCorner = mapExtent[0] + ' ' + bottomLeft[1];  // EPSG 4326 좌표
-    }
   }
 
   /**
@@ -3625,10 +3678,12 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
         }
       }
     }
-    this.changeDetect.detectChanges();
+    this.safelyDetectChanges();
 
     // Map data place fit
-    if (this.drawByType === EventType.CHANGE_PIVOT && 'Infinity'.indexOf(source.getExtent()[0]) === -1 &&
+    if (
+      !this._isChangedZoom &&
+      this.drawByType === EventType.CHANGE_PIVOT && 'Infinity'.indexOf(source.getExtent()[0]) === -1 &&
       (_.isUndefined(this.uiOption['layers'][this.getUiMapOption().layerNum]['changeCoverage']) || this.uiOption['layers'][this.getUiMapOption().layerNum]['changeCoverage'])) {
       this.olmap.getView().fit(source.getExtent());
     } else {
@@ -3638,6 +3693,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
         this.olmap.getView().setZoom(this.uiOption.chartZooms[0].count);
       }
     }
+
   }
 
 
@@ -3717,6 +3773,6 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
         this.layerMap[uiLayerIndex].layerValue = this.olmap.getLayers().getArray()[olmapForLoopLayerIndex];
       }
     }
-    this.changeDetect.detectChanges();
+    this.safelyDetectChanges();
   }
 }

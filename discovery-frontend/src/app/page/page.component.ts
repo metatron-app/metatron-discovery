@@ -2284,6 +2284,15 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     // }
 
     if (filter.ui.widgetId) {
+      // 필터가 업데이트 됐을 때 서버가 조회해야할 map location 초기화
+      const comparedFilter = this.widgetConfiguration.filters.find(configFilter => configFilter.field === filter.field);
+
+      if(_.eq(this.selectChart, ChartType.MAP) &&
+        (this.isNullOrUndefined(comparedFilter) || comparedFilter['valueList'].toString() !== filter['valueList'].toString())) {
+        if(this.selectChart)
+        this.widgetConfiguration.chart['lowerCorner'] = undefined;
+        this.widgetConfiguration.chart['upperCorner'] = undefined;
+      }
       this._setChartFilter(filter, isSetPanel);   // 차트 필터 설정
     }
     this.drawChart({type: EventType.FILTER}); // 차트 다시그리기
@@ -2311,6 +2320,11 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         return;
       } else {
         this.widgetConfiguration.filters.splice(idx, 1);
+        // 필터가 제거 됐을 때 서버가 조회해야할 map location 초기화
+        if(_.eq(this.selectChart, ChartType.MAP)){
+          this.widgetConfiguration.chart['lowerCorner'] = undefined;
+          this.widgetConfiguration.chart['upperCorner'] = undefined;
+        }
       }
 
       // 이미 생성된 위젯인 경우만 제거(API)

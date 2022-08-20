@@ -742,7 +742,7 @@ export class DatasourceService extends AbstractService {
 
                 }
 
-                if (!_.isUndefined(chart['lowerCorner']) && !_.isUndefined(chart['upperCorner'])
+                if (chart['lowerCorner'] && chart['upperCorner']
                   && chart['lowerCorner'].indexOf('NaN') === -1 && chart['upperCorner'].indexOf('NaN') === -1) {
                   const spatialFilter = new SpatialFilter();
                   spatialFilter.dataSource = query.shelf.layers[idx].ref;
@@ -796,7 +796,7 @@ export class DatasourceService extends AbstractService {
                 }
 
                 // when they have multiple geo values
-                if (geoFieldArr[idx] > 1) {
+                if (geoFieldArr[idx] > 1 && query.pivot.columns && query.pivot.columns[0]) {
                   layer.format = ({
                     type: FormatType.GEO_BOUNDARY.toString(),
                     geoColumn: query.shelf.layers[idx].fields[0].name,

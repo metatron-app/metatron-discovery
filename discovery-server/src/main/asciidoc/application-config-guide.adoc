@@ -191,5 +191,10 @@ polaris:
     client-id: polaris_client                  # If you have a client ID for mobile service, you can specify it.
   mapbox:
     accesstoken:                          # mapbox accesstoken
+  activity_stream:
+    excludes:                             # exclusion conditions not to save activity stream, list of key/value object
+      -
+        action: ARRIVE                    # key : activity stream properties (action, actorId, remoteHost, objectId, etc..)
+        ...
 ----
 
