@@ -3965,6 +3965,8 @@
   "msg.page.chart.map.spatial.select.step": "If Within, choropleth setting must be on",
   "msg.page.chart.map.spatial.mainlayer.setting" : "기준 레이어는 point로 설정 해주세요.",
   "msg.page.chart.map.spatial.comparelayer.setting" : "비교 레이어는 line으로 설정 해주세요.",
+  "msg.page.chart.map.marker.column.label" : "마커 선택",
+  "msg.page.chart.map.marker.limit.label" : "마커 제한 입력",
   "msg.page.chart.info.id": "Chart ID",
   "msg.page.alert.copy.chart-url": "Chart url copied.",
 

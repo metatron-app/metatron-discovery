@@ -167,6 +167,106 @@
         </div>
       </div>
       <!-- //divide -->
+      <!-- divide -->
+      <div class="ddp-divide2 ">
+        <div class="ddp-list-label">{{'msg.page.chart.map.marker.column.label' | translate}}</div>
+        <div class="ddp-list-sub2">
+          <!-- 데이터 값 -->
+          <div class="ddp-data-value" >
+
+            <ul class="ddp-list-datavalue">
+              <li *ngFor="let item of selectedMarkerItems; let index = index">
+                <span class="ddp-data-value">
+                  <!-- string -->
+                  <em class="ddp-icon-dimension-ab" *ngIf="(item?.type !== 'user_expr' && item.field?.logicalType?.toString() === 'STRING') || item?.type === 'user_expr'"></em>
+                  <!-- //string -->
+                  <!-- latitude / longitude -->
+                  <em class="ddp-icon-dimension-local" *ngIf="item?.type !== 'user_expr' && item.field?.logicalType?.toString() === 'LNG' || item.field?.logicalType?.toString() === 'LNT'"></em>
+                  <!-- //latitude / longitude -->
+                  <!-- time -->
+                  <em class="ddp-icon-dimension-calen" *ngIf="item?.type !== 'user_expr' && item.field?.logicalType?.toString() === 'TIMESTAMP'"></em>
+                  <!-- //time -->
+                  <!-- number -->
+                  <em class="ddp-icon-measure-float" *ngIf="item?.type !== 'user_expr' && item.field?.logicalType?.toString() === 'DOUBLE' || item.field?.logicalType?.toString() === 'INTEGER'"></em>
+                  <!-- //number -->
+                  <!-- boolean -->
+                  <em class="ddp-icon-dimension-tf" *ngIf="item?.type !== 'user_expr' && item.field?.logicalType?.toString() === 'BOOLEAN'"></em>
+                  <!-- //boolean -->
+                  <!-- polygon -->
+                  <em class="ddp-icon-dimension-polygon ddp-icon-map-view" *ngIf="item?.type !== 'user_expr' && item.field?.logicalType?.toString() === 'GEO_POLYGON'"></em>
+                  <!-- //polygon -->
+                  <!-- line -->
+                  <em class="ddp-icon-dimension-line ddp-icon-map-view" *ngIf="item?.type !== 'user_expr' && item.field?.logicalType?.toString() === 'GEO_LINE'"></em>
+                  <!-- //line -->
+                  <!-- point -->
+                  <em class="ddp-icon-dimension-point ddp-icon-map-view" *ngIf="item?.type !== 'user_expr' && item.field?.logicalType?.toString() === 'GEO_POINT'"></em>
+                  {{returnDataValueName(item)}}
+                </span>
+                <em class="ddp-icon-listdelete" (click)="deleteSelectedMarkerField(index)"></em>
+              </li>
+              <!-- ddp-selected 추가시 popup 열림 -->
+              <li class="ddp-add" (clickOutside)="$event.stopPropagation(); this.addMarkerColumnShowFl=false;" (click)="toggleAddMarkerColumn()"
+                  [ngClass]="{'ddp-selected' : addMarkerColumnShowFl}">
+                <span class="ddp-data-value">
+                    {{'msg.page.chart.datalabel.map.add.column'| translate}}
+                </span>
+                <em class="ddp-icon-plus"></em>
+              </li>
+            </ul>
+
+            <div [style.display]="addMarkerColumnShowFl ? 'block' : 'none'" class="ddp-box-layout4">
+              <!-- search -->
+              <div class="ddp-form-search">
+                <em class="ddp-icon-search"></em>
+                <input type="text" [(ngModel)]="markerSearchText" placeholder="{{'msg.bench.ui.search' | translate}}">
+                <em class="ddp-btn-search-close" (click)="initSearchMarkerFields()"></em>
+              </div>
+              <!-- //search -->
+              <div class="ddp-ui-list-type ddp-types">
+                <ul class="ddp-list-typebasic ddp-list-popup">
+                  <!-- empty -->
+                  <li *ngIf="selectedMarkerItems?.length == 0"><a href="javascript:">{{'msg.page.chart.map.tooltip.search.no.column' | translate}}</a></li>
+                  <!-- //empty -->
+                  <li *ngFor="let item of filteredFieldsForMarker" (click)="addMarkerColumn(item)">
+                    <a href="javascript:">
+                      <!-- string -->
+                      <em class="ddp-icon-dimension-ab" *ngIf="(item?.type !== 'user_expr' && item.field?.logicalType?.toString() === 'STRING') || item?.type === 'user_expr'"></em>
+                      <!-- //string -->
+                      <!-- latitude / longitude -->
+                      <em class="ddp-icon-dimension-local" *ngIf="item?.type !== 'user_expr' && item.field?.logicalType?.toString() === 'LNG' || item.field?.logicalType?.toString() === 'LNT'"></em>
+                      <!-- //latitude / longitude -->
+                      <!-- time -->
+                      <em class="ddp-icon-dimension-calen" *ngIf="item?.type !== 'user_expr' && item.field?.logicalType?.toString() === 'TIMESTAMP'"></em>
+                      <!-- //time -->
+                      <!-- number -->
+                      <em class="ddp-icon-measure-float" *ngIf="item?.type !== 'user_expr' && item.field?.logicalType?.toString() === 'DOUBLE' || item.field?.logicalType?.toString() === 'INTEGER'"></em>
+                      <!-- //number -->
+                      <!-- boolean -->
+                      <em class="ddp-icon-dimension-tf" *ngIf="item?.type !== 'user_expr' && item.field?.logicalType?.toString() === 'BOOLEAN'"></em>
+                      <!-- //boolean -->
+                      <!-- polygon -->
+                      <em class="ddp-icon-dimension-polygon ddp-icon-map-view" *ngIf="item?.type !== 'user_expr' && item.field?.logicalType?.toString() === 'GEO_POLYGON'"></em>
+                      <!-- //polygon -->
+                      <!-- line -->
+                      <em class="ddp-icon-dimension-line ddp-icon-map-view" *ngIf="item?.type !== 'user_expr' && item.field?.logicalType?.toString() === 'GEO_LINE'"></em>
+                      <!-- //line -->
+                      <!-- point -->
+                      <em class="ddp-icon-dimension-point ddp-icon-map-view" *ngIf="item?.type !== 'user_expr' && item.field?.logicalType?.toString() === 'GEO_POINT'"></em>
+                      <span class="ddp-txt-name">{{returnDataValueName(item)}}</span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <!-- //데이터 값 -->
+        </div>
+      </div>
+      <div class="ddp-divide2">
+        <div class="ddp-list-label">{{'msg.page.chart.map.marker.limit.label' | translate}}</div>
+        <input type="text" class="ddp-input-typebasic" placeholder="" [(ngModel)]="uiOption.marker.limit" (keyup.enter)="setMarkerLimit()">
+      </div>
+      <!-- // divide -->
     </div>
   </div>
 </div>

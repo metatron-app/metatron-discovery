@@ -67,6 +67,8 @@ export interface UIOption {
   // 툴팁
   toolTip?: UIChartTooltip;
 
+  marker?: { columns: string[], limit: number };
+
   limit?: number;
 
   ////////////////////////////////////////////
