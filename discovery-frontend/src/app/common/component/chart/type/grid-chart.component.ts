@@ -621,24 +621,6 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
         }
       }
 
-      // 그리드 줄 번호 옵션에 의한 강제 줄 번호 추가 - S
-      if(this.uiOption.rownum && this.uiOption.dataType === GridViewType.PIVOT) {
-        if( data.rows ) {
-          data.rows = data.rows.map( (row,idx) => ( idx + 1 ) + '―' + row );
-        }
-        if( data.columns ) {
-          data.columns.forEach( col => {
-            col.categoryName.map( (name,idx) => ( idx + 1 ) + '―' + name );
-            col.seriesName.map( (name,idx) => ( idx + 1 ) + '―' + name );
-          });
-        }
-
-        // Grid Model
-        ( this.gridModel.yProperties ) || ( this.gridModel.yProperties = [] );
-        this.gridModel.yProperties = [{name: 'No'}].concat(this.gridModel.yProperties);
-      }
-      // 그리드 줄 번호 옵션에 의한 강제 줄 번호 추가 - E
-
       // 원본보기에서 Alias 적용 - S
       if( this.uiOption.dataType === GridViewType.MASTER ) {
         const fieldAliasMap: {[key:string]:string} = {};
@@ -668,7 +650,28 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
       }
       // 원본보기에서 Alias 적용 - E
 
-      this.chart.initialize(data, this.gridModel);
+      if(this.uiOption.rownum && this.uiOption.dataType === GridViewType.PIVOT) {
+        // 그리드 줄 번호 옵션에 의한 강제 줄 번호 추가 - S
+        const cloneData = JSON.parse(JSON.stringify(data));
+        if( cloneData.rows ) {
+          cloneData.rows = cloneData.rows.map( (row,idx) => ( idx + 1 ) + '―' + row );
+        }
+        if( cloneData.columns ) {
+          cloneData.columns.forEach( col => {
+            col.categoryName.map( (name,idx) => ( idx + 1 ) + '―' + name );
+            col.seriesName.map( (name,idx) => ( idx + 1 ) + '―' + name );
+          });
+        }
+
+        // Grid Model
+        ( this.gridModel.yProperties ) || ( this.gridModel.yProperties = [] );
+        this.gridModel.yProperties = [{name: 'No'}].concat(this.gridModel.yProperties);
+        this.chart.initialize(cloneData, this.gridModel);
+        // 그리드 줄 번호 옵션에 의한 강제 줄 번호 추가 - E
+      } else {
+        this.chart.initialize(data, this.gridModel);
+      }
+
     } catch (e) {
       console.log(e);
       // No Data 이벤트 발생
