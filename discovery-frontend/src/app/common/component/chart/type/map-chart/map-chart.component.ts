@@ -70,6 +70,7 @@ import {CommonConstant} from '@common/constant/common.constant';
 import {StringUtil} from '@common/util/string.util';
 
 declare let ol;
+declare const html2canvas: any;
 
 @Component({
   selector: 'map-chart',
@@ -89,6 +90,9 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
   // Tooltip element
   @ViewChild('tooltip')
   private tooltipEl: ElementRef;
+
+  @ViewChild('marker')
+  private markerEl: ElementRef;
 
   // Feature icon element
   @ViewChild('feature', {static: true})
@@ -113,6 +117,8 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
 
   // previous zoom size
   private preZoomSize: number = 0;
+  
+  private _markerLayers: { layer : any, element : any}[] = [];
 
   private _isChangedZoom: boolean = false;
 
@@ -213,6 +219,17 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
     protected elementRef: ElementRef,
     protected injector: Injector) {
     super(elementRef, injector);
+    $( elementRef.nativeElement )
+      .delegate('.sys-marker', 'mouseenter', (event) => {
+        let $target = $( event.target );
+        $target = $target.closest('.ol-overlay-container');
+        $target.css({ 'z-index' : 200 });
+      })
+      .delegate('.sys-marker', 'mouseleave', (event) => {
+        let $target = $( event.target );
+        $target = $target.closest('.ol-overlay-container');
+        $target.css({ 'z-index' : 15 });
+      });
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -836,6 +853,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
       isLogicalType = true;
       const geomType = field.field.logicalType.toString();
 
+
       if (_.eq(layer.type, MapLayerType.SYMBOL) || _.eq(layer.type, MapLayerType.CLUSTER)) {
         const symbolLayer = new ol.layer.Vector({
           source: _.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource,
@@ -845,6 +863,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
         // this.symbolLayer.setZIndex(this.getUiMapOption().layerNum == num? 1 : 0);
         symbolLayer.setZIndex(4);
         this.layerMap.push({id: layerIndex, layerValue: symbolLayer});
+
         // Init
         if (isMapCreation && this.getUiMapOption().showMapLayer) {
           // Add layer
@@ -1288,6 +1307,50 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
     }
   };
 
+  private _addMakerLayer(feature, features, layerNum, clusterSize?: string) {
+
+    if(!this.getUiMapOption().marker || 0 === this.getUiMapOption().marker.columns.length){
+      return;
+    } else {
+      if( features && this.getUiMapOption().marker.limit >= features.length ) {
+        const extent = feature.getGeometry().getExtent();
+
+        const $elm = $( this.markerEl.nativeElement );
+        const newElm = $elm.clone();
+        newElm.css({ display : 'block' });
+
+        // console.log('>>> UiMapOption : ', this.getUiMapOption());
+
+        // 단일 데이터 추가
+        const $coord = newElm.find( '.sys-coord' );
+
+        if( clusterSize ) {
+          $coord.find( '.ddp-title' ).text( 'Count' );
+          $coord.find( '.ddp-det' ).text( clusterSize );
+        } else {
+          const markerField = this.getUiMapOption().marker.columns[0]; // field name
+          let tooltipVal =  feature.get(markerField);
+          if (typeof (tooltipVal) === 'number') {
+            tooltipVal = FormatOptionConverter.getFormatValue(tooltipVal, this.getUiMapOption().valueFormat);
+          }
+          $coord.find( '.ddp-title' ).text( markerField );
+          $coord.find( '.ddp-det' ).text( tooltipVal );
+        }
+
+        $elm.after( newElm );
+        const markerLayer = new ol.Overlay({
+          element: newElm.get(0),
+          positioning: 'top-center',
+          stopEvent: false,
+          id: 'marker_' + layerNum + '_' + StringUtil.random(5),
+          position: ol.extent.getCenter(extent)
+        });
+        this.olmap.addOverlay(markerLayer);
+        this._markerLayers.push( { layer : markerLayer, element : newElm } );
+      }
+    }
+  }
+
   /**
    * point style function
    */
@@ -1296,6 +1359,15 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
     const styleOption: UIMapOption = this.getUiMapOption();
     const styleLayer: UILayers = styleOption.layers[layerNum];
     const styleData = !_.isUndefined(this.getUiMapOption().analysis) && this.getUiMapOption().analysis['use'] === true ? data[dataIndex] : data[layerNum];
+
+    if( this._markerLayers && this._markerLayers.length ) {
+      for( let idx = 0, nMax = this._markerLayers.length; idx < nMax; idx++ ) {
+        const markerInfo = this._markerLayers[idx];
+        this.olmap.removeLayer(markerInfo.layer);
+        markerInfo.element.remove();
+      }
+    }
+
     return (feature, _resolution) => {
       ////////////////////////////////////////////////////////
       // Style options
@@ -1326,6 +1398,9 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
       }
 
       if (isClustering === false || size <= 1) {
+
+        this._addMakerLayer(feature, styleData.features, layerNum);
+
         ////////////////////////////////////////////////////////
         // Color
         ////////////////////////////////////////////////////////
@@ -1648,6 +1723,8 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
       } else {
         // Cluster Style
         // featureColor = '#7E94DE';
+
+        this._addMakerLayer(feature, styleData.features, layerNum, size.toString());
 
         const canvas = scope.featureEl.nativeElement;
         style = new ol.style.Style({
@@ -2152,6 +2229,10 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
       }
     }
   };
+
+  // private markerFunction = (event) => {
+  //
+  // }
 
   // /**
   //  * create drag interaction (for selection filter)

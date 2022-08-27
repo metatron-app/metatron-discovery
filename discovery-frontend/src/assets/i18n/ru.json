@@ -3912,6 +3912,8 @@
     "msg.page.chart.map.spatial.select.step": "Если внутри, параметр choropleth должен быть включен",
     "msg.page.chart.map.spatial.mainlayer.setting": "레이어 는 point 로 설정 해주세요.",
     "msg.page.chart.map.spatial.comparelayer.setting": "비교 레이어 는 line 으로 설정 해주세요.",
+    "msg.page.chart.map.marker.column.label" : "마커 선택",
+    "msg.page.chart.map.marker.limit.label" : "마커 제한 입력",
 
     "msg.spaces.ui.permission.schemas": "Схемы разрешений",
     "msg.spaces.spaces.ui.status": "Статус",
