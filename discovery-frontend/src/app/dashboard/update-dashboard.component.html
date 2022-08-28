@@ -405,6 +405,7 @@
         <app-dashboard-layout-config *ngIf="selectedRightTab == rightTab.LAYOUT"
                                      [dashboard]="dashboard"
                                      [boardConf]="boardUtil.getBoardConfiguration(dashboard)"
+                                     (alignWidget)="alignLayout($event)"
                                      (changeBoardConf)="changeBoardConf($event)" >
         </app-dashboard-layout-config>
         <!-- Layout Config Side Menu -->
