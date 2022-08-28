@@ -331,3 +331,15 @@ export class TimeRangeInfo {
   public minTime: Date;
   public dataSource: Datasource
 } // structure - TimeRangeInfo
+
+export class LayoutContent {
+  public type: 'row' | 'column' | 'stack' | 'component';
+  public title: string;
+  public reorderEnabled: boolean;
+  public isClosable: boolean;
+  public content?: LayoutContent[];
+  public componentState?: any;    // for component type
+  public componentName?: string;  // for component type
+  public width?: number;  // for row type
+  public height?: number; // for column type
+}

@@ -40,7 +40,7 @@ import {
   BoardDataSourceRelation,
   Dashboard,
   DashboardLayout, DashboardWidgetRelation,
-  JoinMapping,
+  JoinMapping, LayoutContent,
   LayoutMode,
   LayoutWidgetInfo
 } from '@domain/dashboard/dashboard';
@@ -1255,7 +1255,7 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
    * 레아아웃 컨텐츠 정보를 얻는다.
    * @return {any[]}
    */
-  public getLayoutContent(): any[] {
+  public getLayoutContent(): LayoutContent[] {
     return this._layoutObj.toConfig().content;
   } // function - getLayoutContent
 
