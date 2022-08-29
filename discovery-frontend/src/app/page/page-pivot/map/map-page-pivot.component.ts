@@ -235,6 +235,32 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
       return;
     }
 
+    // 이미 들어가있는 선반을 찾는다.
+    let existGeoField: boolean = false;
+    for (const field of currentMapLayer) {
+      if (this._isGeoField(field.field)) {
+        existGeoField = true;
+        break;
+      }
+    }
+
+    // 현재 좌표관련 필드가 있는데 또 배치하려고 하면 오류 발생
+    if( existGeoField && this._isGeoField(targetField)) {
+      this.shelf.layers[this.uiOption.layerNum].fields = this.shelf.layers[this.uiOption.layerNum].fields.filter((field) => {
+        if( field.name !== targetField.name ) {
+          return true;
+        } else {
+          if( field.ref && targetField.ref ) {
+            return field.ref !== targetField.ref;
+          } else {
+            return false;
+          }
+        }
+      });
+      Alert.warning(this.translateService.instant('msg.page.layer.multi.geo.shelf'));
+      return;
+    }
+
     // change logical type
     if (targetField.logicalType === LogicalType.GEO_LINE) {
       this.uiOption.layers[this.uiOption.layerNum].type = MapLayerType.LINE;
@@ -954,5 +980,17 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
     }
   }
 
+  /**
+   * 좌표 필드 여부 반환
+   * @param field 필드 정보
+   * @private
+   */
+  private _isGeoField(field: Field): boolean {
+    if( field ) {
+      return LogicalType.GEO_POINT === field.logicalType || LogicalType.GEO_LINE === field.logicalType || LogicalType.GEO_POLYGON === field.logicalType
+    } else {
+      return false;
+    }
+  }
 
 }

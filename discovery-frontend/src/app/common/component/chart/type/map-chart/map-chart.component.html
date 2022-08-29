@@ -11,6 +11,10 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+<div (click)="toggleLoadData()" class="map-btn-toggle">
+  <span>{{isLoadData ? 'Y' : 'N'}}</span>
+</div>
+
 <div #mapArea style="width: 100%; height: 100%; display: block; position: relative"
       [style.background-color]="getUiMapOption().style == 'Colored' ? '#AAD3DF' : getUiMapOption().style == 'Dark' ? '#262626' : '#D4DADC'">
   <!-- Legend -->

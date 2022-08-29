@@ -3713,6 +3713,7 @@
     "msg.page.layer.map.stroke.max.width": "Максимальная ширина штриха",
     "msg.page.layer.map.view": "Просмотреть исходные данные",
     "msg.page.layer.multi.datasource.same.shelf": "На полке можно разместить только тот же источник данных",
+    "msg.page.layer.multi.geo.shelf": "Вы не можете разместить несколько координат на одном слое",
     "msg.page.format.format.title": "Формат",
     "msg.page.format.xaxis.rotation": "{{value}} градус",
     "msg.page.format.custom.symbol": "Пользовательский символ",
