@@ -212,7 +212,7 @@
                           <!-- color by measure custom color setting -->
                           <div *ngIf="uiOption.layers[layerIndex].color['settingUseFl']" class="ddp-user-color">
 
-                            <div *ngFor="let item of rangesViewList; let rangeIndex = index" class="ddp-wrap-usercolor">
+                            <div *ngFor="let item of rangesViewList; let rangeIndex = index;" class="ddp-wrap-usercolor">
                               <!-- blank -->
                               <div *ngIf="0 !== rangeIndex" (click)="addNewRange(rangeIndex, layerIndex)"
                                    class="ddp-list-blank">
@@ -238,8 +238,8 @@
                                              [ngStyle]="{'visibility' : null == item.fixMin ? 'hidden' : 'visible'}"
                                              type="text" class="ddp-input-typebasic ddp-txt-right"
                                              [(ngModel)]="item['gt']"
-                                             (mouseenter)="item['minInputShow'] = true;"
-                                             (mouseleave)="item['minInputShow'] = false;"
+                                             (focus)="item['minInputShow'] = true;"
+                                             (blur)="item['minInputShow'] = false;"
                                              (keyup.enter)="changeRangeMinInput(item, rangeIndex, layerIndex)">
                                       <!-- tooltip -->
                                       <div class="ddp-ui-tooltip-info">
@@ -264,8 +264,8 @@
                                              [ngStyle]="{'visibility' : null == item.fixMax ? 'hidden' : 'visible'}"
                                              type="text" class="ddp-input-typebasic ddp-txt-right"
                                              [(ngModel)]="item['lte']"
-                                             (mouseenter)="item['maxInputShow'] = true;"
-                                             (mouseleave)="item['maxInputShow'] = false;"
+                                             (focus)="item['maxInputShow'] = true;"
+                                             (blur)="item['maxInputShow'] = false;"
                                              (keyup.enter)="changeRangeMaxInput(item, rangeIndex, layerIndex)">
                                       <!-- tooltip -->
                                       <div class="ddp-ui-tooltip-info">
