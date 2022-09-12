@@ -54,7 +54,10 @@
       <!-- 계산식 입력 -->
       <div [hidden]="selectedColumnType == columnType.PARAMETER" class="ddp-ui-accout-textarea" >
         <div class="ddp-wrap-edit">
-          <div class="ddp-ui-edit" contentEditable="true" id="calculationInput"  #calculationInput ></div>
+          <div class="ddp-ui-edit" contentEditable="true" id="calculationInput"
+               #calculationInput
+               (focusin)="focusInCalInput()"
+               (focusout)="focusOutCalInput()"></div>
         </div>
 
         <!-- 메시지 -->
@@ -206,9 +209,9 @@
                     | baseFilter : ['commonValue', calFuncSearchText]"
                           (mouseenter)="setCalculationDesciption(calFunction, true)"
                           (mouseleave)="setCalculationDesciption(null, false)">
-                        <a href="javascript:"(click)="clickFunction($event);selectedCalculationFunction(calFunction)">
+                        <a href="javascript:" (click)="clickFunction($event);selectedCalculationFunction(calFunction)">
                           {{calFunction.commonValue}}
-                          <em class="ddp-icon-plus ddp-cursor" (click)="selectedCalculationFunction(calFunction); selectFunction(calFunction)"></em>
+                          <em class="ddp-icon-plus ddp-cursor" (click)="selectFunction(calFunction)"></em>
                         </a>
                       </li>
                     </ul>
