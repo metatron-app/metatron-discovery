@@ -1546,7 +1546,7 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
       const colorCodes = _.cloneDeep(ChartColorList[schema]);
 
       // userCodes가 있는경우 codes대신 userCodes를 설정한다
-      if ((this.uiOption.color as UIChartColorBySeries).mapping) {
+      if ((this.uiOption.color as UIChartColorBySeries).settingUseFl && (this.uiOption.color as UIChartColorBySeries).mapping) {
         Object.keys((this.uiOption.color as UIChartColorBySeries).mapping).forEach((key, index) => {
 
           colorCodes[index] = (this.uiOption.color as UIChartColorBySeries).mapping[key];
