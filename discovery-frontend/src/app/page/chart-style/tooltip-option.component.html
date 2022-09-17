@@ -199,6 +199,23 @@
         </div>
       </div>
       <!-- //divide -->
+      <!-- 숫자일때 -->
+      <!-- divide2 -->
+      <div *ngIf="possibleChartCheck('tooltipDecimalPlace', uiOption.type)" class="ddp-divide2" >
+        <div class="ddp-list-label">{{'msg.page.th.decimal.place' | translate}}</div>
+        <!-- number -->
+        <div class="ddp-input-number">
+          <input (keyup)="$event.keyCode == 13 ? onDigitValid() : null"
+                 (clickOutside)="onDigitValid()"
+                 [(ngModel)]="decimalCopy" type="number" maxlength="1">
+          <div class="ddp-input-number-nav">
+            <div (click)="onDigitChange(false)" class="ddp-input-number-button ddp-input-number-down"></div>
+            <div (click)="onDigitChange(true)" class="ddp-input-number-button ddp-input-number-up"></div>
+          </div>
+        </div>
+        <!-- //number -->
+      </div>
+      <!-- //divide2 -->
       <!-- divide -->
       <div class="ddp-divide2">
         <div class="ddp-list-label">{{'msg.page.format.preview' | translate}}</div>

@@ -633,7 +633,11 @@ export class PieChartComponent extends BaseChart<UIPieChart> implements OnInit, 
     }
     if (-1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE)) {
 
-      let seriesValue = FormatOptionConverter.getTooltipValue(params.seriesName, pivot.aggregations, this.uiOption.valueFormat, params.data.value);
+      const cloneValFormat = JSON.parse(JSON.stringify(this.uiOption.valueFormat));
+      if( !isNaN(this.uiOption.toolTip.decimal) ) {
+        cloneValFormat.decimal = this.uiOption.toolTip.decimal;
+      }
+      let seriesValue = FormatOptionConverter.getTooltipValue(params.seriesName, pivot.aggregations, cloneValFormat, params.data.value);
 
       // when series percent is selected
       if (-1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT)) {

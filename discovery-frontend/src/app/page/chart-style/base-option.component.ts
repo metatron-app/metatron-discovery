@@ -64,6 +64,7 @@ const possibleChartObj: any = {
   tooltipMedianValue: ['boxplot'],
   tooltip1QValue: ['boxplot'],
   tooltipLowValue: ['boxplot'],
+  tooltipDecimalPlace: ['pie'],
   legend: ['bar', 'line', 'control', 'scatter', 'heatmap', 'pie', 'radar'],
   minimap: ['bar', 'line', 'control', 'scatter', 'heatmap', 'boxplot', 'waterfall'],
   barExpress: ['bar', 'waterfall'],
