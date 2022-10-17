@@ -117,7 +117,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
 
   // previous zoom size
   private preZoomSize: number = 0;
-  
+
   private _markerLayers: { layer : any, element : any}[] = [];
 
   private _isChangedZoom: boolean = false;
@@ -1391,8 +1391,11 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
       let size: number = 0;
       let isClustering: boolean = false;
 
-      if (!_.isUndefined(feature.getProperties()) && !_.isUndefined(feature.getProperties()['isClustering']) && !_.isUndefined(feature.getProperties().count)
-        && feature.getProperties()['isClustering'] === true) {
+      if (!_.isUndefined(feature.getProperties())
+        && !_.isUndefined(feature.getProperties()['isClustering'])
+        && !_.isUndefined(feature.getProperties().count)
+        && feature.getProperties()['isClustering'] === true
+        && 10 >= this.olmap.getView().getZoom() ) {
         isClustering = true;
         size = feature.getProperties().count;
       }
@@ -2995,7 +2998,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
 
       if( this.isLoadData ) {
         this.changeDrawEvent.emit();
-      }      
+      }
     }
 
     // TODO selection (drag end)
