@@ -94,6 +94,7 @@ import {UIMapOption} from '@common/component/chart/option/ui-option/map/ui-map-c
 import {MapLayerType} from '@common/component/chart/option/define/map/map-common';
 import {debounceTime, map} from 'rxjs/operators';
 import {TimeRelativeBaseType} from '@domain/workbook/configurations/filter/time-relative-filter';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
 
 declare let moment;
 
@@ -293,6 +294,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
               private imageService: ImageService,
               protected elementRef: ElementRef,
               protected injector: Injector,
+              protected broadCaster: EventBroadcaster,
               private analysisPredictionService: AnalysisPredictionService) {
     super(elementRef, injector);
   }
@@ -583,6 +585,22 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     super.ngOnInit();
 
     this.init();
+
+    // 필터 삭제 이벤트
+    this.subscriptions.push(
+      this.broadCaster.on<any>('DELETE_FILTER').subscribe(data => {
+        const targetField = data.field as Field;
+        if( this.widgetConfiguration.filters ) {
+          const filter = this.widgetConfiguration.filters.find(item => {
+            return (item.field === targetField.name && item.dataSource === targetField.dataSource);
+          });
+          if( filter ) {
+            this.deleteFilter(filter);
+          }
+        }
+      })
+    );
+
     // resize시 data panel의 내부 스크롤 설정
     const resizeEvent$ = fromEvent(window, 'resize')
       .pipe(
