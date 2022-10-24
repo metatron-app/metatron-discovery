@@ -207,6 +207,32 @@
           <!-- // Chart 기능 사용 결정 메뉴 - Contents -->
         </div>
         <!-- // Chart 기능 사용 결정 메뉴 -->
+
+        <!-- 위젯 균등 분할 기능 -->
+        <div class="ddp-ui-option-down ddp-selected">
+          <!-- 위젯 균등 분할 기능 - Title -->
+          <div class="ddp-ui-down-title">
+            <div class="ddp-ui-down-title-in">
+            <span class="ddp-txt-down-title">
+              <em class="ddp-icon-menumove"></em>{{'msg.board.th.align' | translate}}
+            </span>
+            </div>
+          </div>
+          <!-- // 위젯 균등 분할 기능 - Title -->
+          <!-- 위젯 균등 분할 기능 - Contents -->
+          <div class="ddp-ui-down-contents">
+            <ul class="ddp-list-express ddp-type2">
+              <li (click)="alignWidget('row');">
+                {{'msg.board.btn.align.horizontal' | translate}}
+              </li>
+              <li (click)="alignWidget('column');" >
+                {{'msg.board.btn.align.vertical' | translate}}
+              </li>
+            </ul>
+          </div>
+          <!-- // 위젯 균등 분할 기능 - Contents -->
+        </div>
+        <!-- // 위젯 균등 분할 기능 -->
       </div>
 
     </div>

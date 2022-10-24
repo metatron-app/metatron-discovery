@@ -47,7 +47,7 @@ import {
   BoardConfiguration,
   BoardDataSource,
   Dashboard,
-  DashboardWidgetRelation,
+  DashboardWidgetRelation, LayoutContent,
   LayoutMode
 } from '@domain/dashboard/dashboard';
 import {TextWidget} from '@domain/dashboard/widget/text-widget';
@@ -1508,6 +1508,34 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     }
     this.changeDetect.detectChanges();
   } // function - closeComponent
+
+  /**
+   * 레아아웃 정렬
+   */
+  public alignLayout(alignType: 'row' | 'column'): void {
+    const layoutConfig = this.getLayoutContent();
+    const changedLayout = this._alignLayoutContent(layoutConfig, alignType);
+    this.dashboard.configuration.content = changedLayout;
+    this.dashboard.configuration.layout.content = changedLayout;
+    this.refreshLayout(this.dashboard.configuration);
+  } // function - alignLayout
+
+  private _alignLayoutContent(contentList: LayoutContent[], alignType: 'row' | 'column') {
+    return contentList.map(item => {
+      if( 'row' === item.type || 'column' === item.type ) {
+        const ratio = 100 / item.content.length;
+        item.content.forEach( contentItem => {
+          if( 'row' === item.type && 'row' === alignType ) {
+            contentItem.width = ratio;
+          } else if( 'column' === item.type && 'column' === alignType  ) {
+            contentItem.height = ratio;
+          }
+        });
+        item.content = this._alignLayoutContent(item.content, alignType);
+      }
+      return item;
+    });
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method

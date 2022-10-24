@@ -41,6 +41,7 @@ import * as _ from 'lodash';
 import {UIChartColorByCell} from '../option/ui-option';
 import {TotalValueStyle, UIGridChart} from '../option/ui-option/ui-grid-chart';
 import {UIChartColorGradationByCell} from '../option/ui-option/ui-color';
+import {AggregationType} from '@domain/workbook/configurations/field/measure-field';
 
 declare let pivot: any;
 
@@ -620,7 +621,57 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
         }
       }
 
-      this.chart.initialize(data, this.gridModel);
+      // 원본보기에서 Alias 적용 - S
+      if( this.uiOption.dataType === GridViewType.MASTER ) {
+        const fieldAliasMap: {[key:string]:string} = {};
+        this.pivot.columns.forEach(col => {
+          fieldAliasMap[col.name] = col.alias ? col.alias : col.fieldAlias ? col.fieldAlias : col.name;
+        });
+        this.pivot.rows.forEach(row => {
+          fieldAliasMap[row.name] = row.alias ? row.alias : row.fieldAlias ? row.fieldAlias : row.name;
+        });
+        this.pivot.aggregations.forEach(aggr => {
+          if( aggr.alias ) {
+            if( Object.keys(AggregationType).some( aggrType => aggr.alias.includes(aggrType) ) ) {
+              fieldAliasMap[aggr.name] = aggr.fieldAlias ? aggr.fieldAlias : aggr.name;
+            } else {
+              fieldAliasMap[aggr.name] = aggr.alias;
+            }
+          } else {
+            fieldAliasMap[aggr.name] = aggr.fieldAlias ? aggr.fieldAlias : aggr.name;
+          }
+        });
+
+        data.forEach( dataItem => {
+          if( fieldAliasMap[dataItem.COLUMNS] ) {
+            dataItem.COLUMNS = fieldAliasMap[dataItem.COLUMNS];
+          }
+        });
+      }
+      // 원본보기에서 Alias 적용 - E
+
+      if(this.uiOption.rownum && this.uiOption.dataType === GridViewType.PIVOT) {
+        // 그리드 줄 번호 옵션에 의한 강제 줄 번호 추가 - S
+        const cloneData = JSON.parse(JSON.stringify(data));
+        if( cloneData.rows ) {
+          cloneData.rows = cloneData.rows.map( (row,idx) => ( idx + 1 ) + '―' + row );
+        }
+        if( cloneData.columns ) {
+          cloneData.columns.forEach( col => {
+            col.categoryName.map( (name,idx) => ( idx + 1 ) + '―' + name );
+            col.seriesName.map( (name,idx) => ( idx + 1 ) + '―' + name );
+          });
+        }
+
+        // Grid Model
+        ( this.gridModel.yProperties ) || ( this.gridModel.yProperties = [] );
+        this.gridModel.yProperties = [{name: 'No'}].concat(this.gridModel.yProperties);
+        this.chart.initialize(cloneData, this.gridModel);
+        // 그리드 줄 번호 옵션에 의한 강제 줄 번호 추가 - E
+      } else {
+        this.chart.initialize(data, this.gridModel);
+      }
+
     } catch (e) {
       console.log(e);
       // No Data 이벤트 발생

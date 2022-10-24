@@ -131,7 +131,7 @@ export class CombineChartComponent extends BaseChart<UICombineChart> implements 
       yAxis: [OptionGenerator.Axis.valueAxis(Position.MIDDLE, null, false, false, true, true, true), OptionGenerator.Axis.valueAxis(Position.MIDDLE, null, false, false, true, true, true)],
       legend: OptionGenerator.Legend.custom(false, false, Position.LEFT, SymbolType.CIRCLE, '100%', 20, 5),
       dataZoom: [OptionGenerator.DataZoom.horizontalDataZoom(), OptionGenerator.DataZoom.horizontalInsideDataZoom()],
-      tooltip: OptionGenerator.Tooltip.itemTooltip(),
+      tooltip: OptionGenerator.Tooltip.axisTooltip(),
       toolbox: OptionGenerator.Toolbox.hiddenToolbox(),
       brush: OptionGenerator.Brush.selectBrush(),
       series: []

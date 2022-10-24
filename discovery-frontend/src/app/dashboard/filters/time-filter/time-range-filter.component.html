@@ -14,7 +14,7 @@
 
 <div *ngIf="targetFilter" class="ddp-dateinfo-view"
      [class.ddp-inline]="'WIDGET' === mode"
-     [ngStyle]="'WIDGET' == mode ? {'margin-top':'1px', 'height' : '99%'} : {}">
+     [ngStyle]="'WIDGET' == mode ? {'margin-top':'1px', 'overflow-y' : 'hidden'} : {}">
   <div class="ddp-filter-calen">
     <div *ngFor="let item of timeRangeList;let idx = index;" class="ddp-filter-calen-in"
     [ngStyle]="'WIDGET' == mode ? {'float':'left'} : {}">

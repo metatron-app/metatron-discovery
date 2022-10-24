@@ -62,6 +62,9 @@ export class DashboardLayoutConfigComponent extends AbstractComponent implements
   @Output()
   public changeBoardConf: EventEmitter<BoardConfiguration> = new EventEmitter();     // 변경 이벤트
 
+  @Output('alignWidget')
+  public alignWidgetEvt: EventEmitter<'row' | 'column'> = new EventEmitter();         // 위젯 정렬 이벤트
+
   public boardConf: BoardConfiguration;  // Board 설정
   public dashboard: Dashboard;
 
@@ -175,6 +178,14 @@ export class DashboardLayoutConfigComponent extends AbstractComponent implements
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * 위젯 정렬
+   * @param type 'row' | 'column'
+   */
+  public alignWidget(type : 'row' | 'column'): void {
+    this.alignWidgetEvt.emit(type);
+  }
+
   /**
    * Screen Fit 여부를 반환한다.
    */
