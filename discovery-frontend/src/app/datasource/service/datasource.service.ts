@@ -731,7 +731,7 @@ export class DatasourceService extends AbstractService {
                   } as GeoHashFormat);
 
                 } else if (chart.layers[idx].type === MapLayerType.SYMBOL
-                  || (chart.layers[idx]['clustering'] && 10 < chart.zoomSize ) ) {
+                  || (chart.layers[idx]['clustering'] && CommonConstant.MAP_CLUSTER_ZOOM_SIZE < chart.zoomSize ) ) {
 
                   query.shelf.layers[idx].view = ({
                     type: 'abbr',

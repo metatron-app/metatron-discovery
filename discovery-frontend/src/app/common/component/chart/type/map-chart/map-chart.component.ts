@@ -1395,7 +1395,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
         && !_.isUndefined(feature.getProperties()['isClustering'])
         && !_.isUndefined(feature.getProperties().count)
         && feature.getProperties()['isClustering'] === true
-        && 10 >= this.olmap.getView().getZoom() ) {
+        && CommonConstant.MAP_CLUSTER_ZOOM_SIZE >= this.olmap.getView().getZoom() ) {
         isClustering = true;
         size = feature.getProperties().count;
       }
@@ -1993,7 +1993,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
         && feature.getProperties()['isClustering'] === true
         && !_.isUndefined(feature.getProperties()['count'])
         && feature.getProperties()['count'] > 1
-        && 10 >= this.olmap.getView().getZoom())
+        && CommonConstant.MAP_CLUSTER_ZOOM_SIZE >= this.olmap.getView().getZoom())
       ||
       (!_.isUndefined(feature.getProperties()['layerNum'])
         // 비교레이어 영역 layer에 마우스 오버시 tooltip 안보이게 함
