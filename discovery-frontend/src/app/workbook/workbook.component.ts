@@ -183,8 +183,9 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   public currentDataSources: Datasource[];
   public duringChangeBoardDs: boolean = false;
 
-  public isFirstLoad = false; // 초기 워크북 호출 여부
-  public scrollLoc; // 대시보드 디테일 클릭 위치
+  public isFirstLoad = false;     // 초기 워크북 호출 여부
+  public isCopyDashboard = false; // 대시보드 복제 여부
+  public scrollLoc;               // 대시보드 디테일 클릭 위치
   public previousUrl: string;
   public currentUrl: string;
 
@@ -921,7 +922,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   public scrollToDashboard(dashboardId: string) {
     const selectedIdx: number = this.dashboards.findIndex(item => item.id === dashboardId);
     const speed = this.isFirstLoad ? 800 : 0;
-    const locOfY = this.isFirstLoad ? selectedIdx * ('LIST' === this.listType ? 52 : 185)
+    const locOfY = this.isFirstLoad || this.isCopyDashboard ? selectedIdx * ('LIST' === this.listType ? 52 : 190)
       : this.scrollLoc;
 
     if ('LIST' === this.listType) {
@@ -930,6 +931,8 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       $('.ddp-ui-board-thumbview').animate({scrollTop: locOfY}, speed, 'swing');
       // $('.ddp-ui-board-thumbview').animate({scrollTop: selectedIdx * 185}, 800, 'swing');
     }
+
+    this.isCopyDashboard = false;
   } // function - scrollToDashboard
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -1066,6 +1069,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       Alert.success('\'' + dashboard.name + '\' ' + this.translateService.instant('msg.board.alert.dashboard.copy.success'));
       this._popupInputNameDescComp.close();
       this.loadingHide();
+      this.isCopyDashboard = true;
       this.loadDashboardList(0, copyBoard.id, true);
     }).catch(() => this.loadingHide());
   } // function - copyDashboard
@@ -1156,7 +1160,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       this.isFirstLoad = false;
       this.scrollLoc = document.querySelector('.ddp-ui-board-thumbview').scrollTop;
       this.loadAndSelectDashboard(dashboard);
-      //this.router.navigate(['/workbook/' + this.workbookId], {fragment: dashboard.id}).then();
+      // this.router.navigate(['/workbook/' + this.workbookId], {fragment: dashboard.id}).then();
     }
   } // func - moveToDashboard
 
