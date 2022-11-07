@@ -708,7 +708,7 @@ export class DatasourceService extends AbstractService {
                 // clustering
                 const chart = (pageConf.chart as UIMapOption);
 
-                if (chart.layers[idx]['clustering'] && 10 >= chart.zoomSize) {
+                if (chart.layers[idx]['clustering'] && CommonConstant.MAP_CLUSTER_ZOOM_SIZE >= chart.zoomSize) {
                   // cluster 값 변경
                   let clusterPrecision: number = 6;
                   if (chart['layers'][idx]['changeCoverage']) {
