@@ -152,3 +152,8 @@
   color: #333;
   font-weight: bold;
 }
+
+.ddp-add-filter ul.ddp-list-filter li .ddp-btn-del {display:inline-block; position:absolute; top:50%; margin-top:-14px; padding:8px 5px;cursor:pointer;}
+.ddp-add-filter ul.ddp-list-filter li .ddp-btn-del:before {display:inline-block; background:url(../images/icon_control.png) no-repeat; content:'';}
+.ddp-add-filter ul.ddp-list-filter li .ddp-btn-del:before {width:11px; height:12px;background-position:-26px -14px;}
+.ddp-add-filter ul.ddp-list-filter li .ddp-btn-del:hover:before {background-position-x:-50px;}

@@ -489,7 +489,7 @@ export class GaugeChartComponent extends BaseChart<UIOption> implements OnInit, 
     const list = _.cloneDeep(ChartColorList[schema]) as any;
 
     // userCodes가 있는경우 codes대신 userCodes를 설정한다
-    if ((this.uiOption.color as UIChartColorByDimension).mapping) {
+    if ((this.uiOption.color as UIChartColorByDimension).settingUseFl && (this.uiOption.color as UIChartColorByDimension).mapping) {
       Object.keys((this.uiOption.color as UIChartColorByDimension).mapping).forEach((key, index) => {
 
         const mappingValue = (this.uiOption.color as UIChartColorByDimension).mapping[key];

@@ -32,6 +32,8 @@ export interface UIChartTooltip {
   // columns in tooltip (using in mapview)
   displayColumns?: string[];
 
+  decimal?: number;
+
   ////////////////////////////////////////////
   // UI 스펙
   ////////////////////////////////////////////

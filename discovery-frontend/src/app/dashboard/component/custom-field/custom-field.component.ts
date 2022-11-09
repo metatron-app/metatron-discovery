@@ -645,12 +645,11 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
 
   // 함수 클릭
   public selectFunction(functionItem: CommonCode) {
-    this.insertAtCursor('<span>' + functionItem.commonValue + '( <span id="focusElement"></span> )</span>');
+    this.selectedFunction = functionItem;
+    this.insertAtMarker('<span>' + functionItem.commonValue + '( <span id="focusElement"></span> )</span>');
 
     // 검증 버튼 활성화
     this.calValidButtonCheck();
-    event.stopPropagation();
-    event.preventDefault();
   }
 
   // 컬럼 클릭
@@ -667,7 +666,7 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
     }
 
     inserColumn += '</span>';
-    this.insertAtCursor(inserColumn);
+    this.insertAtMarker(inserColumn);
 
     // 검증 버튼 활성화
     this.calValidButtonCheck();
@@ -675,7 +674,6 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
 
   // 커서가 위치한 곳에 텍스트를 넣는다.
   public insertAtCursor(innerHtml) {
-    this._$calculationInput.trigger( 'focus' );
     let sel;
     let range;
     if (window.getSelection) {
@@ -683,9 +681,11 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
       if (sel.getRangeAt && sel.rangeCount) {
         range = sel.getRangeAt(0);
 
-        const newSapn = document.createElement('span');
-        newSapn.innerHTML = innerHtml;
-        range.insertNode(newSapn);
+        const newSpan = document.createElement('span');
+        newSpan.innerHTML = innerHtml;
+        newSpan.childNodes.forEach(node => {
+          range.insertNode(node);
+        })
       }
     }
 
@@ -699,7 +699,38 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
       // range를 갱신한다.
       sel.addRange(range);
     }
+
+    // this._$calculationInput.trigger( 'focus' );
   } // function - insertAtCursor
+
+  public insertAtMarker(innerHtml) {
+
+    const $markerElm = $('#inputMarker');
+
+    if ($markerElm.length) {
+      let sel;
+      let range;
+      if (window.getSelection) {
+        sel = window.getSelection();
+        if (sel.getRangeAt && sel.rangeCount) {
+          range = sel.getRangeAt(0);
+        }
+      }
+
+      $markerElm.before(innerHtml);
+
+      // 포커스 엘리먼트가 있으면 선택한다
+      range.selectNode($markerElm.get(0));
+      // 컨텐츠 span을 제거후
+      range.deleteContents();
+      sel.removeAllRanges();
+      // range를 갱신한다.
+      sel.addRange(range);
+    } else {
+      this.insertAtCursor(innerHtml);
+    }
+    this._$calculationInput.trigger( 'focus' );
+  }
 
   // 계산식 버튼 활성화 여부
   public calValidButtonCheck() {
@@ -886,6 +917,17 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
 
   public checkCategory(calFunction:any[]): string {
     return calFunction.filter(item=> item['commonValue'].toLowerCase().indexOf(this.calFuncSearchText.toLowerCase()) !== -1).length > 0 ? 'block' : 'none';
+  }
+
+  public focusInCalInput(): void {
+    const $markerElm = $('#inputMarker');
+    if ($markerElm.length) {
+      $markerElm.remove();
+    }
+  }
+
+  public focusOutCalInput(): void {
+    this.insertAtCursor('<span id="inputMarker"></span>');
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

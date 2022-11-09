@@ -117,7 +117,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
 
   // previous zoom size
   private preZoomSize: number = 0;
-  
+
   private _markerLayers: { layer : any, element : any}[] = [];
 
   private _isChangedZoom: boolean = false;
@@ -1391,8 +1391,11 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
       let size: number = 0;
       let isClustering: boolean = false;
 
-      if (!_.isUndefined(feature.getProperties()) && !_.isUndefined(feature.getProperties()['isClustering']) && !_.isUndefined(feature.getProperties().count)
-        && feature.getProperties()['isClustering'] === true) {
+      if (!_.isUndefined(feature.getProperties())
+        && !_.isUndefined(feature.getProperties()['isClustering'])
+        && !_.isUndefined(feature.getProperties().count)
+        && feature.getProperties()['isClustering'] === true
+        && CommonConstant.MAP_CLUSTER_ZOOM_SIZE >= this.olmap.getView().getZoom() ) {
         isClustering = true;
         size = feature.getProperties().count;
       }
@@ -1989,7 +1992,8 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
         && !_.isUndefined(feature.getProperties()['isClustering'])
         && feature.getProperties()['isClustering'] === true
         && !_.isUndefined(feature.getProperties()['count'])
-        && feature.getProperties()['count'] > 1)
+        && feature.getProperties()['count'] > 1
+        && CommonConstant.MAP_CLUSTER_ZOOM_SIZE >= this.olmap.getView().getZoom())
       ||
       (!_.isUndefined(feature.getProperties()['layerNum'])
         // 비교레이어 영역 layer에 마우스 오버시 tooltip 안보이게 함
@@ -2995,7 +2999,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
 
       if( this.isLoadData ) {
         this.changeDrawEvent.emit();
-      }      
+      }
     }
 
     // TODO selection (drag end)

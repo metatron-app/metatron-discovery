@@ -1004,7 +1004,7 @@ export class LineChartComponent extends BaseChart<UILineChart> implements OnInit
     const list: any = _.cloneDeep(ChartColorList[schema]);
 
     // userCodes가 있는경우 codes대신 userCodes를 설정한다
-    if (color.mapping) {
+    if (color.settingUseFl && color.mapping) {
       Object.keys(color.mapping).forEach((key, index) => {
         list[index] = color.mapping[key];
       });
@@ -1100,7 +1100,7 @@ export class LineChartComponent extends BaseChart<UILineChart> implements OnInit
         const colorCodes = _.cloneDeep(ChartColorList[schema]);
 
         // userCodes가 있는경우 codes대신 userCodes를 설정한다
-        if (color.mapping) {
+        if (color.settingUseFl && color.mapping) {
           Object.keys(color.mapping).forEach((key, index) => {
 
             colorCodes[index] = color.mapping[key];

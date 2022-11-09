@@ -677,7 +677,6 @@ export class DatasourceService extends AbstractService {
         geoFieldArr.push(geoFieldCnt);
       }
 
-
       // set current layer values
       for (let idx = 0; idx < query.shelf.layers.length; idx++) {
         for (const layer of query.shelf.layers[idx].fields) {
@@ -708,7 +707,8 @@ export class DatasourceService extends AbstractService {
 
                 // clustering
                 const chart = (pageConf.chart as UIMapOption);
-                if (chart.layers[idx].type === MapLayerType.CLUSTER && chart.layers[idx]['clustering']) {
+
+                if (chart.layers[idx]['clustering'] && CommonConstant.MAP_CLUSTER_ZOOM_SIZE >= chart.zoomSize) {
                   // cluster 값 변경
                   let clusterPrecision: number = 6;
                   if (chart['layers'][idx]['changeCoverage']) {
@@ -730,7 +730,8 @@ export class DatasourceService extends AbstractService {
                     precision: (_.isNaN(clusterPrecision) ? 6 : clusterPrecision)
                   } as GeoHashFormat);
 
-                } else if (chart.layers[idx].type === MapLayerType.SYMBOL) {
+                } else if (chart.layers[idx].type === MapLayerType.SYMBOL
+                  || (chart.layers[idx]['clustering'] && CommonConstant.MAP_CLUSTER_ZOOM_SIZE < chart.zoomSize ) ) {
 
                   query.shelf.layers[idx].view = ({
                     type: 'abbr',

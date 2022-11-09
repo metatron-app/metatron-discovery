@@ -33,6 +33,9 @@ import {TimeListFilter} from '@domain/workbook/configurations/filter/time-list-f
 import {FilterUtil} from '../util/filter.util';
 import {DashboardUtil} from '../util/dashboard.util';
 import {AbstractFilterPopupComponent} from './abstract-filter-popup.component';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+
+declare let $;
 
 @Component({
   selector: 'app-config-filter-select',
@@ -121,7 +124,8 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
 
   // 생성자
   constructor(protected elementRef: ElementRef,
-              protected injector: Injector) {
+              protected injector: Injector,
+              protected broadCaster: EventBroadcaster) {
     super(elementRef, injector);
   }
 
@@ -222,32 +226,38 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
   /**
    * 필드 선택 ( 타임 스탬프 필드가 아닐 경우 바로 편집 화면으로 이동 )
    * @param {Field | CustomField} field
+   * @param {MouseEvent} event
    */
-  public selectField(field: Field | CustomField) {
+  public selectField(field: Field | CustomField, event: MouseEvent) {
     if (field['type'] === 'ARRAY' || field['type'] === 'HASHED_MAP') {
       return;
     }
 
-    if (this.isSelectedField(field)) {
-      this._selectedField = null;
+    const $target = $( event.target );
+    if( $target.hasClass('ddp-btn-del') ) {
+      // delete
+      this.deleteFilter(field);
     } else {
-      this._selectedField = field;
-
-      if (!field['isTimestamp']) {
-        if (field['isEditable']) {
-          this.editFilter(field);
-        } else {
-          this.addFilter(field);
-        }
+      if (this.isSelectedField(field)) {
+        this._selectedField = null;
       } else {
-        if (field['isEditable']) {
-          const timeFilter: TimeFilter = field['filter'] ? field['filter'] : field['someChartFilter'];
-          this.editTimestampFilter(field, timeFilter.timeUnit, timeFilter.byTimeUnit);
+        this._selectedField = field;
+
+        if (!field['isTimestamp']) {
+          if (field['isEditable']) {
+            this.editFilter(field);
+          } else {
+            this.addFilter(field);
+          }
         } else {
-          this.addTimestampFilter(field);
+          if (field['isEditable']) {
+            const timeFilter: TimeFilter = field['filter'] ? field['filter'] : field['someChartFilter'];
+            this.editTimestampFilter(field, timeFilter.timeUnit, timeFilter.byTimeUnit);
+          } else {
+            this.addTimestampFilter(field);
+          }
         }
       }
-
     }
   } // function - selectField
 
@@ -394,6 +404,16 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
     }
 
   } // function - editTimestampFilter
+
+  /**
+   * 필터 삭제
+   * @param field
+   */
+  public deleteFilter(field: Field | CustomField) {
+    console.log( '>>>>>> delete filter', field);
+    this.broadCaster.broadcast('DELETE_FILTER', {field: field});
+    this.close();
+  } // function - deleteFilter
 
   /**
    * 검색 조회

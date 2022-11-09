@@ -79,14 +79,14 @@ export class ColorOptionConverter {
         break;
       }
       case ChartColorType.SERIES: {
-        const schema = (color as UIChartColorBySeries).schema;
+        const colorBySeries = (color as UIChartColorBySeries);
+        const schema = colorBySeries.schema;
         const colorCodes = _.cloneDeep(ChartColorList[schema]);
 
         // userCodes가 있는경우 codes대신 userCodes를 설정한다
-        if ((color as UIChartColorBySeries).mapping) {
-          Object.keys((color as UIChartColorBySeries).mapping).forEach((key, index) => {
-
-            colorCodes[index] = (color as UIChartColorBySeries).mapping[key];
+        if ( colorBySeries.settingUseFl && colorBySeries.mapping) {
+          Object.keys(colorBySeries.mapping).forEach((key, index) => {
+            colorCodes[index] = colorBySeries.mapping[key];
           });
         }
 

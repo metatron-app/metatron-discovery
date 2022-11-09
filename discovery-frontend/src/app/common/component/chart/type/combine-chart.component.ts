@@ -188,7 +188,7 @@ export class CombineChartComponent extends BaseChart<UICombineChart> implements 
 
         const axisPivot = this.pivot.aggregations.find(aggr => {
           const aggrName = aggr.aggregationType + '(' + aggr.name + ')';
-          return (aggrName === axis);
+          return (aggr.alias === axis || aggrName === axis);
         });
 
         if (undefined !== axisPivot) {

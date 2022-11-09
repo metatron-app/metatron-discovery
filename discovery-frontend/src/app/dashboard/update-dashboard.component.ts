@@ -320,6 +320,25 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       })
     );
 
+    // 필터 삭제 이벤트
+    this.subscriptions.push(
+      this.broadCaster.on<any>('DELETE_FILTER').subscribe(data => {
+        if( this.isShowPage ) {
+          console.log( '>>>>> update-dashboard.component - isShowPage', this.isShowPage );
+        } else {
+          const targetField = data.field as Field;
+          if( this.dashboard.configuration.filters ) {
+            const filter = this.dashboard.configuration.filters.find(item => {
+              return (item.field === targetField.name && item.dataSource === targetField.dataSource);
+            });
+            if( filter ) {
+              this.deleteFilter(filter);
+            }
+          }
+        }
+      })
+    );
+
     this.selectedRightTab = RightTab.CHART;
 
     // 팝업에 대한 이벤트 처리

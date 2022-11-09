@@ -37,6 +37,11 @@ export class TooltipOptionComponent extends LabelBaseOptionComponent implements 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  // 소수 자리수
+  public decimal: number = 2;
+  public decimalCopy: number = this.decimal;
+  public MIN_DIGIT: number = 0;
+  public MAX_DIGIT: number = 5;
 
   @Input('uiOption')
   public set setUiOption(uiOption: UIOption) {
@@ -53,6 +58,13 @@ export class TooltipOptionComponent extends LabelBaseOptionComponent implements 
 
     // useDefaultFormat이 없는경우
     if (typeof uiOption.toolTip.useDefaultFormat === 'undefined') uiOption.toolTip.useDefaultFormat = true;
+
+    if( !isNaN(uiOption.toolTip.decimal) ) {
+      this.decimal = uiOption.toolTip.decimal;
+    } else if (!isNaN(uiOption.valueFormat.decimal)) {
+      this.decimal = uiOption.valueFormat.decimal
+    }
+    this.decimalCopy = this.decimal;
 
     // Set
     this.uiOption = uiOption;
@@ -144,6 +156,57 @@ export class TooltipOptionComponent extends LabelBaseOptionComponent implements 
   public changeUseDefaultFormat(): void {
 
     this.uiOption.toolTip.useDefaultFormat = !this.uiOption.toolTip.useDefaultFormat;
+    this.apply();
+  }
+
+
+  /**
+   * 자리수 변경 핸들러
+   * @param isPlus
+   */
+  public onDigitChange(isPlus: boolean): void {
+    if (isPlus) {
+
+      if (this.decimal === this.MAX_DIGIT) {
+        return;
+      }
+
+      this.decimal = this.decimal + 1;
+    } else {
+
+      if (this.decimal === this.MIN_DIGIT) {
+        return;
+      }
+
+      this.decimal = this.decimal - 1;
+    }
+
+    this.decimalCopy = this.decimal;
+
+    this.uiOption.toolTip.decimal = this.decimal;
+
+    // 적용
+    this.apply();
+  }
+
+  /**
+   * 자리수 입력 변경후 핸들러
+   */
+  public onDigitValid(): void {
+
+    if (this.decimalCopy === this.decimal) {
+      return;
+    }
+
+    if (this.decimalCopy < this.MIN_DIGIT || this.decimalCopy > this.MAX_DIGIT) {
+      this.decimalCopy = 2;
+    }
+
+    this.decimal = this.decimalCopy;
+
+    this.uiOption.toolTip.decimal = this.decimal;
+
+    // 적용
     this.apply();
   }
 

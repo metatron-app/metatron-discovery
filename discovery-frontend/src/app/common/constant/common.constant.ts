@@ -77,4 +77,6 @@ export class CommonConstant {
 
   public static MAP_ANALYSIS_LAYER_NAME: string = 'SpatialAnalysisLayer';
 
+  public static MAP_CLUSTER_ZOOM_SIZE: number = 20;
+
 }
