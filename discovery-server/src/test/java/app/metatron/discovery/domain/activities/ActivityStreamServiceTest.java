@@ -48,5 +48,12 @@ public class ActivityStreamServiceTest extends AbstractIntegrationTest {
         testActivityStream3.setObjectId(null);
 
         Assert.assertFalse(activityStreamService.checkByExclusionConditions(testActivityStream3));
+    
+        ActivityStream testActivityStream4 = new ActivityStream();
+        testActivityStream4.setAction(ActivityType.ARRIVE);
+        testActivityStream4.setRemoteHost("0:0:0:0:0:0:0:1:contain");
+        testActivityStream4.setObjectId("polaris_trusted");
+    
+        Assert.assertTrue(activityStreamService.checkByExclusionConditions(testActivityStream4));
     }
 }

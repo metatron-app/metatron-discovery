@@ -17,6 +17,7 @@ package app.metatron.discovery.domain.activities;
 import com.querydsl.core.types.Predicate;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -131,7 +132,7 @@ public class ActivityStreamService {
       for (String key : excludesCondition.keySet()) {
         try {
           Object value = PropertyUtils.getProperty(activityStream, key);
-          judge = excludesCondition.get(key).equals(value == null ? null : value.toString());
+          judge = StringUtils.contains(value == null ? null : value.toString(), excludesCondition.get(key));
         } catch (Exception e) {
           judge = false;
         } finally {
