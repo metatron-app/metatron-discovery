@@ -117,15 +117,9 @@ public class WidgetService {
         HashMap dataSourceMap = (HashMap) chartConfiguration.get("dataSource");
         if (forceChanged || fromDataSource.getEngineName().equals(dataSourceMap.get("engineName"))) {
           LOGGER.info("changeDatasource : widgetDataSource({}), fromDataSource({})", dataSourceMap.get("engineName"), fromDataSource.getEngineName());
-          HashMap toDataSourceMap = (HashMap) GlobalObjectMapper.readValue(
-              GlobalObjectMapper.writeValueAsString(ProjectionUtils.toResource(projectionFactory,
-                                                                               dataSourceProjections.getProjectionByName("forDetailView"),
-                                                                               toDataSource)));
-          toDataSourceMap.put("uiMetaData",
-                              ProjectionUtils.toResource(projectionFactory,
-                                                             metadataProjections.getProjectionByName("forItemView"),
-                                                             metadataRepository.findBySource(toDataSource.getId(), null, null).get(0)));
-          chartConfiguration.put("dataSource", toDataSourceMap);
+          chartConfiguration.put("dataSource", ProjectionUtils.toResource(projectionFactory,
+                  dataSourceProjections.getProjectionByName("forDetailViewWithUiMetadata"),
+                  toDataSource));
         }
       }
 
