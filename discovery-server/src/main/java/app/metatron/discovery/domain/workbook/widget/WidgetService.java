@@ -17,14 +17,18 @@ package app.metatron.discovery.domain.workbook.widget;
 import app.metatron.discovery.domain.context.ContextService;
 import app.metatron.discovery.domain.datasource.*;
 import app.metatron.discovery.domain.mdm.Metadata;
+import app.metatron.discovery.domain.mdm.MetadataProjections;
 import app.metatron.discovery.domain.user.CachedUserService;
+import app.metatron.discovery.util.ProjectionUtils;
 import com.google.common.collect.Lists;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.collections4.CollectionUtils;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -66,6 +70,12 @@ public class WidgetService {
 
   @Autowired
   CachedUserService cachedUserService;
+
+  @Autowired
+  ProjectionFactory projectionFactory;
+
+  DataSourceProjections dataSourceProjections = new DataSourceProjections();
+  MetadataProjections metadataProjections = new MetadataProjections();
 
 
   @Transactional
@@ -117,6 +127,18 @@ public class WidgetService {
         if (forceChanged || fromDataSource.getEngineName().equals(dataSourceMap.get("engineName"))) {
           LOGGER.info("changeDatasource : widgetDataSource({}), fromDataSource({})", dataSourceMap.get("engineName"), fromDataSource.getEngineName());
           chartConfiguration.put("dataSource", convertProjection(toDataSource));
+
+          /*HashMap toDataSourceMap = (HashMap) GlobalObjectMapper.readValue(
+                  GlobalObjectMapper.writeValueAsString(ProjectionUtils.toResource(projectionFactory,
+                          dataSourceProjections.getProjectionByName("forDetailView"),
+                          toDataSource)));
+          toDataSourceMap.put("uiMetaData",
+                  ProjectionUtils.toResource(projectionFactory,
+                          metadataProjections.getProjectionByName("forItemView"),
+                          metadataRepository.findBySource(toDataSource.getId(), null, null).get(0)));
+          chartConfiguration.put("dataSource", toDataSourceMap);*/
+
+
         }
       }
 
@@ -151,7 +173,8 @@ public class WidgetService {
       }
     }
 
-    widget.setConfiguration(GlobalObjectMapper.writeValueAsString(widgetConfiguration));
+    //widget.setConfiguration(GlobalObjectMapper.writeValueAsString(widgetConfiguration));
+    widget.setConfiguration(new JSONObject(widgetConfiguration).toString());
     LOGGER.info("changeDatasource : {}'s after configuration : {}", widget.getId(), widget.getConfiguration());
     return widgetRepository.saveAndFlush(widget);
   }
