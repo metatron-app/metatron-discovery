@@ -258,4 +258,12 @@ public class DataSourceProjections extends BaseProjections {
     Boolean getFieldsMatched();
   }
 
+  @Projection(types = DataSource.class, name = "forDetailViewWithUiMetadata")
+  public interface ForDetailIncludeUiMetadataProjection extends ForDetailProjection {
+    @Value("#{T(app.metatron.discovery.util.ProjectionUtils).toResource(@projectionFactory, " +
+            "T(app.metatron.discovery.domain.mdm.source.MetadataSourceProjections$ForDetailViewProjection), " +
+            "T(app.metatron.discovery.util.HibernateUtils).unproxy(@metadataRepository.findBySource(target.id, null, null).get(0)))}")
+    Object getUiMetadata();
+  }
+
 }

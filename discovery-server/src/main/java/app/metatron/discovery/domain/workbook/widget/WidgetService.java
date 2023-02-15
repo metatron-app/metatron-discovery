@@ -14,13 +14,18 @@
 
 package app.metatron.discovery.domain.workbook.widget;
 
+import app.metatron.discovery.domain.context.ContextService;
+import app.metatron.discovery.domain.datasource.*;
+import app.metatron.discovery.domain.mdm.Metadata;
+import app.metatron.discovery.domain.user.CachedUserService;
 import com.google.common.collect.Lists;
 
+import com.google.common.collect.Maps;
 import org.apache.commons.collections4.CollectionUtils;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -30,11 +35,6 @@ import javax.transaction.Transactional;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.exception.MetatronException;
-import app.metatron.discovery.domain.datasource.DataSourceProjections;
-import app.metatron.discovery.domain.datasource.DataSourceRepository;
-import app.metatron.discovery.domain.datasource.DataSourceService;
-import app.metatron.discovery.domain.datasource.DataSourceTemporary;
-import app.metatron.discovery.domain.mdm.MetadataProjections;
 import app.metatron.discovery.domain.mdm.MetadataRepository;
 import app.metatron.discovery.domain.workbook.DashBoard;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DataSource;
@@ -44,7 +44,6 @@ import app.metatron.discovery.domain.workbook.configurations.datasource.SingleDa
 import app.metatron.discovery.domain.workbook.configurations.filter.*;
 import app.metatron.discovery.domain.workbook.configurations.widget.FilterWidgetConfiguration;
 import app.metatron.discovery.domain.workbook.configurations.widget.PageWidgetConfiguration;
-import app.metatron.discovery.util.ProjectionUtils;
 
 @Component
 public class WidgetService {
@@ -64,10 +63,10 @@ public class WidgetService {
   DataSourceService dataSourceService;
 
   @Autowired
-  ProjectionFactory projectionFactory;
+  ContextService contextService;
 
-  DataSourceProjections dataSourceProjections = new DataSourceProjections();
-  MetadataProjections metadataProjections = new MetadataProjections();
+  @Autowired
+  CachedUserService cachedUserService;
 
   @Transactional
   public Widget copy(Widget widget, DashBoard parent, boolean addPrefix) {
@@ -117,15 +116,7 @@ public class WidgetService {
         HashMap dataSourceMap = (HashMap) chartConfiguration.get("dataSource");
         if (forceChanged || fromDataSource.getEngineName().equals(dataSourceMap.get("engineName"))) {
           LOGGER.info("changeDatasource : widgetDataSource({}), fromDataSource({})", dataSourceMap.get("engineName"), fromDataSource.getEngineName());
-          HashMap toDataSourceMap = (HashMap) GlobalObjectMapper.readValue(
-              GlobalObjectMapper.writeValueAsString(ProjectionUtils.toResource(projectionFactory,
-                                                                               dataSourceProjections.getProjectionByName("forDetailView"),
-                                                                               toDataSource)));
-          toDataSourceMap.put("uiMetaData",
-                              ProjectionUtils.toResource(projectionFactory,
-                                                             metadataProjections.getProjectionByName("forItemView"),
-                                                             metadataRepository.findBySource(toDataSource.getId(), null, null).get(0)));
-          chartConfiguration.put("dataSource", toDataSourceMap);
+          chartConfiguration.put("dataSource", convertProjection(toDataSource));
         }
       }
 
@@ -160,7 +151,7 @@ public class WidgetService {
       }
     }
 
-    widget.setConfiguration(GlobalObjectMapper.writeValueAsString(widgetConfiguration));
+    widget.setConfiguration(new JSONObject(widgetConfiguration).toString());
     LOGGER.info("changeDatasource : {}'s after configuration : {}", widget.getId(), widget.getConfiguration());
     return widgetRepository.saveAndFlush(widget);
   }
@@ -276,4 +267,40 @@ public class WidgetService {
       throw new MetatronException("no matching type (" + className + ")");
     }
   }
+
+  private HashMap convertProjection(app.metatron.discovery.domain.datasource.DataSource dataSource) {
+    HashMap map = Maps.newHashMap();
+    map.put("id", dataSource.getId());
+    map.put("name", dataSource.getName());
+    map.put("engineName", dataSource.getEngineName());
+    map.put("description", dataSource.getDescription());
+    map.put("dsType", dataSource.getDsType());
+    map.put("connType", dataSource.getConnType());
+    map.put("summary", dataSource.getSummary());
+    map.put("fields", dataSource.findUnloadedField());
+    map.put("ingestion", dataSource.getIngestionInfo());
+    map.put("connection", dataSource.getConnection());
+    map.put("snapShot", dataSource.getSnapshot());
+    map.put("published", dataSource.getPublished());
+    map.put("granularity", dataSource.getGranularity());
+    map.put("segGranularity", dataSource.getSegGranularity());
+    map.put("status", dataSource.getStatus());
+    map.put("srcType", dataSource.getSrcType());
+    map.put("temporary", dataSource.getTemporary());
+    map.put("valid", dataSource.getValid());
+    map.put("contexts", contextService.getContexts(dataSource));
+    map.put("createdBy", cachedUserService.findUserProfile(dataSource.getCreatedBy()));
+    map.put("modifiedBy", cachedUserService.findUserProfile(dataSource.getModifiedBy()));
+    map.put("createdTime", dataSource.getCreatedTime());
+    map.put("modifiedTime", dataSource.getModifiedTime());
+    map.put("fieldsMatched", dataSource.getFieldsMatched());
+
+    Metadata metadata = metadataRepository.findBySource(dataSource.getId(), null, null).get(0);
+    HashMap uiMetadata = Maps.newHashMap();
+    uiMetadata.put("name", metadata.getName());
+    uiMetadata.put("columns", metadata.getColumns());
+    map.put("uiMetadata", uiMetadata);
+    return map;
+  }
+
 }
