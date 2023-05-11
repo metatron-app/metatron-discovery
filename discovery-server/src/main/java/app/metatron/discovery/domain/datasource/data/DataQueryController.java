@@ -30,6 +30,7 @@ import app.metatron.discovery.domain.workbook.configurations.field.Field;
 import app.metatron.discovery.domain.workbook.configurations.field.UserDefinedField;
 import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
 import app.metatron.discovery.domain.workbook.configurations.filter.TimeListFilter;
+import app.metatron.discovery.domain.workbook.configurations.filter.TimeRangeFilter;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
 import app.metatron.discovery.query.polaris.ComputationalField;
 import app.metatron.discovery.util.EnumUtils;
@@ -167,16 +168,28 @@ public class DataQueryController {
 
     DateTime baseTime;
     if (timeCompareRequest.getBasePoint() == BasePoint.LAST) {
+      //명시적인 BaseTime 파라미터가 없다면..
       if (StringUtils.isEmpty(timeCompareRequest.getBaseTime())) {
-        CandidateQueryRequest candidateQueryRequest = new CandidateQueryRequest();
-        candidateQueryRequest.setDataSource(timeCompareRequest.getDataSource());
-        candidateQueryRequest.setTargetField(timeCompareRequest.getTimeField());
-        dataSourceValidator.validateQuery(candidateQueryRequest);
-        Object result = engineQueryService.candidate(candidateQueryRequest);
-        if (result instanceof ObjectNode) {
-          baseTime = DateTime.parse(((ObjectNode) result).get("maxTime").textValue());
+        //TimeRangeFilter의 interval to 값에서 baseTime 정보를 추출한다.
+        TimeRangeFilter timeRangeFilter = (TimeRangeFilter) timeCompareRequest.getFilters().get(0);
+        String intervalString = timeRangeFilter.getIntervals().get(0);
+        String intervalTo = intervalString.split("/")[1];
+
+        //interval to 값이 LATEST 값일 경우는 Data 기준 MaxTime을 사용한다.
+        if (intervalTo.equals("LATEST_DATETIME")) {
+          CandidateQueryRequest candidateQueryRequest = new CandidateQueryRequest();
+          candidateQueryRequest.setDataSource(timeCompareRequest.getDataSource());
+          candidateQueryRequest.setTargetField(timeCompareRequest.getTimeField());
+          dataSourceValidator.validateQuery(candidateQueryRequest);
+          Object result = engineQueryService.candidate(candidateQueryRequest);
+          if (result instanceof ObjectNode) {
+            baseTime = DateTime.parse(((ObjectNode) result).get("maxTime").textValue());
+          } else {
+            baseTime = DateTime.now(DateTimeZone.forID(timeCompareRequest.getTimeZone()));
+          }
         } else {
-          baseTime = DateTime.now(DateTimeZone.forID(timeCompareRequest.getTimeZone()));
+          List<DateTime> intervalDateTimes = timeRangeFilter.parseDateTimes(intervalString, false);
+          baseTime = intervalDateTimes.get(1);
         }
       } else {
         baseTime = DateTime.parse(timeCompareRequest.getBaseTime(),
