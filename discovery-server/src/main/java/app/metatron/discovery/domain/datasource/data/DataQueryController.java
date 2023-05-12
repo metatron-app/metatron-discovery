@@ -166,17 +166,31 @@ public class DataQueryController {
 
     Map<String, Object> resultMap = Maps.newLinkedHashMap();
 
-    DateTime baseTime;
+    DateTime baseTime = null;
+    // BasePoint 지정이 없을 경우 기본값이 LAST
     if (timeCompareRequest.getBasePoint() == BasePoint.LAST) {
-      //명시적인 BaseTime 파라미터가 없다면..
+      //명시적인 BaseTime 파라미터가 없다면..(현재 FE에서 BaseTime 파라미터를 보내지 않음)
       if (StringUtils.isEmpty(timeCompareRequest.getBaseTime())) {
-        //TimeRangeFilter의 interval to 값에서 baseTime 정보를 추출한다.
-        TimeRangeFilter timeRangeFilter = (TimeRangeFilter) timeCompareRequest.getFilters().get(0);
-        String intervalString = timeRangeFilter.getIntervals().get(0);
-        String intervalTo = intervalString.split("/")[1];
 
-        //interval to 값이 LATEST 값일 경우는 Data 기준 MaxTime을 사용한다.
-        if (intervalTo.equals("LATEST_DATETIME")) {
+        //Filter 정보가 존재할 경우 TimeRangeFilter의 interval to 값에서 baseTime 정보를 추출한다.
+        //Filter 정보가 없거나, LASTEST_DATETIME일 경우는 Data 기준 MaxTime을 baseTime으로 사용한다.
+        if(timeCompareRequest.getFilters() != null && timeCompareRequest.getFilters().size() == 0){
+          TimeRangeFilter timeRangeFilter = (TimeRangeFilter) timeCompareRequest.getFilters().get(0);
+          String intervalString = timeRangeFilter.getIntervals().get(0);
+          String intervalTo = intervalString.split("/")[1];
+
+          //interval to 값이 LATEST_DATETIME 값일 경우는 Data 기준 MaxTime을 사용한다.
+          if (intervalTo.equals("LATEST_DATETIME")) {
+            baseTime = null;
+          } else {
+            //interval to 값을 baseTime으로 사용한다.
+            List<DateTime> intervalDateTimes = timeRangeFilter.parseDateTimes(intervalString, false);
+            baseTime = intervalDateTimes.get(1);
+          }
+        }
+
+        //baseTime이 null 일 경우는 Data기준 MaxTime을 사용한다.
+        if (baseTime == null) {
           CandidateQueryRequest candidateQueryRequest = new CandidateQueryRequest();
           candidateQueryRequest.setDataSource(timeCompareRequest.getDataSource());
           candidateQueryRequest.setTargetField(timeCompareRequest.getTimeField());
@@ -187,9 +201,6 @@ public class DataQueryController {
           } else {
             baseTime = DateTime.now(DateTimeZone.forID(timeCompareRequest.getTimeZone()));
           }
-        } else {
-          List<DateTime> intervalDateTimes = timeRangeFilter.parseDateTimes(intervalString, false);
-          baseTime = intervalDateTimes.get(1);
         }
       } else {
         baseTime = DateTime.parse(timeCompareRequest.getBaseTime(),
