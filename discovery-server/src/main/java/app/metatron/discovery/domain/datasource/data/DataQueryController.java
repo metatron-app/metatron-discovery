@@ -34,13 +34,17 @@ import app.metatron.discovery.domain.workbook.configurations.filter.TimeRangeFil
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
 import app.metatron.discovery.query.polaris.ComputationalField;
 import app.metatron.discovery.util.EnumUtils;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import org.apache.commons.collections.ListUtils;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
@@ -174,18 +178,21 @@ public class DataQueryController {
 
         //Filter 정보가 존재할 경우 TimeRangeFilter의 interval to 값에서 baseTime 정보를 추출한다.
         //Filter 정보가 없거나, LASTEST_DATETIME일 경우는 Data 기준 MaxTime을 baseTime으로 사용한다.
-        if(timeCompareRequest.getFilters() != null && timeCompareRequest.getFilters().size() == 0){
+        if(timeCompareRequest.getFilters() != null && timeCompareRequest.getFilters().size() > 1){
           TimeRangeFilter timeRangeFilter = (TimeRangeFilter) timeCompareRequest.getFilters().get(0);
-          String intervalString = timeRangeFilter.getIntervals().get(0);
-          String intervalTo = intervalString.split("/")[1];
 
-          //interval to 값이 LATEST_DATETIME 값일 경우는 Data 기준 MaxTime을 사용한다.
-          if (intervalTo.equals("LATEST_DATETIME")) {
-            baseTime = null;
-          } else {
-            //interval to 값을 baseTime으로 사용한다.
-            List<DateTime> intervalDateTimes = timeRangeFilter.parseDateTimes(intervalString, false);
-            baseTime = intervalDateTimes.get(1);
+          if(timeRangeFilter.getIntervals() != null && timeRangeFilter.getIntervals().size() > 1) {
+            String intervalString = timeRangeFilter.getIntervals().get(0);
+            String intervalTo = intervalString.split("/")[1];
+
+            //interval to 값이 LATEST_DATETIME 값일 경우는 Data 기준 MaxTime을 사용한다.
+            if (intervalTo.equals("LATEST_DATETIME")) {
+              baseTime = null;
+            } else {
+              //interval to 값을 baseTime으로 사용한다.
+              List<DateTime> intervalDateTimes = timeRangeFilter.parseDateTimes(intervalString, false);
+              baseTime = intervalDateTimes.get(1);
+            }
           }
         }
 
