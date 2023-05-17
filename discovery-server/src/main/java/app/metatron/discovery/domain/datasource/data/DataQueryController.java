@@ -30,16 +30,21 @@ import app.metatron.discovery.domain.workbook.configurations.field.Field;
 import app.metatron.discovery.domain.workbook.configurations.field.UserDefinedField;
 import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
 import app.metatron.discovery.domain.workbook.configurations.filter.TimeListFilter;
+import app.metatron.discovery.domain.workbook.configurations.filter.TimeRangeFilter;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
 import app.metatron.discovery.query.polaris.ComputationalField;
 import app.metatron.discovery.util.EnumUtils;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import org.apache.commons.collections.ListUtils;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
@@ -165,18 +170,44 @@ public class DataQueryController {
 
     Map<String, Object> resultMap = Maps.newLinkedHashMap();
 
-    DateTime baseTime;
+    DateTime baseTime = null;
+    // BasePoint 지정이 없을 경우 기본값이 LAST
     if (timeCompareRequest.getBasePoint() == BasePoint.LAST) {
+      //명시적인 BaseTime 파라미터가 없다면..(현재 FE에서 BaseTime 파라미터를 보내지 않음)
       if (StringUtils.isEmpty(timeCompareRequest.getBaseTime())) {
-        CandidateQueryRequest candidateQueryRequest = new CandidateQueryRequest();
-        candidateQueryRequest.setDataSource(timeCompareRequest.getDataSource());
-        candidateQueryRequest.setTargetField(timeCompareRequest.getTimeField());
-        dataSourceValidator.validateQuery(candidateQueryRequest);
-        Object result = engineQueryService.candidate(candidateQueryRequest);
-        if (result instanceof ObjectNode) {
-          baseTime = DateTime.parse(((ObjectNode) result).get("maxTime").textValue());
-        } else {
-          baseTime = DateTime.now(DateTimeZone.forID(timeCompareRequest.getTimeZone()));
+
+        //Filter 정보가 존재할 경우 TimeRangeFilter의 interval to 값에서 baseTime 정보를 추출한다.
+        //Filter 정보가 없거나, LASTEST_DATETIME일 경우는 Data 기준 MaxTime을 baseTime으로 사용한다.
+        if(timeCompareRequest.getFilters() != null && timeCompareRequest.getFilters().size() > 1){
+          TimeRangeFilter timeRangeFilter = (TimeRangeFilter) timeCompareRequest.getFilters().get(0);
+
+          if(timeRangeFilter.getIntervals() != null && timeRangeFilter.getIntervals().size() > 1) {
+            String intervalString = timeRangeFilter.getIntervals().get(0);
+            String intervalTo = intervalString.split("/")[1];
+
+            //interval to 값이 LATEST_DATETIME 값일 경우는 Data 기준 MaxTime을 사용한다.
+            if (intervalTo.equals("LATEST_DATETIME")) {
+              baseTime = null;
+            } else {
+              //interval to 값을 baseTime으로 사용한다.
+              List<DateTime> intervalDateTimes = timeRangeFilter.parseDateTimes(intervalString, false);
+              baseTime = intervalDateTimes.get(1);
+            }
+          }
+        }
+
+        //baseTime이 null 일 경우는 Data기준 MaxTime을 사용한다.
+        if (baseTime == null) {
+          CandidateQueryRequest candidateQueryRequest = new CandidateQueryRequest();
+          candidateQueryRequest.setDataSource(timeCompareRequest.getDataSource());
+          candidateQueryRequest.setTargetField(timeCompareRequest.getTimeField());
+          dataSourceValidator.validateQuery(candidateQueryRequest);
+          Object result = engineQueryService.candidate(candidateQueryRequest);
+          if (result instanceof ObjectNode) {
+            baseTime = DateTime.parse(((ObjectNode) result).get("maxTime").textValue());
+          } else {
+            baseTime = DateTime.now(DateTimeZone.forID(timeCompareRequest.getTimeZone()));
+          }
         }
       } else {
         baseTime = DateTime.parse(timeCompareRequest.getBaseTime(),
