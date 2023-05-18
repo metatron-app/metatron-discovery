@@ -178,10 +178,10 @@ public class DataQueryController {
 
         //Filter 정보가 존재할 경우 TimeRangeFilter의 interval to 값에서 baseTime 정보를 추출한다.
         //Filter 정보가 없거나, LASTEST_DATETIME일 경우는 Data 기준 MaxTime을 baseTime으로 사용한다.
-        if(timeCompareRequest.getFilters() != null && timeCompareRequest.getFilters().size() > 1){
+        if(timeCompareRequest.getFilters() != null && timeCompareRequest.getFilters().size() > 0){
           TimeRangeFilter timeRangeFilter = (TimeRangeFilter) timeCompareRequest.getFilters().get(0);
 
-          if(timeRangeFilter.getIntervals() != null && timeRangeFilter.getIntervals().size() > 1) {
+          if(timeRangeFilter.getIntervals() != null && timeRangeFilter.getIntervals().size() > 0) {
             String intervalString = timeRangeFilter.getIntervals().get(0);
             String intervalTo = intervalString.split("/")[1];
 
