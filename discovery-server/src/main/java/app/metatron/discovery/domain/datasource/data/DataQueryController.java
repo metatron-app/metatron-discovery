@@ -178,20 +178,24 @@ public class DataQueryController {
 
         //Filter 정보가 존재할 경우 TimeRangeFilter의 interval to 값에서 baseTime 정보를 추출한다.
         //Filter 정보가 없거나, LASTEST_DATETIME일 경우는 Data 기준 MaxTime을 baseTime으로 사용한다.
-        if(timeCompareRequest.getFilters() != null && timeCompareRequest.getFilters().size() > 0){
-          TimeRangeFilter timeRangeFilter = (TimeRangeFilter) timeCompareRequest.getFilters().get(0);
+        if (timeCompareRequest.getFilters() != null && timeCompareRequest.getFilters().size() > 0){
+          for (Filter filter : timeCompareRequest.getFilters()){
+            if (filter instanceof TimeRangeFilter){
+              TimeRangeFilter timeRangeFilter = (TimeRangeFilter) filter;
 
-          if(timeRangeFilter.getIntervals() != null && timeRangeFilter.getIntervals().size() > 0) {
-            String intervalString = timeRangeFilter.getIntervals().get(0);
-            String intervalTo = intervalString.split("/")[1];
+              if(timeRangeFilter.getIntervals() != null && timeRangeFilter.getIntervals().size() > 0) {
+                String intervalString = timeRangeFilter.getIntervals().get(0);
+                String intervalTo = intervalString.split("/")[1];
 
-            //interval to 값이 LATEST_DATETIME 값일 경우는 Data 기준 MaxTime을 사용한다.
-            if (intervalTo.equals("LATEST_DATETIME")) {
-              baseTime = null;
-            } else {
-              //interval to 값을 baseTime으로 사용한다.
-              List<DateTime> intervalDateTimes = timeRangeFilter.parseDateTimes(intervalString, false);
-              baseTime = intervalDateTimes.get(1);
+                //interval to 값이 LATEST_DATETIME 값일 경우는 Data 기준 MaxTime을 사용한다.
+                if (intervalTo.equals("LATEST_DATETIME")) {
+                  baseTime = null;
+                } else {
+                  //interval to 값을 baseTime으로 사용한다.
+                  List<DateTime> intervalDateTimes = timeRangeFilter.parseDateTimes(intervalString, false);
+                  baseTime = intervalDateTimes.get(1);
+                }
+              }
             }
           }
         }
