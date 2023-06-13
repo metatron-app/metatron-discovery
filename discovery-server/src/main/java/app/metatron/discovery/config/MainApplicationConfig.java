@@ -42,7 +42,6 @@ import javax.sql.DataSource;
     , repositoryFactoryBeanClass = CustomEnversRevisionRepositoryFactoryBean.class
 )
 @EnableEntityLinks
-@EnableAdminServer
 @ComponentScan(basePackages = {"app.metatron.discovery"})
 public class MainApplicationConfig {
 
