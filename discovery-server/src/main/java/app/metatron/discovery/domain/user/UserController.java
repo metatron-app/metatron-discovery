@@ -608,6 +608,7 @@ public class UserController {
    * @param additionalInfo
    * @return
    */
+  @PreAuthorize("authentication.name == #username or hasAuthority('PERM_SYSTEM_MANAGE_USER')")
   @RequestMapping(path = "/users/{username}/check/password", method = RequestMethod.POST)
   public ResponseEntity<?> checkPassword(@PathVariable("username") String username,
           @RequestBody Map<String, Object> additionalInfo) {
