@@ -243,16 +243,13 @@ public class UserController {
 
     if (user.getPassword() != null) {
       //check previous password
-        LOGGER.debug("updatedUser.getPassword() : {}", updatedUser.getPassword());
-        LOGGER.debug("user.getInitialPassword() : {}", user.getInitialPassword());
-        LOGGER.debug("passwordEncoder.matches(updatedUser.getPassword(), user.getInitialPassword()) : {}", passwordEncoder.matches(updatedUser.getPassword(), user.getInitialPassword()));
-      if (!passwordEncoder.matches(updatedUser.getPassword(), user.getInitialPassword())) {
+      if (!passwordEncoder.matches(user.getInitialPassword(), updatedUser.getPassword())) {
         LOGGER.debug("previous password not matched : {}", user.getInitialPassword());
         throw new UserException(UserErrorCodes.PASSWORD_NOT_MATCHED, "Password not matched (" + user.getInitialPassword() + ")");
       }
 
       //check password changed
-      if (!passwordEncoder.matches(updatedUser.getPassword(), user.getPassword())) {
+      if (!passwordEncoder.matches(user.getPassword(), updatedUser.getPassword())) {
         //if config minimum password change date exist..
         if (StringUtils.isNotEmpty(userProperties.getPassword().getMinimumUsePeriod())) {
           //parse to period
