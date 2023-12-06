@@ -300,7 +300,7 @@ export class ChangePasswordComponent extends AbstractComponent implements OnInit
   private _updatePassword(): void {
     // 로딩 show
     this.loadingShow();
-    const param = {password: this.newPassword, confirmPassword: this.rePassword};
+    const param = {initialPassword: this.password, password: this.newPassword, confirmPassword: this.rePassword};
     this.userService.updateUser(this._userId, param)
       .then((_result) => {
         // 로딩 hide
