@@ -242,6 +242,12 @@ public class UserController {
     }
 
     if (user.getPassword() != null) {
+      //check previous password
+      if (!passwordEncoder.matches(updatedUser.getPassword(), user.getInitialPassword())) {
+        LOGGER.debug("previous password not matched : {}", user.getInitialPassword());
+        throw new UserException(UserErrorCodes.PASSWORD_NOT_MATCHED, "Password not matched (" + user.getInitialPassword() + ")");
+      }
+
       //check password changed
       if (!passwordEncoder.matches(updatedUser.getPassword(), user.getPassword())) {
         //if config minimum password change date exist..
