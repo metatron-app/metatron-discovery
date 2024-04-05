@@ -2523,7 +2523,7 @@ ul.ddp-list-chart li a .ddp-btn-control em.ddp-icon-del-s:hover:before {backgrou
 /***********************************************************************************************************
 	PAGE : 워크북 데이터 다운로드
 ************************************************************************************************************/
-.ddp-box-layout4.ddp-download {position:fixed; z-index:126; top:100%; margin-top:5px; min-width:355px; padding:20px 0; box-sizing:border-box;}
+.ddp-box-layout4.ddp-download {position:absolute; z-index:126; top:100%; margin-top:5px; min-width:355px; padding:20px 0; box-sizing:border-box;}
 .ddp-box-layout4.ddp-download .ddp-data-title {padding-top:0; }
 .ddp-box-layout4.ddp-download .ddp-data-title .ddp-data {margin-left:6px; color:#4b515b; font-size:12px; font-weight:normal;}
 .ddp-box-layout4.ddp-download .ddp-btn-down {float:left; padding:9px 0; width:160px; border-radius:2px; border:1px solid #d0d1d7; color:#90969f; font-size:13px; text-align:center; box-sizing:border-box;}

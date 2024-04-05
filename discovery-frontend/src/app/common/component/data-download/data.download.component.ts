@@ -305,8 +305,8 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
     const lnbmoreLeft: number = $target.offset().left;
     const lnbmoreTop: number = $target.offset().top;
     switch (position) {
-      case 'RIGHT' :
-        this.$element.find('.ddp-box-layout4.ddp-download').css({left: lnbmoreLeft - 340, top: lnbmoreTop + 20});
+      case 'RIGHT':
+        this.$element.find('.ddp-box-layout4.ddp-download').css({ left: - 320, top: 28 });
         break;
       case 'CENTER' :
         this.$element.find('.ddp-box-layout4.ddp-download').css({left: lnbmoreLeft - 170, top: lnbmoreTop + 20});
