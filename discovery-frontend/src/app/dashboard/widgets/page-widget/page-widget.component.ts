@@ -1010,9 +1010,12 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
    */
   public showInfoLayer(event: MouseEvent) {
     const $target: JQuery = $(event.target);
+    const docElm = document.documentElement;
+    const scrollLeft = (window.pageXOffset || docElm.scrollLeft) - (docElm.clientLeft || 0);
+    const scrollTop = (window.pageYOffset || docElm.scrollTop)  - (docElm.clientTop || 0);
     const btnLeft: number = $target.offset().left;
     const btnTop: number = $target.offset().top;
-    this.$element.find('.ddp-box-btn2 .ddp-box-layout4').css({left: btnLeft - 150, top: btnTop + 25});
+    this.$element.find('.ddp-box-btn2 .ddp-box-layout4').css({left: btnLeft - 150 - scrollLeft, top: btnTop + 25 - scrollTop});
   } // function - showInfoLayer
 
   // ----------------------------------------------------
